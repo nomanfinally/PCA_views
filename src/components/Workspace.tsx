@@ -28,7 +28,7 @@ import { type Anchor } from "./Popover";
 import { SampleTable } from "./SampleTable";
 import { downloadText, samplesToCsv } from "../domain/export";
 import { AppHeader } from "./AppHeader";
-import { useIsMobile } from "../hooks/useIsMobile";
+import { useIsMobile, useIsTablet } from "../hooks/useIsMobile";
 const ExportPanel = lazy(() =>
   import("./ExportPanel").then((module) => ({ default: module.ExportPanel })),
 );
@@ -60,6 +60,8 @@ export function Workspace({
   const openSettings = (tab: SettingsTab, focusTitle = false) =>
     setSettings({ tab, focusTitle });
   const isMobile = useIsMobile(640);
+  const isTablet = useIsTablet(641, 1024);
+  const isCompact = isMobile || isTablet;
   const [maximizedPlot, setMaximizedPlot] = useState(false);
   const [pointAnchor, setPointAnchor] = useState<Anchor | null>(null);
   const [table, setTable] = useState(false),
@@ -91,7 +93,7 @@ export function Workspace({
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
   const toggleFullscreen = () => {
-    if (isMobile) {
+    if (isCompact) {
       setMaximizedPlot(!maximizedPlot);
       return;
     }
@@ -103,7 +105,7 @@ export function Workspace({
   };
   return (
     <div
-      className={`workspace-root ${maximizedPlot && isMobile ? "maximized-plot" : ""} ${isMobile ? "is-mobile" : ""}`}
+      className={`workspace-root ${maximizedPlot && isCompact ? "maximized-plot" : ""} ${isMobile ? "is-mobile" : isTablet ? "is-tablet" : ""}`}
     >
       <AppHeader
         dataset={dataset}
@@ -205,7 +207,7 @@ export function Workspace({
           >
             <PanelRight size={17} />
           </button>
-          {isMobile && (
+          {isCompact && (
             <button
               className={`icon-button mobile-maximize-btn ${maximizedPlot ? "active" : ""}`}
               aria-label={
@@ -247,6 +249,7 @@ export function Workspace({
             samples={samples}
             state={state}
             isMobile={isMobile}
+            isTablet={isTablet}
             onMark={(key) => dispatch({ type: "toggleMark", key })}
             onEdit={(key, anchor) => {
               setPointAnchor(anchor);
@@ -254,7 +257,7 @@ export function Workspace({
             }}
             onSelect={(keys) => dispatch({ type: "select", keys })}
           />
-          {isMobile && maximizedPlot && (
+          {isCompact && maximizedPlot && (
             <div
               className="mobile-floating-controls"
               role="toolbar"

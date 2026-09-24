@@ -155,7 +155,7 @@ export function PlotTools({
             label: `Cycle point opacity: ${Math.round(s.opacity * 100)}%`,
             Icon: Blend,
             run: () =>
-              patch({ opacity: cycle([1, 0.75, 0.5, 0.25, 0], s.opacity) }),
+              patch({ opacity: cycle([0.9, 0.8, 0.6, 0.4, 0.2, 0, 1], s.opacity) }),
           },
           {
             label: `Cycle boundary opacity: ${Math.round(s.outlineOpacity * 100)}%`,

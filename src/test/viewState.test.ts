@@ -77,9 +77,9 @@ describe("population and point style independence", () => {
     });
     const model = buildPlotModel(data, data.samples, state);
     expect((model.traces[0] as any).marker.color).toEqual([
-      "#123456",
-      "#ff0000",
-      "#ff0000",
+      "rgba(18,52,86,0.9)",
+      "rgba(255,0,0,0.9)",
+      "rgba(255,0,0,0.9)",
     ]);
     expect(model.shapes[0].name).toBe("hull:A");
     expect((model.traces.at(-1) as any).customdata).toEqual([0]);

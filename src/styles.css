@@ -339,6 +339,7 @@ select {
   position: relative;
   display: flex;
   background: #ffffff;
+  touch-action: none;
 }
 .plot-container {
   position: relative;
@@ -346,12 +347,14 @@ select {
   min-width: 0;
   min-height: 0;
   container-type: size;
+  touch-action: none;
 }
 .plot {
   position: absolute;
   inset: 0;
   height: 100%;
   width: 100%;
+  touch-action: none;
 }
 .plot-container.is-square .plot {
   width: min(100cqw, 100cqh);
@@ -1397,11 +1400,11 @@ td .swatch {
     margin-left: auto;
   }
 }
-@media (max-width: 800px) and (min-width: 641px) {
+@media (max-width: 1024px) and (min-width: 641px) {
   .topbar {
     height: auto;
-    min-height: 66px;
-    padding: 5px 10px;
+    min-height: 44px;
+    padding: 4px 10px;
     flex-wrap: wrap;
     gap: 4px 10px;
   }
@@ -1415,7 +1418,7 @@ td .swatch {
     display: none;
   }
   .dataset-name {
-    max-width: 180px;
+    max-width: 200px;
   }
   .header-actions {
     margin-left: auto;
@@ -1431,9 +1434,13 @@ td .swatch {
   .local-status {
     display: none;
   }
+  .mobile-maximize-btn {
+    display: inline-flex;
+    margin-left: 2px;
+  }
   .legend-dock {
-    width: 190px;
-    max-width: 55%;
+    width: 210px;
+    max-width: 45%;
     right: 8px;
     top: 8px;
   }
@@ -1642,7 +1649,9 @@ td .swatch {
     font-size: 11px;
   }
 
-  /* 5. Maximized Plot Mode (Focus Mode): 100% Full Screen Area */
+}
+@media (max-width: 1024px) {
+  /* 5. Maximized Plot Mode (Focus Mode): 100% Full Screen Area on mobile & tablet */
   .workspace-root.maximized-plot .topbar,
   .workspace-root.maximized-plot .workspace-toolbar,
   .workspace-root.maximized-plot .statusbar {
@@ -1689,6 +1698,8 @@ td .swatch {
     width: 24px;
     height: 24px;
   }
+}
+@media (max-width: 640px) {
 
   /* 6. Modals & Dialogs on mobile */
   .selection-bar {

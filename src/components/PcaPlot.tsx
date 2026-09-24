@@ -29,7 +29,7 @@ import { paddedRange } from "../domain/geometry";
 import { zoomRange, wheelPixels } from "../domain/viewport";
 
 import { axisTitle } from "../domain/metadata";
-import { useIsMobile } from "../hooks/useIsMobile";
+import { useIsMobile, useIsTablet } from "../hooks/useIsMobile";
 
 type PlotlyApi = typeof import("plotly.js");
 export interface PlotHandle {
@@ -48,12 +48,16 @@ interface Props {
   onEdit: (key: number, anchor: { x: number; y: number }) => void;
   onSelect: (keys: number[]) => void;
   isMobile?: boolean;
+  isTablet?: boolean;
 }
 export const PcaPlot = forwardRef<PlotHandle, Props>(
   function PcaPlot(props, ref) {
     const { dataset, samples, state } = props;
     const detectedMobile = useIsMobile(640);
+    const detectedTablet = useIsTablet(641, 1024);
     const isMobile = props.isMobile ?? detectedMobile;
+    const isTablet = props.isTablet ?? (!isMobile && detectedTablet);
+    const fitRef = useRef<() => void>(() => {});
     const host = useRef<HTMLDivElement>(null),
       api = useRef<PlotlyApi | null>(null);
     const latest = useRef(props);
@@ -201,10 +205,33 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         }
         return best;
       };
-      let press: { x: number; y: number; id: number; moved: boolean } | null =
-        null;
+      let press: {
+        x: number;
+        y: number;
+        id: number;
+        moved: boolean;
+        longPressed?: boolean;
+      } | null = null;
+      let longPressTimer = 0;
+      let lastTapTime = 0;
+      let lastTapPos = { x: 0, y: 0 };
       const isAnnotation = (target: EventTarget | null) =>
         target instanceof Element && !!target.closest(".annotation");
+
+      const clearLongPress = () => {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = 0;
+        }
+      };
+
+      const clearPress = () => {
+        clearLongPress();
+        press = null;
+        delete element.dataset.dragging;
+        delete document.body.dataset.plotDrag;
+      };
+
       const onPointerDown = (event: PointerEvent) => {
         if (event.button !== 0 || isAnnotation(event.target)) return;
         press = {
@@ -215,33 +242,87 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         };
         element.dataset.dragging = "true";
         document.body.dataset.plotDrag = latest.current.state.mode;
+
+        // On touch screens, long-press (500ms) opens sample editor without right-click
+        if (event.pointerType === "touch") {
+          clearLongPress();
+          const targetKey = hitTest(event.clientX, event.clientY);
+          if (targetKey !== null) {
+            const startX = event.clientX;
+            const startY = event.clientY;
+            longPressTimer = window.setTimeout(() => {
+              longPressTimer = 0;
+              if (!press || press.moved) return;
+              press.longPressed = true;
+              if (typeof navigator !== "undefined" && navigator.vibrate) {
+                try {
+                  navigator.vibrate(40);
+                } catch {}
+              }
+              latest.current.onEdit(targetKey, {
+                x: Math.min(
+                  window.innerWidth - 260,
+                  Math.max(10, startX - 80),
+                ),
+                y: Math.min(
+                  window.innerHeight - 300,
+                  Math.max(10, startY + 16),
+                ),
+              });
+            }, 500);
+          }
+        }
       };
-      const clearPress = () => {
-        press = null;
-        delete element.dataset.dragging;
-        delete document.body.dataset.plotDrag;
-      };
+
       const onPointerMove = (event: PointerEvent) => {
         if (
           press &&
-          Math.hypot(event.clientX - press.x, event.clientY - press.y) > 4
-        )
+          Math.hypot(event.clientX - press.x, event.clientY - press.y) > 6
+        ) {
           press.moved = true;
+          clearLongPress();
+        }
       };
+
       const onPointerUp = (event: PointerEvent) => {
+        clearLongPress();
         const start = press;
         clearPress();
         if (
           !start ||
           start.moved ||
+          start.longPressed ||
           start.id !== event.pointerId ||
           event.button !== 0 ||
-          Math.hypot(event.clientX - start.x, event.clientY - start.y) > 4
+          Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6
         )
           return;
+
         const key = hitTest(event.clientX, event.clientY);
-        if (key !== null) latest.current.onMark(key);
+        if (key !== null) {
+          latest.current.onMark(key);
+          return;
+        }
+
+        // Double-tap on canvas background fits the plot view on touch devices
+        if (event.pointerType === "touch") {
+          const now = Date.now();
+          if (
+            now - lastTapTime < 320 &&
+            Math.hypot(
+              event.clientX - lastTapPos.x,
+              event.clientY - lastTapPos.y,
+            ) < 30
+          ) {
+            lastTapTime = 0;
+            fitRef.current?.();
+            return;
+          }
+          lastTapTime = now;
+          lastTapPos = { x: event.clientX, y: event.clientY };
+        }
       };
+
       const onContext = (event: MouseEvent) => {
         if (isAnnotation(event.target)) return;
         const key = hitTest(event.clientX, event.clientY);
@@ -253,14 +334,145 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
           y: event.clientY + 8,
         });
       };
+
       element.addEventListener("pointerdown", onPointerDown, true);
       element.addEventListener("contextmenu", onContext, true);
       window.addEventListener("pointermove", onPointerMove, true);
       window.addEventListener("pointerup", onPointerUp, true);
       window.addEventListener("pointercancel", clearPress);
       window.addEventListener("blur", clearPress);
+
+      // Two-finger pinch-to-zoom for touch screens (mobile and tablet)
+      let touchPinchDist = 0;
+      let touchPinchAnchor = { x: 0.5, y: 0.5 };
+      let touchPinchFactor = 1;
+      let touchPinchFrame = 0;
+
+      const onTouchStart = (event: TouchEvent) => {
+        if (event.touches.length === 2) {
+          clearPress();
+          const t0 = event.touches[0];
+          const t1 = event.touches[1];
+          touchPinchDist = Math.hypot(
+            t1.clientX - t0.clientX,
+            t1.clientY - t0.clientY,
+          );
+          touchPinchFactor = 1;
+
+          const chart = element as unknown as PlotlyHTMLElement & {
+            _fullLayout?: {
+              xaxis: { _offset: number; _length: number };
+              yaxis: { _offset: number; _length: number };
+            };
+          };
+          const full = chart._fullLayout;
+          if (full) {
+            const rect = element.getBoundingClientRect();
+            const midX = (t0.clientX + t1.clientX) / 2;
+            const midY = (t0.clientY + t1.clientY) / 2;
+            const x =
+              (midX - rect.left - full.xaxis._offset) / full.xaxis._length;
+            const y =
+              1 - (midY - rect.top - full.yaxis._offset) / full.yaxis._length;
+            touchPinchAnchor = {
+              x: Math.max(0, Math.min(1, x)),
+              y: Math.max(0, Math.min(1, y)),
+            };
+          }
+          if (event.cancelable) event.preventDefault();
+        }
+      };
+
+      const onTouchMove = (event: TouchEvent) => {
+        if (event.touches.length === 2 && touchPinchDist > 0) {
+          if (event.cancelable) event.preventDefault();
+          const t0 = event.touches[0];
+          const t1 = event.touches[1];
+          const dist = Math.hypot(
+            t1.clientX - t0.clientX,
+            t1.clientY - t0.clientY,
+          );
+          if (dist < 10) return;
+
+          // When fingers spread apart (dist > touchPinchDist), ratio < 1 -> zoom in
+          // When fingers pinch together (dist < touchPinchDist), ratio > 1 -> zoom out
+          const stepRatio = touchPinchDist / dist;
+          touchPinchDist = dist;
+
+          const clampedStep = Math.max(0.65, Math.min(1.5, stepRatio));
+          touchPinchFactor *= clampedStep;
+
+          const chart = element as unknown as PlotlyHTMLElement & {
+            _fullLayout?: {
+              xaxis: { _offset: number; _length: number };
+              yaxis: { _offset: number; _length: number };
+            };
+          };
+          const full = chart._fullLayout;
+          if (full) {
+            const rect = element.getBoundingClientRect();
+            const midX = (t0.clientX + t1.clientX) / 2;
+            const midY = (t0.clientY + t1.clientY) / 2;
+            const x =
+              (midX - rect.left - full.xaxis._offset) / full.xaxis._length;
+            const y =
+              1 - (midY - rect.top - full.yaxis._offset) / full.yaxis._length;
+            touchPinchAnchor = {
+              x: Math.max(0, Math.min(1, x)),
+              y: Math.max(0, Math.min(1, y)),
+            };
+          }
+
+          if (touchPinchFrame) return;
+          touchPinchFrame = requestAnimationFrame(() => {
+            touchPinchFrame = 0;
+            const factor = Math.max(0.1, Math.min(10, touchPinchFactor));
+            touchPinchFactor = 1;
+            const anchor = touchPinchAnchor;
+
+            queue.current = queue.current
+              .then(async () => {
+                if (disposed || !element.isConnected) return;
+                const layout = chart.layout;
+                if (!layout?.xaxis?.range || !layout?.yaxis?.range) return;
+                await api.current!.relayout(element, {
+                  "xaxis.range": zoomRange(
+                    layout.xaxis.range.map(Number),
+                    factor,
+                    anchor.x,
+                  ),
+                  "yaxis.range": zoomRange(
+                    layout.yaxis.range.map(Number),
+                    factor,
+                    anchor.y,
+                  ),
+                  "xaxis.autorange": false,
+                  "yaxis.autorange": false,
+                });
+              })
+              .catch(() => {
+                if (!disposed)
+                  setError("Unable to zoom. Try resetting the axes.");
+              });
+          });
+        }
+      };
+
+      const onTouchEnd = (event: TouchEvent) => {
+        if (event.touches.length < 2) {
+          touchPinchDist = 0;
+          touchPinchFactor = 1;
+        }
+      };
+
+      element.addEventListener("touchstart", onTouchStart, { passive: false });
+      element.addEventListener("touchmove", onTouchMove, { passive: false });
+      element.addEventListener("touchend", onTouchEnd, { passive: false });
+      element.addEventListener("touchcancel", onTouchEnd, { passive: false });
+
       // All programmatic drawing shares one queue. Wheel input is coalesced per
       // animation frame and evaluated against the latest rendered ranges.
+      // Mousewheel is unconditionally enabled for all viewport sizes (e.g. desktop small window).
       let frame = 0,
         delta = 0,
         cursor = { x: 0.5, y: 0.5 };
@@ -348,8 +560,13 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         window.removeEventListener("pointerup", onPointerUp, true);
         window.removeEventListener("pointercancel", clearPress);
         window.removeEventListener("blur", clearPress);
+        element.removeEventListener("touchstart", onTouchStart);
+        element.removeEventListener("touchmove", onTouchMove);
+        element.removeEventListener("touchend", onTouchEnd);
+        element.removeEventListener("touchcancel", onTouchEnd);
         element.removeEventListener("wheel", onWheel);
         cancelAnimationFrame(frame);
+        cancelAnimationFrame(touchPinchFrame);
         cancelAnimationFrame(resizeFrame);
         void queue.current.finally(() => api.current?.purge(element));
       };
@@ -360,11 +577,15 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
       const contrast = chartContrast(settings.chartBackground);
       const tickFontSize = isMobile
         ? Math.min(9.5, settings.tickFontSize)
-        : settings.tickFontSize;
+        : isTablet
+          ? Math.min(10.5, settings.tickFontSize)
+          : settings.tickFontSize;
       const axisTitleSize = isMobile
         ? Math.min(10.5, settings.axisTitleSize)
-        : settings.axisTitleSize;
-      const standoff = isMobile ? 3 : 13;
+        : isTablet
+          ? Math.min(11.5, settings.axisTitleSize)
+          : settings.axisTitleSize;
+      const standoff = isMobile ? 3 : isTablet ? 6 : 13;
 
       const axis = {
         showgrid: settings.grid,
@@ -376,7 +597,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         mirror: true,
         linewidth: settings.axisLineWidth,
         ticks: "outside" as const,
-        ticklen: isMobile ? 3 : 5,
+        ticklen: isMobile ? 3 : isTablet ? 4 : 5,
         tickcolor: "#444444",
         tickfont: { size: tickFontSize, color: "#444444" },
         automargin: false,
@@ -396,28 +617,42 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         showlegend: false,
         dragmode: mode,
         margin: {
-          t: heading ? (isMobile ? 36 : 65) : isMobile ? 6 : 20,
-          r: isMobile ? 6 : 24,
+          t: heading ? (isMobile ? 36 : isTablet ? 48 : 65) : isMobile ? 6 : isTablet ? 12 : 20,
+          r: isMobile ? 6 : isTablet ? 14 : 24,
           b: isMobile
             ? Math.max(
                 26,
                 Math.round(tickFontSize + axisTitleSize + standoff + 4),
               )
-            : Math.max(50, settings.tickFontSize + settings.axisTitleSize + 25),
+            : isTablet
+              ? Math.max(
+                  38,
+                  Math.round(tickFontSize + axisTitleSize + standoff + 7),
+                )
+              : Math.max(50, settings.tickFontSize + settings.axisTitleSize + 25),
           l: isMobile
             ? Math.max(
                 38,
                 Math.round(tickFontSize * 2.1 + axisTitleSize + standoff + 5),
               )
-            : Math.max(
-                70,
-                settings.tickFontSize * 3 + settings.axisTitleSize + 23,
-              ),
+            : isTablet
+              ? Math.max(
+                  52,
+                  Math.round(tickFontSize * 2.4 + axisTitleSize + standoff + 8),
+                )
+              : Math.max(
+                  70,
+                  settings.tickFontSize * 3 + settings.axisTitleSize + 23,
+                ),
         },
         paper_bgcolor: "#fff",
         plot_bgcolor: settings.chartBackground,
         title: heading
-          ? { text: heading, font: { size: isMobile ? 12 : 15 }, x: 0.5 }
+          ? {
+              text: heading,
+              font: { size: isMobile ? 12 : isTablet ? 13.5 : 15 },
+              x: 0.5,
+            }
           : undefined,
         font: {
           family: "Arial, Helvetica, sans-serif",
@@ -426,7 +661,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         xaxis: {
           ...axis,
           title: {
-            text: axisTitle(dataset, state, x, isMobile),
+            text: axisTitle(dataset, state, x, isMobile || isTablet),
             standoff,
             font: {
               size: axisTitleSize,
@@ -437,7 +672,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         yaxis: {
           ...axis,
           title: {
-            text: axisTitle(dataset, state, y, isMobile),
+            text: axisTitle(dataset, state, y, isMobile || isTablet),
             standoff,
             font: {
               size: axisTitleSize,
@@ -505,7 +740,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         .catch(() =>
           setError("Unable to render these coordinates. Try another PC pair."),
         );
-    }, [ready, model, state.mode, isMobile]);
+    }, [ready, model, state.mode, isMobile, isTablet]);
     const ranges = (all: boolean) => {
       if (!api.current || !host.current) return;
       const rows = all
@@ -525,6 +760,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         })
         .catch(() => setError("Unable to reset the axes."));
     };
+    fitRef.current = () => ranges(false);
     const snapshot = async (): Promise<ViewportSnapshot> => {
       await queue.current;
       if (!host.current || !api.current || !ready)

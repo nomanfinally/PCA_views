@@ -161,7 +161,7 @@ export const defaultSettings: PlotSettings = {
   palette: "solid",
   markerPreset: "circles",
   size: 7,
-  opacity: 1,
+  opacity: 0.9,
   outlineMode: "darker",
   outlineWidth: 0.8,
   labels: "none",

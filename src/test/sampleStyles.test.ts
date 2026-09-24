@@ -56,7 +56,10 @@ it("individual fill, shape, size and outline survive population changes and expo
   });
   const model = buildPlotModel(dataset, dataset.samples, state);
   const marker = (model.traces[0] as any).marker;
-  expect(marker.color).toEqual(["#ffaaaa", "#abcdef"]);
+  expect(marker.color).toEqual([
+    "rgba(255,170,170,0.9)",
+    "rgba(171,205,239,0.9)",
+  ]);
   expect(marker.symbol).toEqual(["hexagon", "square"]);
   expect(marker.size).toEqual([18, 7]);
   expect(marker.line.color[0]).toBe("#000088");
