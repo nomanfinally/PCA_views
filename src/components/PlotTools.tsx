@@ -8,6 +8,7 @@ import type { Dispatch, RefObject } from "react";
 import {
   Camera,
   CircleDashed,
+  CircleDot,
   CaseSensitive,
   Contrast,
   Eye,
@@ -67,6 +68,13 @@ export function PlotTools({
     dispatch({ type: "settings", patch: value });
   const cycle = <T,>(values: readonly T[], current: T) =>
     values[(values.indexOf(current) + 1) % values.length];
+  const cycleSize = (current: number) => {
+    const presets = [7, 9, 11, 14, 3, 5];
+    const idx = presets.indexOf(current);
+    if (idx !== -1) return presets[(idx + 1) % presets.length];
+    const next = presets.find((v) => v > current);
+    return next ?? presets[0];
+  };
   const all = (
     value: Parameters<typeof dispatch>[0] & { type: "allPopulations" },
   ) => dispatch(value);
@@ -151,6 +159,11 @@ export function PlotTools({
       </div>
       <div className="tool-group" role="group" aria-label="Markers">
         {[
+          {
+            label: `Cycle point size: ${s.size}px`,
+            Icon: CircleDot,
+            run: () => patch({ size: cycleSize(s.size) }),
+          },
           {
             label: `Cycle point opacity: ${Math.round(s.opacity * 100)}%`,
             Icon: Blend,

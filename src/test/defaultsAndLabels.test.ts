@@ -188,3 +188,24 @@ it("an individual boundary mode overrides a custom population boundary", () => {
     "#abcdef",
   );
 });
+it("cycles and applies point size settings across visible markers", () => {
+  const data = parseEvec("a 0 0 A\nb 1 1 A", "test.evec");
+  let state = initialView(data);
+  expect(state.settings.size).toBe(7);
+
+  state = viewReducer(state, {
+    type: "settings",
+    patch: { size: 9 },
+  });
+  const model = buildPlotModel(data, data.samples, state);
+  expect((model.traces[0] as any).marker.size).toEqual([9, 9]);
+
+  state = viewReducer(state, {
+    type: "point",
+    key: 0,
+    patch: { size: 16 },
+  });
+  const modelWithOverride = buildPlotModel(data, data.samples, state);
+  expect((modelWithOverride.traces[0] as any).marker.size).toEqual([16, 9]);
+});
+
