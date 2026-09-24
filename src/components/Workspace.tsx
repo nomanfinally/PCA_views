@@ -10,7 +10,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { ArrowLeftRight, Search, X, PanelRight } from "lucide-react";
+import {
+  ArrowLeftRight,
+  Search,
+  X,
+  PanelRight,
+  Maximize2,
+  Minimize2,
+} from "lucide-react";
 import type { Dataset } from "../domain/types";
 import { filteredSamples, initialView, viewReducer } from "../domain/viewState";
 import { PcaPlot, type PlotHandle } from "./PcaPlot";
@@ -21,6 +28,7 @@ import { type Anchor } from "./Popover";
 import { SampleTable } from "./SampleTable";
 import { downloadText, samplesToCsv } from "../domain/export";
 import { AppHeader } from "./AppHeader";
+import { useIsMobile } from "../hooks/useIsMobile";
 const ExportPanel = lazy(() =>
   import("./ExportPanel").then((module) => ({ default: module.ExportPanel })),
 );
@@ -51,6 +59,8 @@ export function Workspace({
   } | null>(null);
   const openSettings = (tab: SettingsTab, focusTitle = false) =>
     setSettings({ tab, focusTitle });
+  const isMobile = useIsMobile(640);
+  const [maximizedPlot, setMaximizedPlot] = useState(false);
   const [pointAnchor, setPointAnchor] = useState<Anchor | null>(null);
   const [table, setTable] = useState(false),
     [fullscreen, setFullscreen] = useState(false);
@@ -81,14 +91,20 @@ export function Workspace({
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
   const toggleFullscreen = () => {
+    if (isMobile) {
+      setMaximizedPlot(!maximizedPlot);
+      return;
+    }
     if (document.fullscreenElement) void document.exitFullscreen();
     else
       void document.documentElement
         .requestFullscreen()
-        .catch(() => setError("Fullscreen is unavailable in this browser."));
+        .catch(() => setMaximizedPlot(true));
   };
   return (
-    <>
+    <div
+      className={`workspace-root ${maximizedPlot && isMobile ? "maximized-plot" : ""} ${isMobile ? "is-mobile" : ""}`}
+    >
       <AppHeader
         dataset={dataset}
         onUpload={onUpload}
@@ -164,7 +180,7 @@ export function Workspace({
             <Search size={13} />
             <input
               aria-label="Search samples"
-              placeholder="Find sample or population…"
+              placeholder={isMobile ? "Search…" : "Find sample or population…"}
               value={state.search}
               onChange={(e) =>
                 dispatch({ type: "search", value: e.target.value })
@@ -189,6 +205,24 @@ export function Workspace({
           >
             <PanelRight size={17} />
           </button>
+          {isMobile && (
+            <button
+              className={`icon-button mobile-maximize-btn ${maximizedPlot ? "active" : ""}`}
+              aria-label={
+                maximizedPlot ? "Restore normal view" : "Maximize plot area"
+              }
+              title={
+                maximizedPlot ? "Restore normal view" : "Maximize plot area"
+              }
+              onClick={() => setMaximizedPlot(!maximizedPlot)}
+            >
+              {maximizedPlot ? (
+                <Minimize2 size={16} />
+              ) : (
+                <Maximize2 size={16} />
+              )}
+            </button>
+          )}
         </div>
       </div>
       {error && (
@@ -212,6 +246,7 @@ export function Workspace({
             dataset={dataset}
             samples={samples}
             state={state}
+            isMobile={isMobile}
             onMark={(key) => dispatch({ type: "toggleMark", key })}
             onEdit={(key, anchor) => {
               setPointAnchor(anchor);
@@ -219,6 +254,82 @@ export function Workspace({
             }}
             onSelect={(keys) => dispatch({ type: "select", keys })}
           />
+          {isMobile && maximizedPlot && (
+            <div
+              className="mobile-floating-controls"
+              role="toolbar"
+              aria-label="Quick plot controls"
+            >
+              <div className="axes-bar compact-axes">
+                <label>
+                  <span>X</span>
+                  <select
+                    aria-label="Horizontal axis"
+                    value={state.x}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "axes",
+                        x: Number(e.target.value),
+                        y: state.y,
+                      })
+                    }
+                  >
+                    {Array.from({ length: dataset.pcCount }, (_, i) => (
+                      <option key={i} value={i} disabled={i === state.y}>
+                        PC{i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button
+                  className="icon-button"
+                  aria-label="Swap axes"
+                  title="Swap axes"
+                  onClick={() =>
+                    dispatch({ type: "axes", x: state.y, y: state.x })
+                  }
+                >
+                  <ArrowLeftRight size={13} />
+                </button>
+                <label>
+                  <span>Y</span>
+                  <select
+                    aria-label="Vertical axis"
+                    value={state.y}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "axes",
+                        x: state.x,
+                        y: Number(e.target.value),
+                      })
+                    }
+                  >
+                    {Array.from({ length: dataset.pcCount }, (_, i) => (
+                      <option key={i} value={i} disabled={i === state.x}>
+                        PC{i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <button
+                className={`icon-button ${state.legend ? "active" : ""}`}
+                aria-label="Toggle legend"
+                title="Toggle legend"
+                onClick={() => dispatch({ type: "legend" })}
+              >
+                <PanelRight size={15} />
+              </button>
+              <button
+                className="icon-button active"
+                aria-label="Restore normal view"
+                title="Restore normal view"
+                onClick={() => setMaximizedPlot(false)}
+              >
+                <Minimize2 size={15} />
+              </button>
+            </div>
+          )}
           {state.inspector !== null && (
             <PointInspector
               anchor={pointAnchor}
@@ -384,6 +495,6 @@ export function Workspace({
           </section>
         </div>
       )}
-    </>
+    </div>
   );
 }

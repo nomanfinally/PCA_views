@@ -200,6 +200,29 @@ select {
 .text-button:hover {
   color: var(--accent);
 }
+.workspace-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+.open-label-short {
+  display: none;
+}
+.open-label-full {
+  display: inline;
+}
+.legend-close-btn {
+  display: none;
+}
+.mobile-maximize-btn {
+  display: none;
+}
+.mobile-floating-controls {
+  display: none;
+}
 .workspace-toolbar {
   min-height: 37px;
   flex-shrink: 0;
@@ -1374,7 +1397,7 @@ td .swatch {
     margin-left: auto;
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 800px) and (min-width: 641px) {
   .topbar {
     height: auto;
     min-height: 66px;
@@ -1434,33 +1457,240 @@ td .swatch {
     gap: 8px;
   }
 }
-@media (max-width: 540px) {
-  .dataset-name {
-    max-width: 95px;
+@media (max-width: 640px) {
+  /* 1. Ultra-compact single-row header */
+  .topbar {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
   }
-  .meta-stat {
-    font-size: 9px;
+  .brand {
+    order: 1;
+    gap: 5px;
   }
-  .example-badge {
-    display: none;
+  .brand-icon {
+    width: 22px;
+    height: 22px;
   }
   .brand h1 {
     font-size: 13px;
   }
-  .header-actions .button {
+  .dataset-meta {
+    order: 2;
+    flex: 1;
+    flex-basis: auto;
+    min-width: 0;
+    gap: 6px;
     font-size: 10px;
-    padding: 0 6px;
+  }
+  .dataset-name {
+    max-width: 85px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dataset-meta .header-divider,
+  .meta-stat.meta-secondary,
+  .example-badge,
+  .header-eigenvalues,
+  .empty-header-label {
+    display: none !important;
+  }
+  .meta-stat.meta-samples {
+    font-size: 9.5px;
+    color: #777;
+    white-space: nowrap;
   }
   .header-actions {
-    gap: 2px;
+    order: 3;
+    margin-left: auto;
+    gap: 3px;
+  }
+  .header-actions .button {
+    height: 25px;
+    padding: 0 6px;
+    font-size: 10.5px;
+  }
+  .open-label-full {
+    display: none !important;
+  }
+  .open-label-short {
+    display: inline !important;
   }
   .header-actions .icon-button {
-    width: 23px;
+    width: 24px;
+    height: 24px;
+  }
+  .dataset-meta > .icon-button {
+    margin-left: 0;
+    height: 20px;
+    width: 20px;
+  }
+
+  /* 2. Workspace Toolbar: tight, max-area rows */
+  .workspace-toolbar {
+    min-height: auto;
+    padding: 3px 6px;
+    gap: 4px;
+    row-gap: 3px;
+    background: #fafafa;
+  }
+  .chart-tools {
+    order: 2;
+    flex-basis: 100%;
+    height: 30px;
+    padding: 0;
+    margin: 0;
+    gap: 2px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .chart-tools::-webkit-scrollbar {
+    display: none;
+  }
+  .chart-tools .icon-button {
+    width: 24px;
+    height: 24px;
+  }
+  .chart-tools .tool-group {
+    padding-right: 3px;
+    gap: 0;
+  }
+  .axes-bar {
+    order: 1;
+    height: 26px;
+    gap: 3px;
+  }
+  .axes-bar label > span {
+    font-size: 9px;
+    font-weight: 600;
+    color: #666;
+  }
+  .axes-bar select {
+    height: 24px;
+    min-width: 56px;
+    font-size: 10.5px;
+    padding: 0 3px;
+  }
+  .axes-bar .icon-button {
+    width: 22px;
+    height: 22px;
+  }
+  .search-tools {
+    order: 1;
+    margin-left: auto;
+    gap: 3px;
+    height: 26px;
+  }
+  .search-tools .search-field {
+    height: 24px;
+    padding: 0 5px;
+  }
+  .search-tools .search-field input {
+    font-size: 10px;
   }
   .sample-search {
-    width: 140px;
-    max-width: 140px;
+    width: 105px;
+    max-width: 105px;
   }
+  .search-tools > .icon-button {
+    width: 24px;
+    height: 24px;
+  }
+  .mobile-maximize-btn {
+    display: inline-flex;
+  }
+
+  /* 3. Statusbar: ultra-compact 19px */
+  .statusbar {
+    height: 19px;
+    min-height: 19px;
+    font-size: 9px;
+    padding: 0 8px;
+  }
+  .status-hint,
+  .local-status {
+    display: none !important;
+  }
+  .status-dot {
+    width: 5px;
+    height: 5px;
+  }
+
+  /* 4. Legend Dock on mobile: smart bottom-sheet with close button */
+  .legend-dock {
+    width: 240px;
+    max-width: calc(100% - 16px);
+    max-height: 48vh;
+    top: auto !important;
+    bottom: 24px !important;
+    right: 8px !important;
+    left: auto !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    background: rgba(252, 252, 252, 0.98);
+  }
+  .legend-close-btn {
+    display: inline-flex;
+  }
+  .legend-item {
+    font-size: 11px;
+  }
+
+  /* 5. Maximized Plot Mode (Focus Mode): 100% Full Screen Area */
+  .workspace-root.maximized-plot .topbar,
+  .workspace-root.maximized-plot .workspace-toolbar,
+  .workspace-root.maximized-plot .statusbar {
+    display: none !important;
+  }
+  .mobile-floating-controls {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+  .mobile-floating-controls .compact-axes {
+    order: 1 !important;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .mobile-floating-controls .compact-axes select {
+    height: 22px;
+    min-width: 50px;
+    font-size: 10px;
+    padding: 0 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: white;
+  }
+  .mobile-floating-controls .compact-axes label > span {
+    font-size: 8.5px;
+    font-weight: 600;
+  }
+  .mobile-floating-controls > .icon-button {
+    order: 2 !important;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* 6. Modals & Dialogs on mobile */
   .selection-bar {
     gap: 6px;
     padding: 5px 6px;
@@ -1485,6 +1715,12 @@ td .swatch {
   }
   .table-scroll table {
     min-width: 450px;
+  }
+  .point-inspector {
+    left: 8px;
+    bottom: 30px;
+    width: 220px;
+    z-index: 8;
   }
 }
 @media (prefers-reduced-motion: reduce) {

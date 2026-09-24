@@ -35,13 +35,15 @@ export function AppHeader({
             {dataset.name}
           </strong>
           {dataset.example && <span className="example-badge">EXAMPLE</span>}
-          <span className="meta-stat">
+          <span className="meta-stat meta-samples">
             {dataset.samples.length.toLocaleString()} samples
           </span>
-          <span className="meta-stat">
+          <span className="meta-stat meta-secondary">
             {dataset.populations.length} populations
           </span>
-          <span className="meta-stat">{dataset.pcCount} PCs</span>
+          <span className="meta-stat meta-secondary">
+            {dataset.pcCount} PCs
+          </span>
           {dataset.eigenvalues.length > 0 && (
             <span
               className="header-eigenvalues"
@@ -69,9 +71,14 @@ export function AppHeader({
         </span>
       )}
       <div className="header-actions">
-        <button className="button open-file" onClick={onUpload}>
+        <button
+          className="button open-file"
+          onClick={onUpload}
+          title="Open .evec file"
+        >
           <FileUp size={14} />
-          Open .evec
+          <span className="open-label-full">Open .evec</span>
+          <span className="open-label-short">Open</span>
         </button>
         {dataset && (
           <button

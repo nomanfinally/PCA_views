@@ -29,6 +29,7 @@ import { paddedRange } from "../domain/geometry";
 import { zoomRange, wheelPixels } from "../domain/viewport";
 
 import { axisTitle } from "../domain/metadata";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 type PlotlyApi = typeof import("plotly.js");
 export interface PlotHandle {
@@ -46,10 +47,13 @@ interface Props {
   onMark: (key: number) => void;
   onEdit: (key: number, anchor: { x: number; y: number }) => void;
   onSelect: (keys: number[]) => void;
+  isMobile?: boolean;
 }
 export const PcaPlot = forwardRef<PlotHandle, Props>(
   function PcaPlot(props, ref) {
     const { dataset, samples, state } = props;
+    const detectedMobile = useIsMobile(640);
+    const isMobile = props.isMobile ?? detectedMobile;
     const host = useRef<HTMLDivElement>(null),
       api = useRef<PlotlyApi | null>(null);
     const latest = useRef(props);
@@ -354,6 +358,14 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
       if (!ready || !api.current || !host.current) return;
       const { settings, x, y, mode } = state;
       const contrast = chartContrast(settings.chartBackground);
+      const tickFontSize = isMobile
+        ? Math.min(9.5, settings.tickFontSize)
+        : settings.tickFontSize;
+      const axisTitleSize = isMobile
+        ? Math.min(10.5, settings.axisTitleSize)
+        : settings.axisTitleSize;
+      const standoff = isMobile ? 3 : 13;
+
       const axis = {
         showgrid: settings.grid,
         gridcolor: contrast.grid,
@@ -364,8 +376,9 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         mirror: true,
         linewidth: settings.axisLineWidth,
         ticks: "outside" as const,
+        ticklen: isMobile ? 3 : 5,
         tickcolor: "#444444",
-        tickfont: { size: settings.tickFontSize, color: "#444444" },
+        tickfont: { size: tickFontSize, color: "#444444" },
         automargin: false,
         showspikes: settings.spikes,
         spikemode: "across" as const,
@@ -383,18 +396,28 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         showlegend: false,
         dragmode: mode,
         margin: {
-          t: heading ? 65 : 20,
-          r: 24,
-          b: Math.max(50, settings.tickFontSize + settings.axisTitleSize + 25),
-          l: Math.max(
-            70,
-            settings.tickFontSize * 3 + settings.axisTitleSize + 23,
-          ),
+          t: heading ? (isMobile ? 36 : 65) : isMobile ? 6 : 20,
+          r: isMobile ? 6 : 24,
+          b: isMobile
+            ? Math.max(
+                26,
+                Math.round(tickFontSize + axisTitleSize + standoff + 4),
+              )
+            : Math.max(50, settings.tickFontSize + settings.axisTitleSize + 25),
+          l: isMobile
+            ? Math.max(
+                38,
+                Math.round(tickFontSize * 2.1 + axisTitleSize + standoff + 5),
+              )
+            : Math.max(
+                70,
+                settings.tickFontSize * 3 + settings.axisTitleSize + 23,
+              ),
         },
         paper_bgcolor: "#fff",
         plot_bgcolor: settings.chartBackground,
         title: heading
-          ? { text: heading, font: { size: 15 }, x: 0.5 }
+          ? { text: heading, font: { size: isMobile ? 12 : 15 }, x: 0.5 }
           : undefined,
         font: {
           family: "Arial, Helvetica, sans-serif",
@@ -403,10 +426,10 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         xaxis: {
           ...axis,
           title: {
-            text: axisTitle(dataset, state, x),
-            standoff: 13,
+            text: axisTitle(dataset, state, x, isMobile),
+            standoff,
             font: {
-              size: settings.axisTitleSize,
+              size: axisTitleSize,
               weight: settings.axisTitleWeight,
             },
           },
@@ -414,10 +437,10 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         yaxis: {
           ...axis,
           title: {
-            text: axisTitle(dataset, state, y),
-            standoff: 13,
+            text: axisTitle(dataset, state, y, isMobile),
+            standoff,
             font: {
-              size: settings.axisTitleSize,
+              size: axisTitleSize,
               weight: settings.axisTitleWeight,
             },
           },
@@ -482,7 +505,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         .catch(() =>
           setError("Unable to render these coordinates. Try another PC pair."),
         );
-    }, [ready, model, state.mode]);
+    }, [ready, model, state.mode, isMobile]);
     const ranges = (all: boolean) => {
       if (!api.current || !host.current) return;
       const rows = all

@@ -24,7 +24,12 @@ export function parseSpectrum(text: string, dataset: Dataset): number[] {
     );
   return values;
 }
-export function axisTitle(dataset: Dataset, state: ViewState, pc: number) {
+export function axisTitle(
+  dataset: Dataset,
+  state: ViewState,
+  pc: number,
+  compact = false,
+) {
   const eigenvalues = state.spectrum.length
     ? state.spectrum
     : dataset.eigenvalues;
@@ -38,5 +43,7 @@ export function axisTitle(dataset: Dataset, state: ViewState, pc: number) {
   const total = state.settings.varianceTotal;
   if (!(sum > 0) || (total !== null && total < sum)) return `PC${pc + 1}`;
   const percentage = (100 * eigenvalues[pc]) / (total ?? sum);
-  return `PC${pc + 1} (${percentage.toFixed(2)}%)`;
+  return compact
+    ? `PC${pc + 1} (${percentage.toFixed(1)}%)`
+    : `PC${pc + 1} (${percentage.toFixed(2)}%)`;
 }

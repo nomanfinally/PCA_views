@@ -8,6 +8,7 @@ import {
   Settings2,
   Pentagon,
   Search,
+  X,
 } from "lucide-react";
 import type { Dataset } from "../domain/types";
 import type { ViewAction, ViewState } from "../domain/viewState";
@@ -98,6 +99,14 @@ export function Legend({
             onClick={onSettings}
           >
             <Settings2 size={14} />
+          </button>
+          <button
+            className="icon-button legend-close-btn"
+            aria-label="Close legend"
+            title="Close legend"
+            onClick={() => dispatch({ type: "legend" })}
+          >
+            <X size={14} />
           </button>
         </div>
       </div>
