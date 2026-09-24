@@ -16,6 +16,7 @@ import {
   Grid2X2,
   MessageSquare,
   Pentagon,
+  PenLine,
   Ruler,
   Square,
   Tag,
@@ -74,6 +75,18 @@ export function PlotTools({
     if (idx !== -1) return presets[(idx + 1) % presets.length];
     const next = presets.find((v) => v > current);
     return next ?? presets[0];
+  };
+  const cycleOpacity = (current: number) => {
+    const presets = [0.9, 0.8, 1, 0.6, 0.4, 0.2, 0];
+    const idx = presets.indexOf(current);
+    if (idx !== -1) return presets[(idx + 1) % presets.length];
+    return 0.8;
+  };
+  const cycleOutlineWidth = (current: number) => {
+    const presets = [1.5, 2, 2.5, 3, 1, 1.2];
+    const idx = presets.indexOf(current);
+    if (idx !== -1) return presets[(idx + 1) % presets.length];
+    return 1.5;
   };
   const all = (
     value: Parameters<typeof dispatch>[0] & { type: "allPopulations" },
@@ -158,36 +171,67 @@ export function PlotTools({
         </button>
       </div>
       <div className="tool-group" role="group" aria-label="Markers">
-        {[
-          {
-            label: `Cycle point size: ${s.size}px`,
-            Icon: CircleDot,
-            run: () => patch({ size: cycleSize(s.size) }),
-          },
-          {
-            label: `Cycle point opacity: ${Math.round(s.opacity * 100)}%`,
-            Icon: Blend,
-            run: () =>
-              patch({ opacity: cycle([0.9, 0.8, 0.6, 0.4, 0.2, 0, 1], s.opacity) }),
-          },
-          {
-            label: `Cycle boundary opacity: ${Math.round(s.outlineOpacity * 100)}%`,
-            Icon: CircleDashed,
-            run: () =>
-              patch({
-                outlineOpacity: cycle(
-                  [1, 0.75, 0.5, 0.25, 0],
-                  s.outlineOpacity,
-                ),
-              }),
-          },
-          {
-            label: "Toggle grayscale",
-            Icon: Contrast,
-            active: s.grayscale,
-            run: () => patch({ grayscale: !s.grayscale }),
-          },
-        ].map(({ label, Icon, active, run }) => (
+        {(s.markerPreset.startsWith("hollow")
+          ? [
+              {
+                label: `Cycle point size: ${s.size}px`,
+                Icon: CircleDot,
+                run: () => patch({ size: cycleSize(s.size) }),
+              },
+              {
+                label: `Cycle outline width: ${s.outlineWidth}px`,
+                Icon: PenLine,
+                run: () =>
+                  patch({ outlineWidth: cycleOutlineWidth(s.outlineWidth) }),
+              },
+              {
+                label: `Cycle outline opacity: ${Math.round(s.outlineOpacity * 100)}%`,
+                Icon: CircleDashed,
+                run: () =>
+                  patch({
+                    outlineOpacity: cycle(
+                      [1, 0.8, 0.6, 0.4, 0.2],
+                      s.outlineOpacity,
+                    ),
+                  }),
+              },
+              {
+                label: "Toggle grayscale",
+                Icon: Contrast,
+                active: s.grayscale,
+                run: () => patch({ grayscale: !s.grayscale }),
+              },
+            ]
+          : [
+              {
+                label: `Cycle point size: ${s.size}px`,
+                Icon: CircleDot,
+                run: () => patch({ size: cycleSize(s.size) }),
+              },
+              {
+                label: `Cycle point opacity: ${Math.round(s.opacity * 100)}%`,
+                Icon: Blend,
+                run: () => patch({ opacity: cycleOpacity(s.opacity) }),
+              },
+              {
+                label: `Cycle boundary opacity: ${Math.round(s.outlineOpacity * 100)}%`,
+                Icon: CircleDashed,
+                run: () =>
+                  patch({
+                    outlineOpacity: cycle(
+                      [1, 0.75, 0.5, 0.25, 0],
+                      s.outlineOpacity,
+                    ),
+                  }),
+              },
+              {
+                label: "Toggle grayscale",
+                Icon: Contrast,
+                active: s.grayscale,
+                run: () => patch({ grayscale: !s.grayscale }),
+              },
+            ]
+        ).map(({ label, Icon, active, run }) => (
           <button
             key={label.split(":")[0]}
             className={`icon-button ${active ? "active" : ""}`}

@@ -26,13 +26,14 @@ export function PopulationEditor({
 }) {
   const s = state.populations.get(population.name) ?? {};
   const appearance = markerAppearance(population, state);
+  const isHollow = appearance.symbol.endsWith("-open");
   const markerStyle = s.markerPreset?.includes("shapes")
-    ? appearance.symbol.endsWith("-open")
+    ? isHollow
       ? "hollow-shapes"
       : "shapes"
     : s.markerTreatment === "mixed"
       ? "mixed"
-      : appearance.symbol.endsWith("-open")
+      : isHollow
         ? "hollow"
         : "filled";
   const patch = (value: Partial<PopulationStyle>) =>
@@ -51,6 +52,8 @@ export function PopulationEditor({
           value={markerStyle}
           onChange={(e) => {
             const value = e.target.value;
+            const switchingToHollow =
+              value === "hollow" || value === "hollow-shapes";
             patch({
               symbol: appearance.symbol.replace(/-open$/, "") as MarkerSymbol,
               markerPreset:
@@ -63,6 +66,12 @@ export function PopulationEditor({
                   : value === "hollow-shapes"
                     ? "hollow"
                     : (value as PopulationStyle["markerTreatment"]),
+              ...(switchingToHollow
+                ? {
+                    ...(s.outlineWidth === undefined ? { outlineWidth: 1.5 } : {}),
+                    ...(s.outlineMode === undefined ? { outlineMode: "matching" } : {}),
+                  }
+                : {}),
             });
           }}
         >
@@ -174,28 +183,41 @@ export function PopulationEditor({
           step={1}
           onChange={(size) => patch({ size })}
         />
+        {!isHollow && (
+          <Slider
+            label="Population fill opacity"
+            value={s.opacity ?? state.settings.opacity}
+            percent
+            onChange={(opacity) => patch({ opacity })}
+          />
+        )}
         <Slider
-          label="Population fill opacity"
-          value={s.opacity ?? state.settings.opacity}
-          percent
-          onChange={(opacity) => patch({ opacity })}
-        />
-        <Slider
-          label="Population boundary opacity"
+          label={
+            isHollow
+              ? "Population outline opacity"
+              : "Population boundary opacity"
+          }
           value={s.outlineOpacity ?? state.settings.outlineOpacity}
           percent
           onChange={(outlineOpacity) => patch({ outlineOpacity })}
         />
         <Slider
-          label="Population boundary width"
-          value={s.outlineWidth ?? state.settings.outlineWidth}
+          label={
+            isHollow
+              ? "Population outline width"
+              : "Population boundary width"
+          }
+          value={
+            s.outlineWidth ??
+            (isHollow ? 1.5 : state.settings.outlineWidth)
+          }
           min={0.2}
-          max={3}
+          max={isHollow ? 4 : 3}
           step={0.1}
           onChange={(outlineWidth) => patch({ outlineWidth })}
         />
         <label className="control-row">
-          Boundary color
+          {isHollow ? "Outline color" : "Boundary color"}
           <select
             aria-label="Population boundary mode"
             value={s.outlineColor ? "custom" : (s.outlineMode ?? "inherit")}
@@ -206,13 +228,16 @@ export function PopulationEditor({
                     ? (s.outlineColor ?? "#000000")
                     : undefined,
                 outlineMode:
-                  e.target.value === "black" || e.target.value === "darker"
+                  e.target.value === "black" ||
+                  e.target.value === "darker" ||
+                  e.target.value === "matching"
                     ? e.target.value
                     : undefined,
               })
             }
           >
             <option value="inherit">Plot default</option>
+            <option value="matching">Match fill</option>
             <option value="darker">Darker than fill</option>
             <option value="black">Black</option>
             <option value="custom">Custom</option>

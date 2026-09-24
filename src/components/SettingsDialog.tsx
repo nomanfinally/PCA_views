@@ -7,6 +7,7 @@ import {
   type ViewState,
   type ViewAction,
   type MarkerPreset,
+  type OutlineMode,
   type LabelMode,
   type GroupLabelStyle,
 } from "../domain/viewState";
@@ -56,6 +57,7 @@ export function SettingsDialog({
   close.current = onClose;
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;
+  const isHollow = s.markerPreset.startsWith("hollow");
   const patch = (value: Partial<typeof s>) =>
     dispatch({ type: "settings", patch: value });
   const hulls = names.some((n) => state.populations.get(n)?.hull);
@@ -254,10 +256,11 @@ export function SettingsDialog({
                       value={s.outlineMode}
                       onChange={(e) =>
                         patch({
-                          outlineMode: e.target.value as "darker" | "black",
+                          outlineMode: e.target.value as OutlineMode,
                         })
                       }
                     >
+                      <option value="matching">Match fill</option>
                       <option value="darker">Darker than fill</option>
                       <option value="black">Black</option>
                     </select>
@@ -268,8 +271,8 @@ export function SettingsDialog({
                       <input
                         aria-label="Outline width"
                         type="range"
-                        min="0.4"
-                        max="2"
+                        min={isHollow ? "0.5" : "0.4"}
+                        max={isHollow ? "4" : "2"}
                         step="0.1"
                         value={s.outlineWidth}
                         onChange={(e) =>
@@ -290,15 +293,25 @@ export function SettingsDialog({
                   </label>
                 </section>
                 <section>
-                  <h3>Fill &amp; boundary transparency</h3>
+                  <h3>
+                    {isHollow
+                      ? "Outline transparency"
+                      : "Fill & boundary transparency"}
+                  </h3>
+                  {!isHollow && (
+                    <Slider
+                      label="Fill opacity (alpha)"
+                      value={state.settings.opacity}
+                      percent
+                      onChange={(opacity) => patch({ opacity })}
+                    />
+                  )}
                   <Slider
-                    label="Fill opacity (alpha)"
-                    value={state.settings.opacity}
-                    percent
-                    onChange={(opacity) => patch({ opacity })}
-                  />
-                  <Slider
-                    label="Boundary opacity (gamma)"
+                    label={
+                      isHollow
+                        ? "Outline opacity"
+                        : "Boundary opacity (gamma)"
+                    }
                     value={state.settings.outlineOpacity}
                     percent
                     onChange={(outlineOpacity) => patch({ outlineOpacity })}

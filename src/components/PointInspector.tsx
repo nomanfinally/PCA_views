@@ -39,10 +39,11 @@ export function PointInspector({
     .filter((s) => s.population === sample.population)
     .findIndex((s) => s.key === sample.key);
   const appearance = markerAppearance(population, state, custom, ordinal);
+  const isHollow = appearance.symbol.endsWith("-open");
   const markerStyle =
     custom.markerTreatment ??
     (custom.symbol
-      ? custom.symbol.endsWith("-open")
+      ? isHollow
         ? "hollow"
         : "filled"
       : "inherit");
@@ -100,11 +101,24 @@ export function PointInspector({
         <select
           aria-label="Sample marker style"
           value={markerStyle}
-          onChange={(e) =>
+          onChange={(e) => {
+            const nextTreatment =
+              e.target.value as SampleStyle["markerTreatment"];
+            const switchingToHollow = nextTreatment === "hollow";
             patch({
-              markerTreatment: e.target.value as SampleStyle["markerTreatment"],
-            })
-          }
+              markerTreatment: nextTreatment,
+              ...(switchingToHollow
+                ? {
+                    ...(custom.outlineWidth === undefined
+                      ? { outlineWidth: 1.5 }
+                      : {}),
+                    ...(custom.outlineMode === undefined
+                      ? { outlineMode: "matching" }
+                      : {}),
+                  }
+                : {}),
+            });
+          }}
         >
           <option value="inherit">Population default</option>
           <option value="filled">Filled</option>
@@ -163,7 +177,9 @@ export function PointInspector({
                     ? appearance.line.color
                     : undefined,
                 outlineMode:
-                  e.target.value === "darker" || e.target.value === "black"
+                  e.target.value === "darker" ||
+                  e.target.value === "black" ||
+                  e.target.value === "matching"
                     ? e.target.value
                     : undefined,
               },
@@ -171,6 +187,7 @@ export function PointInspector({
           }
         >
           <option value="inherit">Population default</option>
+          <option value="matching">Match fill</option>
           <option value="darker">Darker than fill</option>
           <option value="black">Black</option>
           <option value="custom">Custom color</option>
@@ -292,25 +309,39 @@ export function PointInspector({
         </label>
       </details>
       <details className="sample-opacity">
-        <summary>Fill &amp; boundary transparency</summary>
+        <summary>
+          {isHollow
+            ? "Outline style & transparency"
+            : "Fill & boundary transparency"}
+        </summary>
         <Slider
-          label="Sample boundary width"
+          label={
+            isHollow
+              ? "Sample outline width"
+              : "Sample boundary width"
+          }
           min={0.2}
-          max={3}
+          max={isHollow ? 4 : 3}
           step={0.1}
           value={appearance.line.width}
           onChange={(outlineWidth) => patch({ outlineWidth })}
         />
+        {!isHollow && (
+          <Slider
+            label="Sample fill opacity"
+            value={appearance.fillOpacity}
+            percent
+            onChange={(opacity) =>
+              dispatch({ type: "point", key: sample.key, patch: { opacity } })
+            }
+          />
+        )}
         <Slider
-          label="Sample fill opacity"
-          value={appearance.fillOpacity}
-          percent
-          onChange={(opacity) =>
-            dispatch({ type: "point", key: sample.key, patch: { opacity } })
+          label={
+            isHollow
+              ? "Sample outline opacity"
+              : "Sample boundary opacity"
           }
-        />
-        <Slider
-          label="Sample boundary opacity"
           value={appearance.outlineOpacity}
           percent
           onChange={(outlineOpacity) =>

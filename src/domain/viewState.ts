@@ -76,7 +76,7 @@ export const markerSymbols = [
   "star-open",
 ] as const;
 export type MarkerSymbol = (typeof markerSymbols)[number];
-export type OutlineMode = "darker" | "black";
+export type OutlineMode = "matching" | "darker" | "black";
 export interface PopulationStyle {
   markerTreatment?: MarkerTreatment;
   markerPreset?: MarkerPreset;
@@ -281,6 +281,8 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
     case "markers": {
       const populations = new Map(state.populations);
       const shapes = shapeSequence;
+      const isHollow = action.value.startsWith("hollow");
+      const wasHollow = state.settings.markerPreset.startsWith("hollow");
       action.names.forEach((name, index) => {
         const base = action.value.includes("shapes")
           ? shapes[index % shapes.length]
@@ -290,13 +292,29 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
           markerPreset: undefined,
           markerTreatment: undefined,
           symbol: (base +
-            (action.value.startsWith("hollow") ? "-open" : "")) as MarkerSymbol,
+            (isHollow ? "-open" : "")) as MarkerSymbol,
         });
       });
+      let nextSettings = { ...state.settings, markerPreset: action.value };
+      if (isHollow && !wasHollow) {
+        if (state.settings.outlineWidth === 0.8) {
+          nextSettings.outlineWidth = 1.5;
+        }
+        if (state.settings.outlineMode === "darker") {
+          nextSettings.outlineMode = "matching";
+        }
+      } else if (!isHollow && wasHollow) {
+        if (state.settings.outlineWidth === 1.5) {
+          nextSettings.outlineWidth = 0.8;
+        }
+        if (state.settings.outlineMode === "matching") {
+          nextSettings.outlineMode = "darker";
+        }
+      }
       return {
         ...state,
         populations,
-        settings: { ...state.settings, markerPreset: action.value },
+        settings: nextSettings,
       };
     }
 
@@ -308,8 +326,27 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
       return { ...state, search: action.value };
     case "legend":
       return { ...state, legend: !state.legend };
-    case "settings":
-      return { ...state, settings: { ...state.settings, ...action.patch } };
+    case "settings": {
+      let patch = action.patch;
+      if (patch.markerPreset) {
+        const isHollow = patch.markerPreset.startsWith("hollow");
+        const wasHollow = state.settings.markerPreset.startsWith("hollow");
+        if (isHollow && !wasHollow) {
+          patch = {
+            outlineWidth: state.settings.outlineWidth === 0.8 ? 1.5 : state.settings.outlineWidth,
+            outlineMode: state.settings.outlineMode === "darker" ? "matching" : state.settings.outlineMode,
+            ...patch,
+          };
+        } else if (!isHollow && wasHollow) {
+          patch = {
+            outlineWidth: state.settings.outlineWidth === 1.5 ? 0.8 : state.settings.outlineWidth,
+            outlineMode: state.settings.outlineMode === "matching" ? "darker" : state.settings.outlineMode,
+            ...patch,
+          };
+        }
+      }
+      return { ...state, settings: { ...state.settings, ...patch } };
+    }
     case "population": {
       const populations = new Map(state.populations);
       populations.set(action.name, {
@@ -476,23 +513,36 @@ export function markerAppearance(
         ? "-open"
         : "")) as MarkerSymbol;
   }
+  const activeOutlineMode =
+    sample?.outlineMode ?? custom?.outlineMode ?? state.settings.outlineMode;
   const outlineFor = (mode: OutlineMode) =>
-    mode === "black" ? "#000000" : shadeColor(color, -0.42);
+    mode === "black"
+      ? "#000000"
+      : mode === "matching"
+        ? color
+        : shadeColor(color, -0.42);
   const outline =
     sample?.outlineColor ??
     (sample?.outlineMode
       ? outlineFor(sample.outlineMode)
-      : (custom?.outlineColor ??
-        outlineFor(custom?.outlineMode ?? state.settings.outlineMode)));
+      : (custom?.outlineColor ?? outlineFor(activeOutlineMode)));
+  const isHollowMarker = symbol.endsWith("-open");
+  const fillOpacity =
+    sample?.opacity ?? custom?.opacity ?? state.settings.opacity;
+  const defaultOutlineOpacity =
+    activeOutlineMode === "matching" && !isHollowMarker
+      ? fillOpacity
+      : state.settings.outlineOpacity;
+  const outlineOpacity =
+    sample?.outlineOpacity ??
+    custom?.outlineOpacity ??
+    defaultOutlineOpacity;
   return {
     color,
     symbol,
     size: sample?.size ?? custom?.size ?? state.settings.size,
-    fillOpacity: sample?.opacity ?? custom?.opacity ?? state.settings.opacity,
-    outlineOpacity:
-      sample?.outlineOpacity ??
-      custom?.outlineOpacity ??
-      state.settings.outlineOpacity,
+    fillOpacity,
+    outlineOpacity,
     line: {
       color: outline,
       width:

@@ -108,3 +108,97 @@ it("label connectors are independent of label background and border", () => {
     }
   }
 });
+
+it("matching outlineMode matches fill color and opacity for filled dots, and respects explicit outlineOpacity", () => {
+  let state = viewReducer(initialView(), {
+    type: "population",
+    name: "A",
+    patch: {
+      color: "#123456",
+      opacity: 0.7,
+      outlineMode: "matching",
+    },
+  });
+  const model = buildPlotModel(dataset, dataset.samples, state);
+  const marker = (model.traces[0] as any).marker;
+  // Filled marker: outline color is #123456 and outline opacity matches fill opacity 0.7
+  expect(marker.color[0]).toBe("rgba(18,52,86,0.7)");
+  expect(marker.line.color[0]).toBe("rgba(18,52,86,0.7)");
+
+  // With explicit outlineOpacity override, explicit value is respected
+  state = viewReducer(state, {
+    type: "population",
+    name: "A",
+    patch: { outlineOpacity: 0.3 },
+  });
+  const model2 = buildPlotModel(dataset, dataset.samples, state);
+  const marker2 = (model2.traces[0] as any).marker;
+  expect(marker2.line.color[0]).toBe("rgba(18,52,86,0.3)");
+});
+
+it("switching to hollow preset defaults outlineWidth to 1.5 and outlineMode to matching, and reverts on filled", () => {
+  let state = initialView();
+  expect(state.settings.outlineWidth).toBe(0.8);
+  expect(state.settings.outlineMode).toBe("darker");
+
+  // Switch to hollow-circles
+  state = viewReducer(state, {
+    type: "markers",
+    names: dataset.populations.map((p) => p.name),
+    value: "hollow-circles",
+  });
+  expect(state.settings.outlineWidth).toBe(1.5);
+  expect(state.settings.outlineMode).toBe("matching");
+
+  // Switch back to circles
+  state = viewReducer(state, {
+    type: "markers",
+    names: dataset.populations.map((p) => p.name),
+    value: "circles",
+  });
+  expect(state.settings.outlineWidth).toBe(0.8);
+  expect(state.settings.outlineMode).toBe("darker");
+
+  // Custom outline width should be preserved when switching back
+  state = viewReducer(state, {
+    type: "markers",
+    names: dataset.populations.map((p) => p.name),
+    value: "hollow-shapes",
+  });
+  state = viewReducer(state, {
+    type: "settings",
+    patch: { outlineWidth: 2.2 },
+  });
+  state = viewReducer(state, {
+    type: "markers",
+    names: dataset.populations.map((p) => p.name),
+    value: "shapes",
+  });
+  expect(state.settings.outlineWidth).toBe(2.2);
+});
+
+it("opacity cycling starts at 0.9 and follows 80% > 100% > 60% > 40% > 20% > 0% > 90%", () => {
+  const cycleOpacity = (current: number) => {
+    const presets = [0.9, 0.8, 1, 0.6, 0.4, 0.2, 0];
+    const idx = presets.indexOf(current);
+    if (idx !== -1) return presets[(idx + 1) % presets.length];
+    return 0.8;
+  };
+
+  let op = 0.9;
+  op = cycleOpacity(op);
+  expect(op).toBe(0.8);
+  op = cycleOpacity(op);
+  expect(op).toBe(1);
+  op = cycleOpacity(op);
+  expect(op).toBe(0.6);
+  op = cycleOpacity(op);
+  expect(op).toBe(0.4);
+  op = cycleOpacity(op);
+  expect(op).toBe(0.2);
+  op = cycleOpacity(op);
+  expect(op).toBe(0);
+  op = cycleOpacity(op);
+  expect(op).toBe(0.9);
+});
+
