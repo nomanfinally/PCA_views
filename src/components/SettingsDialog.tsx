@@ -40,6 +40,7 @@ export function SettingsDialog({
   initialTab,
   focusTitle,
   onClose,
+  onTabChange,
   onReset,
 }: {
   dataset: Dataset;
@@ -47,14 +48,24 @@ export function SettingsDialog({
   dispatch: Dispatch<ViewAction>;
   initialTab: SettingsTab;
   focusTitle?: boolean;
-  onClose: () => void;
+  onClose: (lastTab?: SettingsTab) => void;
+  onTabChange?: (tab: SettingsTab) => void;
   onReset: () => void;
 }) {
   const [tab, setTab] = useState<SettingsTab>(initialTab);
+  const tabRef = useRef<SettingsTab>(tab);
+  tabRef.current = tab;
+  const selectTab = (nextTab: SettingsTab) => {
+    setTab(nextTab);
+    onTabChange?.(nextTab);
+  };
+  const handleClose = () => {
+    onClose(tabRef.current);
+  };
   const [error, setError] = useState("");
   const dialog = useRef<HTMLElement>(null);
-  const close = useRef(onClose);
-  close.current = onClose;
+  const close = useRef(handleClose);
+  close.current = handleClose;
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;
   const isHollow = s.markerPreset.startsWith("hollow");
@@ -127,7 +138,7 @@ export function SettingsDialog({
     <div
       className="modal-backdrop settings-backdrop"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget) handleClose();
       }}
     >
       <section
@@ -142,7 +153,7 @@ export function SettingsDialog({
           <button
             className="icon-button"
             aria-label="Close settings"
-            onClick={onClose}
+            onClick={handleClose}
           >
             <X size={18} />
           </button>
@@ -162,7 +173,7 @@ export function SettingsDialog({
                 aria-selected={tab === name}
                 aria-controls={`settings-panel-${name}`}
                 tabIndex={tab === name ? 0 : -1}
-                onClick={() => setTab(name)}
+                onClick={() => selectTab(name)}
                 onKeyDown={(e) => {
                   let next: number;
                   if (e.key === "ArrowDown" || e.key === "ArrowRight")
@@ -733,7 +744,7 @@ export function SettingsDialog({
           >
             Reset to defaults
           </button>
-          <button className="button settings-done" onClick={onClose}>
+          <button className="button settings-done" onClick={handleClose}>
             Done
           </button>
         </footer>

@@ -53,12 +53,17 @@ export function Workspace({
   const [imageOptions, setImageOptions] = useState<ImageOptions | null>(
     archive?.imageOptions ?? null,
   );
+  const [activeSettingsTab, setActiveSettingsTab] =
+    useState<SettingsTab>("Chart");
   const [settings, setSettings] = useState<{
-    tab: SettingsTab;
+    tab?: SettingsTab;
     focusTitle?: boolean;
   } | null>(null);
-  const openSettings = (tab: SettingsTab, focusTitle = false) =>
-    setSettings({ tab, focusTitle });
+  const openSettings = (tab?: SettingsTab, focusTitle = false) => {
+    const targetTab = tab ?? activeSettingsTab;
+    setActiveSettingsTab(targetTab);
+    setSettings({ tab: targetTab, focusTitle });
+  };
   const isMobile = useIsMobile(640);
   const isTablet = useIsTablet(641, 1024);
   const isCompact = isMobile || isTablet;
@@ -429,11 +434,16 @@ export function Workspace({
             setViewRevision((value) => value + 1);
             setImageOptions(null);
             setPointAnchor(null);
+            setActiveSettingsTab("Chart");
             setSettings(null);
           }}
-          initialTab={settings.tab}
+          initialTab={settings.tab ?? activeSettingsTab}
           focusTitle={settings.focusTitle}
-          onClose={() => setSettings(null)}
+          onTabChange={(tab) => setActiveSettingsTab(tab)}
+          onClose={(lastTab) => {
+            if (lastTab) setActiveSettingsTab(lastTab);
+            setSettings(null);
+          }}
         />
       )}
       {exportMenu && (

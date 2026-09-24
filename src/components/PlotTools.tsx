@@ -61,7 +61,7 @@ export function PlotTools({
   onTable: () => void;
   fullscreen: boolean;
   onFullscreen: () => void;
-  onSettings: (tab: SettingsTab, focusTitle?: boolean) => void;
+  onSettings: (tab?: SettingsTab, focusTitle?: boolean) => void;
 }) {
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;
@@ -389,7 +389,7 @@ export function PlotTools({
           className="icon-button"
           aria-label="Plot settings"
           title="Plot settings"
-          onClick={() => onSettings("Chart")}
+          onClick={() => onSettings()}
         >
           <Settings2 size={16} />
         </button>
