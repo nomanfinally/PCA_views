@@ -266,11 +266,15 @@ export function PointInspector({
           Cycle sample label style
         </button>
         <Slider
-          label="Sample label size"
+          label="Sample callout label size"
           min={8}
-          max={24}
+          max={28}
           step={1}
-          value={custom.labelSize ?? groupStyle?.labelSize ?? 11}
+          value={
+            custom.labelSize ??
+            groupStyle?.labelSize ??
+            state.settings.groupLabelSize
+          }
           onChange={(labelSize) => patch({ labelSize })}
         />
         <Slider
@@ -307,6 +311,18 @@ export function PointInspector({
             <option value="full">FID + IID</option>
           </select>
         </label>
+        <Slider
+          label="Point text size"
+          min={7}
+          max={24}
+          step={1}
+          value={
+            custom.pointLabelSize ??
+            groupStyle?.pointLabelSize ??
+            state.settings.pointLabelSize
+          }
+          onChange={(pointLabelSize) => patch({ pointLabelSize })}
+        />
       </details>
       <details className="sample-opacity">
         <summary>

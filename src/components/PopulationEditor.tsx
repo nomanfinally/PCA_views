@@ -254,12 +254,20 @@ export function PopulationEditor({
       <details>
         <summary>More label &amp; hull controls</summary>
         <Slider
-          label="Population label size"
-          value={s.labelSize ?? 11}
+          label="Group label size"
+          value={s.labelSize ?? state.settings.groupLabelSize}
           min={8}
-          max={24}
+          max={28}
           step={1}
           onChange={(labelSize) => patch({ labelSize })}
+        />
+        <Slider
+          label="Point label size"
+          value={s.pointLabelSize ?? state.settings.pointLabelSize}
+          min={7}
+          max={24}
+          step={1}
+          onChange={(pointLabelSize) => patch({ pointLabelSize })}
         />
         <Slider
           label="Population label opacity"

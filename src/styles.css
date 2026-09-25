@@ -41,7 +41,7 @@ button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-button:hover:not(:disabled) {
+button:not(.primary):not(.primary-export):not(.settings-done):not(.button-dark):hover:not(:disabled) {
   background: #f2f2f2;
 }
 button:focus-visible,
@@ -158,23 +158,62 @@ select {
   background: #f0f0f0;
   color: #696969;
 }
-.button,
-.primary {
-  border: 1px solid #e0e0e0;
+.button {
+  border: 1px solid #d0d7de;
   border-radius: 3px;
   background: #ffffff;
+  color: #1f2328;
   height: 29px;
   padding: 0 10px;
   font-size: 11px;
   font-weight: 500;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.primary {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
+.button:hover:not(:disabled) {
+  background: #f0f2f5;
+  color: #111827;
+  border-color: #cbd5e1;
 }
-.primary:hover:not(:disabled) {
-  background: #424242;
+.button:active:not(:disabled) {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.primary,
+.primary-export,
+.settings-footer .settings-done,
+.button-dark {
+  border: 1px solid #1f2328;
+  border-radius: 3px;
+  background: #1f2328;
+  color: #ffffff !important;
+  height: 29px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 550;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.primary:hover:not(:disabled),
+.primary-export:hover:not(:disabled),
+.settings-footer .settings-done:hover:not(:disabled),
+.button-dark:hover:not(:disabled),
+button.primary:hover:not(:disabled),
+button.primary-export:hover:not(:disabled),
+button.settings-done:hover:not(:disabled) {
+  background: #374151 !important;
+  color: #ffffff !important;
+  border-color: #374151 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+.primary:active:not(:disabled),
+.primary-export:active:not(:disabled),
+.settings-footer .settings-done:active:not(:disabled),
+.button-dark:active:not(:disabled),
+button.primary:active:not(:disabled),
+button.primary-export:active:not(:disabled),
+button.settings-done:active:not(:disabled) {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #111827 !important;
 }
 .icon-button {
   height: 29px;
@@ -2029,9 +2068,6 @@ body[data-plot-drag="lasso"] .dragcover {
 }
 .settings-footer .settings-done {
   margin-left: auto;
-  background: #222;
-  color: white;
-  border-color: #222;
   padding-inline: 20px;
 }
 @media (max-width: 540px) {
@@ -2158,9 +2194,7 @@ body[data-plot-drag="lasso"] .dragcover {
   color: #666;
 }
 .primary-export {
-  background: #222;
-  color: white;
-  border-color: #222;
+  font-weight: 600;
 }
 @media (max-width: 700px) {
   .export-dialog {

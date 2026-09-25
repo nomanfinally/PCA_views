@@ -144,7 +144,7 @@ export function buildPlotModel(
           offset,
           custom.labelStyle ?? settings.groupLabelStyle,
           custom.labelColor ?? color,
-          custom.labelSize ?? 11,
+          custom.labelSize ?? settings.groupLabelSize ?? 11,
           custom.labelOpacity ?? 1,
           custom.labelConnector ?? settings.groupLabelConnector,
         ),
@@ -162,7 +162,7 @@ export function buildPlotModel(
           offsets.get(`${x}:${y}:${name}`),
           point.labelStyle ?? custom.labelStyle ?? settings.groupLabelStyle,
           point.labelColor ?? custom.labelColor ?? point.color ?? color,
-          point.labelSize ?? custom.labelSize ?? 11,
+          point.labelSize ?? custom.labelSize ?? settings.groupLabelSize ?? 11,
           point.labelOpacity ?? custom.labelOpacity ?? 1,
           point.labelConnector ??
             custom.labelConnector ??
@@ -182,6 +182,19 @@ export function buildPlotModel(
             : s.id,
       );
     });
+    const pointSizes = group.map((s) => {
+      const point = state.points.get(s.key);
+      return (
+        point?.pointLabelSize ??
+        custom.pointLabelSize ??
+        settings.pointLabelSize ??
+        10
+      );
+    });
+    const uniformPointSize =
+      pointSizes.length > 0 && pointSizes.every((sz) => sz === pointSizes[0])
+        ? pointSizes[0]
+        : pointSizes;
     const markers = group.map((sample) =>
       renderedMarker(
         markerAppearance(
@@ -213,7 +226,7 @@ export function buildPlotModel(
         return parts.join("<br>");
       }),
       textposition: "top center",
-      textfont: { size: 10, color },
+      textfont: { size: uniformPointSize, color },
       marker: {
         color: markers.map((m) => m.color),
         size: markers.map((m) => m.size),

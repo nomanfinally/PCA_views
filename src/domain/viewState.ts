@@ -93,6 +93,7 @@ export interface PopulationStyle {
   labelColor?: string;
   labelOpacity?: number;
   pointLabels?: LabelMode;
+  pointLabelSize?: number;
 
   hidden?: boolean;
   color?: string;
@@ -111,6 +112,7 @@ export interface SampleStyle {
   labelColor?: string;
   labelOpacity?: number;
   pointLabels?: LabelMode;
+  pointLabelSize?: number;
   opacity?: number;
   outlineOpacity?: number;
   symbol?: MarkerSymbol;
@@ -156,6 +158,8 @@ export interface PlotSettings {
   title: string;
   subtitle: string;
   legendCounts: boolean;
+  pointLabelSize: number;
+  groupLabelSize: number;
 }
 export const defaultSettings: PlotSettings = {
   palette: "solid",
@@ -191,6 +195,8 @@ export const defaultSettings: PlotSettings = {
   title: "",
   subtitle: "",
   legendCounts: true,
+  pointLabelSize: 10,
+  groupLabelSize: 11,
 };
 export interface ViewState {
   populationNames: string[];

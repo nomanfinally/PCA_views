@@ -16,10 +16,8 @@ import {
   Grid2X2,
   MessageSquare,
   Pentagon,
-  PenLine,
   Ruler,
   Square,
-  Tag,
   Tags,
   TrendingUp,
   Type,
@@ -42,6 +40,47 @@ import type { ViewAction, ViewState } from "../domain/viewState";
 import type { Dataset } from "../domain/types";
 import type { PlotHandle } from "./PcaPlot";
 import type { Anchor } from "./Popover";
+
+export function LabelCentroidConnectorIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2.5" y="3" width="12" height="8" rx="2" />
+      <line x1="5.5" y1="7" x2="11.5" y2="7" strokeWidth="1.5" />
+      <line x1="11" y1="11" x2="16.5" y2="16.5" />
+      <circle cx="18.5" cy="18.5" r="2.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+export function HollowStrokeWidthIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="7.5" cy="12" r="5" stroke="currentColor" strokeWidth="2.2" />
+      <line x1="15" y1="7" x2="21.5" y2="7" stroke="currentColor" strokeWidth="1.2" />
+      <line x1="15" y1="12" x2="21.5" y2="12" stroke="currentColor" strokeWidth="2.4" />
+      <line x1="15" y1="17" x2="21.5" y2="17" stroke="currentColor" strokeWidth="3.8" />
+    </svg>
+  );
+}
 export function PlotTools({
   dataset,
   state,
@@ -180,7 +219,7 @@ export function PlotTools({
               },
               {
                 label: `Cycle outline width: ${s.outlineWidth}px`,
-                Icon: PenLine,
+                Icon: HollowStrokeWidthIcon,
                 run: () =>
                   patch({ outlineWidth: cycleOutlineWidth(s.outlineWidth) }),
               },
@@ -266,7 +305,7 @@ export function PlotTools({
           },
           {
             label: "Toggle label centroid connectors",
-            Icon: Tag,
+            Icon: LabelCentroidConnectorIcon,
             active: s.groupLabelConnector,
             run: () => {
               patch({ groupLabelConnector: !s.groupLabelConnector });

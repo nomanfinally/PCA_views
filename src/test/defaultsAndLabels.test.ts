@@ -209,3 +209,78 @@ it("cycles and applies point size settings across visible markers", () => {
   expect((modelWithOverride.traces[0] as any).marker.size).toEqual([16, 9]);
 });
 
+it("supports global, per-group, and per-point label size controls", () => {
+  const data = parseEvec("a 0 0 A\nb 1 1 A\nc 2 2 B", "test.evec");
+  let state = initialView(data);
+  expect(state.settings.pointLabelSize).toBe(10);
+  expect(state.settings.groupLabelSize).toBe(11);
+
+  // Global settings changes
+  state = viewReducer(state, {
+    type: "settings",
+    patch: {
+      pointLabelSize: 14,
+      groupLabelSize: 16,
+      labels: "sample",
+      groupLabels: true,
+    },
+  });
+
+  let model = buildPlotModel(data, data.samples, state);
+  // Traces textfont size for point labels
+  expect((model.traces[0] as any).textfont.size).toBe(14);
+  expect((model.traces[1] as any).textfont.size).toBe(14);
+
+  // Centroid annotations size
+  const centroidA = model.annotations.find(
+    (a) => a.name === annotationName("population", "A"),
+  );
+  expect(centroidA?.font?.size).toBe(16);
+
+  // Population-level override: population A has group label size 20, point text size 12
+  state = viewReducer(state, {
+    type: "population",
+    name: "A",
+    patch: {
+      labelSize: 20,
+      pointLabelSize: 12,
+    },
+  });
+
+  model = buildPlotModel(data, data.samples, state);
+  const updatedCentroidA = model.annotations.find(
+    (a) => a.name === annotationName("population", "A"),
+  );
+  expect(updatedCentroidA?.font?.size).toBe(20);
+
+  // Population A points now have size 12, while population B points have global 14
+  expect((model.traces[0] as any).textfont.size).toBe(12);
+  expect((model.traces[1] as any).textfont.size).toBe(14);
+
+  // Point-level override: point 0 in pop A has pointLabelSize 18, and point 1 has labelSize 22
+  state = viewReducer(state, {
+    type: "point",
+    key: 0,
+    patch: {
+      pointLabelSize: 18,
+    },
+  });
+  state = viewReducer(state, {
+    type: "point",
+    key: 1,
+    patch: {
+      label: true,
+      labelSize: 22,
+    },
+  });
+
+  model = buildPlotModel(data, data.samples, state);
+  // Pop A trace has 2 points with sizes [18, 12]
+  expect((model.traces[0] as any).textfont.size).toEqual([18, 12]);
+
+  // Point 1 callout annotation font size
+  const callout1 = model.annotations.find(
+    (a) => a.name === annotationName("sample", 1),
+  );
+  expect(callout1?.font?.size).toBe(22);
+});

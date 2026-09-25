@@ -333,17 +333,7 @@ export function SettingsDialog({
             {tab === "Labels" && (
               <>
                 <section>
-                  <h3>Labels</h3>
-                  <label className="control-row">
-                    Connect labels to centroids
-                    <input
-                      type="checkbox"
-                      checked={s.groupLabelConnector}
-                      onChange={(e) =>
-                        patch({ groupLabelConnector: e.target.checked })
-                      }
-                    />
-                  </label>
+                  <h3>Point labels</h3>
                   <label className="control-row">
                     Point labels
                     <select
@@ -359,6 +349,17 @@ export function SettingsDialog({
                       <option value="full">Population + ID</option>
                     </select>
                   </label>
+                  <Slider
+                    label="Point label size"
+                    value={s.pointLabelSize}
+                    min={7}
+                    max={24}
+                    step={1}
+                    onChange={(pointLabelSize) => patch({ pointLabelSize })}
+                  />
+                </section>
+                <section>
+                  <h3>Group &amp; population labels</h3>
                   <label className="control-row">
                     Population labels
                     <input
@@ -372,6 +373,24 @@ export function SettingsDialog({
                           patch: { label: undefined },
                         });
                       }}
+                    />
+                  </label>
+                  <Slider
+                    label="Group label size"
+                    value={s.groupLabelSize}
+                    min={8}
+                    max={28}
+                    step={1}
+                    onChange={(groupLabelSize) => patch({ groupLabelSize })}
+                  />
+                  <label className="control-row">
+                    Connect labels to centroids
+                    <input
+                      type="checkbox"
+                      checked={s.groupLabelConnector}
+                      onChange={(e) =>
+                        patch({ groupLabelConnector: e.target.checked })
+                      }
                     />
                   </label>
                   <label className="control-row">
