@@ -13,3 +13,5 @@ export * from "./geometry/viewport";
 export * from "./parsers/parseEvec";
 export * from "./parsers/parseSpectrum";
 export * from "./parsers/example";
+export * from "./style/symbols";
+export * from "./style/styleResolver";
