@@ -2,12 +2,19 @@
  * Viewport-Clamped Floating Popover Primitive
  */
 
-import React, { useEffect, useRef, useState, type ReactNode } from "react";
+import React, { useEffect, useState, type ReactNode } from "react";
+import { X } from "lucide-react";
 import { useKeyboardTrap } from "../hooks/useKeyboardTrap";
 
+export interface Anchor {
+  x: number;
+  y: number;
+}
+
 export interface PopoverProps {
-  isOpen: boolean;
-  anchor: { x: number; y: number } | null;
+  isOpen?: boolean;
+  anchor: Anchor | null;
+  title?: string;
   onClose: () => void;
   children: ReactNode;
   width?: number;
@@ -17,35 +24,38 @@ export interface PopoverProps {
 export function Popover({
   isOpen,
   anchor,
+  title,
   onClose,
   children,
   width = 280,
   className = "",
 }: PopoverProps) {
+  const active = isOpen !== undefined ? isOpen : Boolean(anchor);
+
   const containerRef = useKeyboardTrap<HTMLDivElement>({
-    active: isOpen,
+    active,
     onEscape: onClose,
   });
 
   const [position, setPosition] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
-    if (!isOpen || !anchor) return;
+    if (!active || !anchor) return;
 
     // Viewport boundary clamping
     const padding = 12;
     const estHeight = 320;
-    const maxLeft = window.innerWidth - width - padding;
-    const maxTop = window.innerHeight - estHeight - padding;
+    const maxLeft = typeof window !== "undefined" ? window.innerWidth - width - padding : 800;
+    const maxTop = typeof window !== "undefined" ? window.innerHeight - estHeight - padding : 600;
 
     const left = Math.max(padding, Math.min(anchor.x + 8, maxLeft));
     const top = Math.max(padding, Math.min(anchor.y + 8, maxTop));
 
     setPosition({ left, top });
-  }, [isOpen, anchor, width]);
+  }, [active, anchor, width]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!active) return;
 
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -64,9 +74,9 @@ export function Popover({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [isOpen, onClose, containerRef]);
+  }, [active, onClose, containerRef]);
 
-  if (!isOpen || !anchor) return null;
+  if (!active || !anchor) return null;
 
   return (
     <div
@@ -74,7 +84,7 @@ export function Popover({
       role="dialog"
       aria-modal="true"
       tabIndex={-1}
-      className={`ui-popover ${className}`.trim()}
+      className={`ui-popover popover ${className}`.trim()}
       style={{
         position: "fixed",
         top: `${position.top}px`,
@@ -90,6 +100,18 @@ export function Popover({
         outline: "none",
       }}
     >
+      {title && (
+        <div className="popover-header">
+          <strong>{title}</strong>
+          <button
+            className="icon-button"
+            aria-label={`Close ${title}`}
+            onClick={onClose}
+          >
+            <X size={15} />
+          </button>
+        </div>
+      )}
       {children}
     </div>
   );

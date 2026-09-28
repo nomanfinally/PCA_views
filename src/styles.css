@@ -1,3 +1,5 @@
+@import "./ui/tokens/tokens.css";
+
 :root {
   font-family: Arial, Helvetica, sans-serif;
   color: #363636;

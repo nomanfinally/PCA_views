@@ -128,6 +128,35 @@ export class PlotlyRenderer {
   }
 
   /**
+   * Retrieves the current layout of the rendered plot.
+   */
+  public getLayout(): Layout | null {
+    if (!this.container) return null;
+    const chart = this.container as unknown as PlotlyHTMLElement;
+    return chart.layout || null;
+  }
+
+  /**
+   * Captures a high-resolution raster image of the current plot.
+   */
+  public async toImage(options: {
+    format?: "png" | "jpeg" | "webp" | "svg";
+    width?: number;
+    height?: number;
+    scale?: number;
+  } = {}): Promise<string> {
+    if (!this.container || !this.api || !this.isReady) {
+      throw new Error("PlotlyRenderer is not ready for image capture.");
+    }
+    return await this.api.toImage(this.container, {
+      format: options.format ?? "png",
+      width: options.width ?? this.container.clientWidth,
+      height: options.height ?? this.container.clientHeight,
+      scale: options.scale ?? 2,
+    });
+  }
+
+  /**
    * Tears down the plot instance and unbinds listeners.
    */
   public purge(): void {

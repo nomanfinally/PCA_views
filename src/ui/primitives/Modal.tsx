@@ -13,6 +13,7 @@ export interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   maxWidth?: number | string;
+  width?: number | string;
   className?: string;
 }
 
@@ -23,6 +24,7 @@ export function Modal({
   children,
   footer,
   maxWidth = 540,
+  width,
   className = "",
 }: ModalProps) {
   const titleId = useId();
@@ -59,7 +61,7 @@ export function Modal({
         tabIndex={-1}
         className={`ui-modal ${className}`.trim()}
         style={{
-          width: "100%",
+          width: width !== undefined ? (typeof width === "number" ? `${width}px` : width) : "100%",
           maxWidth: typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth,
           maxHeight: "90vh",
           display: "flex",

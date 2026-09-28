@@ -7,7 +7,8 @@ import React from "react";
 export interface ColorPickerProps {
   id?: string;
   label?: string;
-  value: string;
+  value?: string;
+  color?: string;
   presets?: string[];
   onChange: (color: string) => void;
   className?: string;
@@ -17,6 +18,7 @@ export function ColorPicker({
   id,
   label,
   value,
+  color,
   presets = [
     "#1f77b4",
     "#d62728",
@@ -31,6 +33,8 @@ export function ColorPicker({
   onChange,
   className = "",
 }: ColorPickerProps) {
+  const activeColor = value ?? color ?? "#000000";
+
   return (
     <div className={`ui-color-picker ${className}`.trim()} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
       {label && (
@@ -46,7 +50,7 @@ export function ColorPicker({
             height: "30px",
             borderRadius: "var(--radius-sm)",
             border: "1px solid var(--color-border-strong)",
-            backgroundColor: value,
+            backgroundColor: activeColor,
             cursor: "pointer",
             flexShrink: 0,
             boxShadow: "var(--shadow-sm)",
@@ -55,7 +59,7 @@ export function ColorPicker({
           <input
             id={id}
             type="color"
-            value={value.startsWith("#") ? value : "#000000"}
+            value={activeColor.startsWith("#") ? activeColor : "#000000"}
             onChange={(e) => onChange(e.target.value)}
             style={{
               position: "absolute",
@@ -66,7 +70,7 @@ export function ColorPicker({
           />
         </label>
         <span style={{ fontSize: "var(--font-size-xs)", fontFamily: "var(--font-family-mono)", color: "var(--color-text-secondary)" }}>
-          {value.toUpperCase()}
+          {activeColor.toUpperCase()}
         </span>
       </div>
       {presets.length > 0 && (
@@ -81,7 +85,7 @@ export function ColorPicker({
                 height: "18px",
                 borderRadius: "var(--radius-xs)",
                 backgroundColor: preset,
-                border: preset.toLowerCase() === value.toLowerCase() ? "2px solid var(--color-surface-900)" : "1px solid rgba(0,0,0,0.15)",
+                border: preset.toLowerCase() === activeColor.toLowerCase() ? "2px solid var(--color-surface-900)" : "1px solid rgba(0,0,0,0.15)",
                 cursor: "pointer",
                 padding: 0,
               }}

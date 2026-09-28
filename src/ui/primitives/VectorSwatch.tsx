@@ -12,7 +12,9 @@ export interface VectorSwatchProps {
   symbol: MarkerSymbol;
   color?: string;
   lineColor?: string;
+  outlineColor?: string;
   lineWidth?: number;
+  outlineWidth?: number;
   fillOpacity?: number;
   outlineOpacity?: number;
   size?: number;
@@ -23,12 +25,16 @@ export function VectorSwatch({
   symbol,
   color = "#4b5563",
   lineColor = "#111827",
+  outlineColor,
   lineWidth = 1,
+  outlineWidth,
   fillOpacity = 1,
   outlineOpacity = 1,
   size = 14,
   className = "",
 }: VectorSwatchProps) {
+  const strokeColor = outlineColor ?? lineColor;
+  const strokeWidth = outlineWidth ?? lineWidth;
   const isHollow = isHollowSymbol(symbol);
   const base = toSolidSymbol(symbol);
 
@@ -88,9 +94,9 @@ export function VectorSwatch({
       aria-hidden="true"
       fill={isHollow ? "none" : color}
       fillOpacity={isHollow ? 0 : fillOpacity}
-      stroke={lineColor}
+      stroke={strokeColor}
       strokeOpacity={outlineOpacity}
-      strokeWidth={Math.max(lineWidth, 0.6) * 1.6}
+      strokeWidth={Math.max(strokeWidth, 0.6) * 1.6}
       strokeLinejoin="round"
       style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}
     >

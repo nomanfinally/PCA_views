@@ -1,13 +1,13 @@
-import { parseEvec } from "../domain/parseEvec";
+import { parseEvec } from "../core/parsers/parseEvec";
+
 self.onmessage = async (event: MessageEvent<File>) => {
   try {
-    self.postMessage({
-      dataset: parseEvec(await event.data.text(), event.data.name),
-    });
+    const text = await event.data.text();
+    const dataset = parseEvec(text, event.data.name);
+    self.postMessage({ dataset });
   } catch (error) {
     self.postMessage({
-      error:
-        error instanceof Error ? error.message : "Unable to read this file.",
+      error: error instanceof Error ? error.message : "Unable to read this file.",
     });
   }
 };

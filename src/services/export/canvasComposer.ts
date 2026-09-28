@@ -23,6 +23,7 @@ import type { LabelOffset } from "../../plot/spec/plotSpec";
 import type { Layout } from "plotly.js";
 
 export interface ImageOptions {
+  scale?: number;
   includeLegend: boolean;
   legendPosition: "right" | "left" | "top" | "bottom";
   legendColumns: number;
@@ -42,6 +43,7 @@ export interface ImageOptions {
 export function defaultImageOptions(settings: PlotSettings): ImageOptions {
   const p = settings.legendPosition;
   return {
+    scale: 2,
     includeLegend: true,
     legendPosition: p.includes("left")
       ? "left"
@@ -393,10 +395,11 @@ export async function composePng(
     chart.axisBounds,
   );
 
-  // 2x Retina scaling
-  canvas.width = placement.width * 2;
-  canvas.height = placement.height * 2;
-  ctx.scale(2, 2);
+  // Resolution scaling (DPI multiplier)
+  const scale = Math.max(1, Math.min(6, options.scale ?? 2));
+  canvas.width = placement.width * scale;
+  canvas.height = placement.height * scale;
+  ctx.scale(scale, scale);
 
   // White background
   ctx.fillStyle = "white";
