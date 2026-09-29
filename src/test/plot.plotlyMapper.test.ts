@@ -37,6 +37,7 @@ describe("plot/adapters/plotly/plotlyMapper", () => {
     expect(bundle.data[3].name).toBe("selection");
 
     // Layout
+    expect(bundle.layout.autosize).toBe(true);
     expect(bundle.layout.paper_bgcolor).toBe("transparent");
     expect(bundle.layout.plot_bgcolor).toBe(defaultSettings.chartBackground);
     expect(bundle.layout.xaxis?.title).toBeDefined();

@@ -394,15 +394,20 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       window.addEventListener("pointerup", onPointerUp, true);
 
       // Resize observer
+      let resizeFrame = 0;
       const resizeObserver = new ResizeObserver(() => {
-        if (rendererRef.current) {
-          void rendererRef.current.resize();
-        }
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+          if (rendererRef.current) {
+            void rendererRef.current.resize();
+          }
+        });
       });
       resizeObserver.observe(container);
 
       return () => {
         isMounted = false;
+        cancelAnimationFrame(resizeFrame);
         container.removeEventListener("wheel", handleWheel);
         container.removeEventListener("touchstart", handleTouchStart);
         container.removeEventListener("touchmove", handleTouchMove);
@@ -548,10 +553,6 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         data-tool={state.mode}
         data-editing={state.inspector !== null ? "true" : undefined}
         aria-label={`Scatter plot of PC${state.x + 1} against PC${state.y + 1}, ${samples.length} samples`}
-        style={{
-          position: "relative",
-          touchAction: "none",
-        }}
       >
         {renderError && (
           <div className="plot-error alert" role="alert">

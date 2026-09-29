@@ -35,8 +35,24 @@ export class PlotlyRenderer {
   private isReady = false;
   private currentAxesKey = "";
 
+  private queue: Promise<void> = Promise.resolve();
+
   constructor(events: PlotlyRendererEvents = {}) {
     this.events = events;
+  }
+
+  private enqueue<T>(action: () => Promise<T>): Promise<T | void> {
+    const next = this.queue.then(async () => {
+      if (this.isDisposed || !this.container || !this.api || !this.isReady) {
+        return;
+      }
+      return action();
+    });
+    this.queue = next.then(
+      () => {},
+      () => {},
+    );
+    return next;
   }
 
   /**
@@ -77,81 +93,78 @@ export class PlotlyRenderer {
    * Efficiently reconciles and redraws changes using Plotly.react.
    */
   public async update(spec: PlotSpec): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed)
-      return;
+    await this.enqueue(async () => {
+      try {
+        const chart = this.container as unknown as PlotlyHTMLElement;
+        const previous = chart?.layout;
 
-    try {
-      const chart = this.container as unknown as PlotlyHTMLElement;
-      const previous = chart?.layout;
+        const newAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
+        const sameAxes =
+          this.currentAxesKey === newAxesKey &&
+          Boolean(previous?.xaxis?.range) &&
+          Boolean(previous?.yaxis?.range);
+        this.currentAxesKey = newAxesKey;
 
-      const newAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
-      const sameAxes =
-        this.currentAxesKey === newAxesKey &&
-        Boolean(previous?.xaxis?.range) &&
-        Boolean(previous?.yaxis?.range);
-      this.currentAxesKey = newAxesKey;
+        const previousRanges =
+          sameAxes && previous?.xaxis?.range && previous?.yaxis?.range
+            ? {
+                xRange: previous.xaxis.range as [number, number],
+                yRange: previous.yaxis.range as [number, number],
+              }
+            : undefined;
 
-      const previousRanges =
-        sameAxes && previous?.xaxis?.range && previous?.yaxis?.range
-          ? {
-              xRange: previous.xaxis.range as [number, number],
-              yRange: previous.yaxis.range as [number, number],
-            }
-          : undefined;
+        const { data, layout, config } = mapSpecToPlotly(spec, previousRanges);
 
-      const { data, layout, config } = mapSpecToPlotly(spec, previousRanges);
+        if (sameAxes && previous?.xaxis?.range && previous?.yaxis?.range) {
+          layout.xaxis = {
+            ...layout.xaxis,
+            range: [...previous.xaxis.range],
+            autorange: false,
+          };
+          layout.yaxis = {
+            ...layout.yaxis,
+            range: [...previous.yaxis.range],
+            autorange: false,
+          };
+        }
 
-      if (sameAxes && previous?.xaxis?.range && previous?.yaxis?.range) {
-        layout.xaxis = {
-          ...layout.xaxis,
-          range: [...previous.xaxis.range],
-          autorange: false,
-        };
-        layout.yaxis = {
-          ...layout.yaxis,
-          range: [...previous.yaxis.range],
-          autorange: false,
-        };
+        await this.api!.react(this.container!, data, layout, config);
+      } catch (err) {
+        if (!this.isDisposed) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.events.onError?.(error);
+        }
       }
-
-      await this.api.react(this.container, data, layout, config);
-    } catch (err) {
-      if (!this.isDisposed) {
-        const error = err instanceof Error ? err : new Error(String(err));
-        this.events.onError?.(error);
-      }
-    }
+    });
   }
 
   /**
    * Directly updates layout properties without redrawing traces.
    */
   public async relayout(layoutUpdate: Partial<Layout>): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed)
-      return;
-
-    try {
-      await this.api.relayout(this.container, layoutUpdate);
-    } catch (err) {
-      if (!this.isDisposed) {
-        const error = err instanceof Error ? err : new Error(String(err));
-        this.events.onError?.(error);
+    await this.enqueue(async () => {
+      try {
+        await this.api!.relayout(this.container!, layoutUpdate);
+      } catch (err) {
+        if (!this.isDisposed) {
+          const error = err instanceof Error ? err : new Error(String(err));
+          this.events.onError?.(error);
+        }
       }
-    }
+    });
   }
 
   /**
    * Forces a resize recalculation when the container dimensions change.
    */
   public async resize(): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed)
-      return;
-
-    try {
-      await this.api.Plots.resize(this.container);
-    } catch {
-      // Ignore transient resize errors
-    }
+    await this.enqueue(async () => {
+      try {
+        await this.api!.Plots.resize(this.container!);
+      } catch {
+        // Ignore transient resize errors
+      }
+    });
   }
 
   /**
@@ -211,6 +224,7 @@ export class PlotlyRenderer {
   public purge(): void {
     this.isDisposed = true;
     this.isReady = false;
+    this.queue = Promise.resolve();
 
     if (this.container && this.api) {
       try {

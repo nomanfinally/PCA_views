@@ -529,6 +529,7 @@ button.btn-done:active:not(:disabled) {
   height: 100%;
   width: 100%;
   touch-action: none;
+  overflow: hidden;
 }
 .plot-container.is-square .plot {
   width: min(100cqw, 100cqh);
