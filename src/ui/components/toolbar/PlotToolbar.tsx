@@ -109,6 +109,14 @@ export function PlotToolbar({
     return 1.5;
   };
 
+  const cycleHullOpacity = (current: number) => {
+    const sequence = [0, ...hullOpacityPresets];
+    const idx = sequence.indexOf(current as any);
+    if (idx !== -1) return sequence[(idx + 1) % sequence.length];
+    const next = sequence.find((v) => v > current);
+    return next ?? sequence[0];
+  };
+
   const cycleGroupLabels = () => {
     const next = cycle(
       ["off", ...groupLabelStyles] as const,
@@ -327,10 +335,7 @@ export function PlotToolbar({
           title={`Cycle hulls: ${anyHulls ? `${Math.round(s.hullOpacity * 100)}%` : "off"}`}
           aria-pressed={anyHulls}
           onClick={() => {
-            const next = cycle(
-              [0, ...hullOpacityPresets],
-              anyHulls ? s.hullOpacity : 0,
-            );
+            const next = cycleHullOpacity(anyHulls ? s.hullOpacity : 0);
             if (next) patch({ hullOpacity: next });
             dispatch({
               type: "allPopulations",

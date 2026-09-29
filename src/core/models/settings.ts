@@ -23,7 +23,7 @@ export const aspectRatios = [
 ] as const;
 export type AspectRatio = (typeof aspectRatios)[number];
 
-export const hullOpacityPresets = [0.05, 0.1, 0.15, 0.3, 0.5, 0.75] as const;
+export const hullOpacityPresets = [0.15, 0.3, 0.6] as const;
 
 export { chartBackgroundPresets } from "../color/contrast";
 

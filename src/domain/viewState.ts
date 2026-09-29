@@ -222,7 +222,7 @@ const populationDefaults = (index: number, count: number): PopulationStyle => ({
   symbol: count > 8 ? shapeSequence[index % shapeSequence.length] : "circle",
 });
 export const axisThicknessPresets = [0.5, 1, 1.25, 1.5, 1.75, 2] as const;
-export const hullOpacityPresets = [0.05, 0.1, 0.15, 0.3, 0.5, 0.75] as const;
+export const hullOpacityPresets = [0.15, 0.3, 0.6] as const;
 export const initialView = (dataset?: Dataset): ViewState => ({
   populationNames: dataset?.populations.map((p) => p.name) ?? [],
   spectrum: [],

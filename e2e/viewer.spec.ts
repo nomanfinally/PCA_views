@@ -1287,7 +1287,7 @@ test("defaults, unified hull cycle, and two-sample fallback", async ({
   await expect(
     page.getByRole("button", { name: "Toggle convex hulls", exact: true }),
   ).toHaveCount(0);
-  for (const opacity of [5, 10, 15, 30, 50, 75, 0]) {
+  for (const opacity of [15, 30, 60, 0]) {
     await page.getByRole("button", { name: /^Cycle hulls:/ }).click();
     await expect(
       page.getByRole("button", {
