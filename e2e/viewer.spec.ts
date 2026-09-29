@@ -177,7 +177,7 @@ test("population context menu: colors, hulls, persistent hidden entries, and res
     .poll(() =>
       page.locator(".plot").evaluate((e: any) => e.data[0].marker.color),
     )
-    .toEqual(["rgba(255,0,0,0.9)", "rgba(255,0,0,0.9)", "rgba(255,0,0,0.9)"]);
+    .toEqual(["#ff0000", "#ff0000", "#ff0000"]);
   await expect
     .poll(() =>
       page
@@ -253,7 +253,7 @@ test("individual point marks and color overrides persist independently", async (
     .poll(() =>
       page.locator(".plot").evaluate((e: any) => e.data[0].marker.color),
     )
-    .toEqual(["rgba(18,52,86,0.9)", "rgba(255,0,0,0.9)", "rgba(255,0,0,0.9)"]);
+    .toEqual(["#123456", "#ff0000", "#ff0000"]);
   await expect
     .poll(() =>
       page

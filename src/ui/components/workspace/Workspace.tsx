@@ -1,10 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
   ArrowLeftRight,
   Maximize2,
@@ -16,9 +10,19 @@ import {
 import type { Dataset, Sample } from "../../../core/models/dataset";
 import { initialView, type ViewState } from "../../../state/viewState";
 import { viewReducer } from "../../../state/viewReducer";
-import { filteredSamples, selectAxisVariance } from "../../../state/viewSelectors";
-import { readEmbeddedArchive, restoreArchiveState } from "../../../services/export/archiveService";
-import { defaultImageOptions, type ImageOptions } from "../../../services/export/canvasComposer";
+import {
+  filteredSamples,
+  selectAxisVariance,
+} from "../../../state/viewSelectors";
+import {
+  readEmbeddedArchive,
+  restoreArchiveState,
+  type Archive,
+} from "../../../services/export/archiveService";
+import {
+  defaultImageOptions,
+  type ImageOptions,
+} from "../../../services/export/canvasComposer";
 import { downloadText, samplesToCsv } from "../../../services/export/csvExport";
 import { useResponsive } from "../../hooks/useResponsive";
 import type { Anchor } from "../../primitives/Popover";
@@ -34,6 +38,7 @@ import { HelpModal } from "../dialogs/HelpModal";
 
 export interface WorkspaceProps {
   dataset: Dataset;
+  archive?: Archive | null;
   onUpload: () => void;
   onClear: () => void;
   onHelp: () => void;
@@ -41,12 +46,12 @@ export interface WorkspaceProps {
 
 export function Workspace({
   dataset,
+  archive: propArchive,
   onUpload,
   onClear,
   onHelp,
 }: WorkspaceProps) {
-  const embedded = readEmbeddedArchive();
-  const archive = embedded?.dataset === dataset ? embedded : null;
+  const archive = propArchive ?? readEmbeddedArchive();
 
   const [state, dispatch] = useReducer(viewReducer, undefined, () => {
     if (archive) {
@@ -61,13 +66,14 @@ export function Workspace({
   const { isMobile, isTablet, isCompact } = useResponsive();
 
   // Dialog and inspector ephemeral state
-  const [activeSettingsTab, setActiveSettingsTab] = useState<SettingsTab>("Chart");
+  const [activeSettingsTab, setActiveSettingsTab] =
+    useState<SettingsTab>("Chart");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsFocusTitle, setSettingsFocusTitle] = useState(false);
 
   const [exportOpen, setExportOpen] = useState(false);
-  const [imageOptions, setImageOptions] = useState<ImageOptions>(() =>
-    archive?.imageOptions ?? defaultImageOptions(state.settings),
+  const [imageOptions, setImageOptions] = useState<ImageOptions>(
+    () => archive?.imageOptions ?? defaultImageOptions(state.settings),
   );
 
   const [tableOpen, setTableOpen] = useState(false);
@@ -135,10 +141,16 @@ export function Workspace({
   };
 
   const handleExportSelection = () => {
-    const selectedSamples = dataset.samples.filter((s) => state.selected.has(s.key));
+    const selectedSamples = dataset.samples.filter((s) =>
+      state.selected.has(s.key),
+    );
     const csv = samplesToCsv(selectedSamples, dataset.pcCount);
     const baseName = dataset.name.replace(/\.[^/.]+$/, "");
-    downloadText(csv, `${baseName}-selected-samples.csv`, "text/csv;charset=utf-8");
+    downloadText(
+      csv,
+      `${baseName}-selected-samples.csv`,
+      "text/csv;charset=utf-8",
+    );
   };
 
   return (
@@ -276,7 +288,11 @@ export function Workspace({
 
       {/* 3. Floating Selection Pill */}
       {state.selected.size > 0 && (
-        <div className="selection-bar" role="toolbar" aria-label="Selection actions">
+        <div
+          className="selection-bar"
+          role="toolbar"
+          aria-label="Selection actions"
+        >
           <strong>{state.selected.size} selected</strong>
           <button
             onClick={() => dispatch({ type: "markSelection", marked: true })}
@@ -288,9 +304,7 @@ export function Workspace({
           >
             Unmark selected
           </button>
-          <button onClick={handleExportSelection}>
-            Export selection
-          </button>
+          <button onClick={handleExportSelection}>Export selection</button>
           <button
             className="icon-button"
             aria-label="Clear selection"
@@ -318,7 +332,16 @@ export function Workspace({
           />
 
           <div
-            className={`plot-container ${state.settings.aspectRatio === "1:1" ? "is-square" : ""}`}
+            className={`plot-container ${state.settings.aspectRatio !== "full" ? "has-ratio" : ""} ${state.settings.aspectRatio === "1:1" ? "is-square" : ""}`}
+            style={
+              {
+                "--plot-ratio":
+                  state.settings.aspectRatio === "full"
+                    ? 1
+                    : Number(state.settings.aspectRatio.split(":")[0]) /
+                      Number(state.settings.aspectRatio.split(":")[1]),
+              } as React.CSSProperties
+            }
           >
             <PcaPlotCanvas
               ref={plotRef}
@@ -358,7 +381,9 @@ export function Workspace({
               {dataset.samples.length.toLocaleString()} samples visible
             </span>
             {hiddenCount > 0 && (
-              <span className="status-hidden">{hiddenCount} populations hidden</span>
+              <span className="status-hidden">
+                {hiddenCount} populations hidden
+              </span>
             )}
             {markedCount > 0 && (
               <button
@@ -412,7 +437,11 @@ export function Workspace({
             if (lastTab) setActiveSettingsTab(lastTab);
             setSettingsOpen(false);
           }}
-          onReset={() => dispatch({ type: "resetAppearance" })}
+          onReset={() => {
+            dispatch({ type: "resetView", dataset });
+            plotRef.current?.reset();
+            setSettingsOpen(false);
+          }}
         />
       )}
 

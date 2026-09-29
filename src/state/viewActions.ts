@@ -38,24 +38,64 @@ export type ViewAction =
 // Action Creators
 export const viewActions = {
   resetView: (dataset: Dataset): ViewAction => ({ type: "resetView", dataset }),
-  setSpectrum: (value: number[], name: string): ViewAction => ({ type: "spectrum", value, name }),
-  setPalette: (names: string[], value: PaletteName): ViewAction => ({ type: "palette", names, value }),
-  setMarkerPreset: (names: string[], value: MarkerPreset): ViewAction => ({ type: "markers", names, value }),
+  setSpectrum: (value: number[], name: string): ViewAction => ({
+    type: "spectrum",
+    value,
+    name,
+  }),
+  setPalette: (names: string[], value: PaletteName): ViewAction => ({
+    type: "palette",
+    names,
+    value,
+  }),
+  setMarkerPreset: (names: string[], value: MarkerPreset): ViewAction => ({
+    type: "markers",
+    names,
+    value,
+  }),
   setAxes: (x: number, y: number): ViewAction => ({ type: "axes", x, y }),
   setDragMode: (value: DragMode): ViewAction => ({ type: "mode", value }),
   setSearch: (value: string): ViewAction => ({ type: "search", value }),
   toggleLegend: (): ViewAction => ({ type: "legend" }),
-  patchSettings: (patch: Partial<PlotSettings>): ViewAction => ({ type: "settings", patch }),
-  patchPopulation: (name: string, patch: PopulationStyle): ViewAction => ({ type: "population", name, patch }),
-  patchAllPopulations: (names: string[], patch: PopulationStyle): ViewAction => ({ type: "allPopulations", names, patch }),
-  isolatePopulation: (names: string[], name: string): ViewAction => ({ type: "isolate", names, name }),
-  resetPopulation: (name: string): ViewAction => ({ type: "resetPopulation", name }),
+  patchSettings: (patch: Partial<PlotSettings>): ViewAction => ({
+    type: "settings",
+    patch,
+  }),
+  patchPopulation: (name: string, patch: PopulationStyle): ViewAction => ({
+    type: "population",
+    name,
+    patch,
+  }),
+  patchAllPopulations: (
+    names: string[],
+    patch: PopulationStyle,
+  ): ViewAction => ({ type: "allPopulations", names, patch }),
+  isolatePopulation: (names: string[], name: string): ViewAction => ({
+    type: "isolate",
+    names,
+    name,
+  }),
+  resetPopulation: (name: string): ViewAction => ({
+    type: "resetPopulation",
+    name,
+  }),
   toggleMark: (key: number): ViewAction => ({ type: "toggleMark", key }),
   resetPoint: (key: number): ViewAction => ({ type: "resetPoint", key }),
-  patchPoint: (key: number, patch: SampleStyle): ViewAction => ({ type: "point", key, patch }),
-  inspectPoint: (key: number | null, mark?: boolean): ViewAction => ({ type: "inspect", key, mark }),
+  patchPoint: (key: number, patch: SampleStyle): ViewAction => ({
+    type: "point",
+    key,
+    patch,
+  }),
+  inspectPoint: (key: number | null, mark?: boolean): ViewAction => ({
+    type: "inspect",
+    key,
+    mark,
+  }),
   selectPoints: (keys: number[]): ViewAction => ({ type: "select", keys }),
-  markSelection: (marked: boolean): ViewAction => ({ type: "markSelection", marked }),
+  markSelection: (marked: boolean): ViewAction => ({
+    type: "markSelection",
+    marked,
+  }),
   clearMarks: (): ViewAction => ({ type: "clearMarks" }),
   resetAppearance: (): ViewAction => ({ type: "resetAppearance" }),
 };

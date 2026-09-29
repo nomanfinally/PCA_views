@@ -1,9 +1,9 @@
 /**
  * Cascading Style Engine
- * 
+ *
  * Deterministic 3-tier style resolution:
  *   Sample Override -> Population Override -> Global Plot Settings
- * 
+ *
  * Computes resolved visual properties for markers, outlines, fills, and labels
  * with zero DOM or visualization library dependencies.
  */
@@ -93,7 +93,9 @@ export function resolveOutlineColor(mode: OutlineMode, color: string): string {
 /**
  * Evaluates the full 3-tier cascade to resolve the complete styling of a point.
  */
-export function resolveMarkerStyle(params: StyleResolutionParams): ResolvedMarkerStyle {
+export function resolveMarkerStyle(
+  params: StyleResolutionParams,
+): ResolvedMarkerStyle {
   const {
     population,
     settings,
@@ -103,7 +105,11 @@ export function resolveMarkerStyle(params: StyleResolutionParams): ResolvedMarke
   } = params;
 
   // 1. Color resolution
-  const popBase = resolvePopulationAppearance(population, settings, populationOverride);
+  const popBase = resolvePopulationAppearance(
+    population,
+    settings,
+    populationOverride,
+  );
   const color = sampleOverride?.color ?? popBase.color;
 
   // 2. Base symbol resolution from preset or population override
@@ -117,7 +123,10 @@ export function resolveMarkerStyle(params: StyleResolutionParams): ResolvedMarke
   }
 
   // 3. Population marker treatment (filled, hollow, mixed, inherit)
-  if (populationOverride?.markerTreatment && populationOverride.markerTreatment !== "inherit") {
+  if (
+    populationOverride?.markerTreatment &&
+    populationOverride.markerTreatment !== "inherit"
+  ) {
     symbol = applyTreatmentToSymbol(
       symbol,
       populationOverride.markerTreatment,
@@ -144,7 +153,8 @@ export function resolveMarkerStyle(params: StyleResolutionParams): ResolvedMarke
   const isHollow = isHollowSymbol(symbol);
 
   // 5. Size resolution
-  const size = sampleOverride?.size ?? populationOverride?.size ?? settings.size;
+  const size =
+    sampleOverride?.size ?? populationOverride?.size ?? settings.size;
 
   // 6. Fill opacity resolution
   const fillOpacity =
@@ -200,7 +210,9 @@ export function resolveMarkerStyle(params: StyleResolutionParams): ResolvedMarke
  *   and symbol has the '-open' suffix stripped so renderers don't draw double outlines.
  * - If filled: fill receives fillOpacity, line receives outlineOpacity.
  */
-export function toRenderedMarker(resolved: ResolvedMarkerStyle): RenderedMarkerStyle {
+export function toRenderedMarker(
+  resolved: ResolvedMarkerStyle,
+): RenderedMarkerStyle {
   const isHollow = resolved.isHollow || isHollowSymbol(resolved.symbol);
   const baseSymbol = toSolidSymbol(resolved.symbol);
 
@@ -253,6 +265,8 @@ export function populationAppearance(
 }
 
 /** Legacy adapter providing exact signature of legacy renderedMarker */
-export function renderedMarker(appearance: ResolvedMarkerStyle): RenderedMarkerStyle {
+export function renderedMarker(
+  appearance: ResolvedMarkerStyle,
+): RenderedMarkerStyle {
   return toRenderedMarker(appearance);
 }

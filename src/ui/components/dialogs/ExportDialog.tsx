@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Camera, Download, FileSpreadsheet, Globe, Loader2 } from "lucide-react";
+import {
+  Camera,
+  Download,
+  FileSpreadsheet,
+  Globe,
+  Loader2,
+} from "lucide-react";
 import type { Dataset, Sample } from "../../../core/models/dataset";
 import type { ViewState } from "../../../state/viewState";
 import {
@@ -9,8 +15,15 @@ import {
   type ImageOptions,
   type ImagePlacement,
 } from "../../../services/export/canvasComposer";
-import { downloadBlob, downloadText, samplesToCsv } from "../../../services/export/csvExport";
-import { downloadArchive, serializeArchive } from "../../../services/export/archiveService";
+import {
+  downloadBlob,
+  downloadText,
+  samplesToCsv,
+} from "../../../services/export/csvExport";
+import {
+  downloadArchive,
+  serializeArchive,
+} from "../../../services/export/archiveService";
 import { Modal } from "../../primitives/Modal";
 import type { PlotHandle } from "../plot/PcaPlotCanvas";
 
@@ -33,7 +46,9 @@ export function ExportDialog({
   options,
   onOptions,
 }: ExportDialogProps) {
-  const [activeTab, setActiveTab] = useState<"image" | "csv" | "archive">("image");
+  const [activeTab, setActiveTab] = useState<"image" | "csv" | "archive">(
+    "image",
+  );
   const [chart, setChart] = useState<ChartImage | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [composedBlob, setComposedBlob] = useState<Blob | null>(null);
@@ -114,14 +129,21 @@ export function ExportDialog({
   const handleDownloadPng = () => {
     if (!composedBlob) return;
     const baseName = dataset.name.replace(/\.evec$/i, "");
-    downloadBlob(composedBlob, `${baseName}_PC${state.x + 1}_PC${state.y + 1}.png`);
+    downloadBlob(
+      composedBlob,
+      `${baseName}_PC${state.x + 1}_PC${state.y + 1}.png`,
+    );
     onClose();
   };
 
   const handleDownloadCsv = () => {
     const csvContent = samplesToCsv(samples, dataset.pcCount);
     const baseName = dataset.name.replace(/\.evec$/i, "");
-    downloadText(csvContent, `${baseName}_filtered.csv`, "text/csv;charset=utf-8");
+    downloadText(
+      csvContent,
+      `${baseName}_filtered.csv`,
+      "text/csv;charset=utf-8",
+    );
     onClose();
   };
 
@@ -368,8 +390,8 @@ export function ExportDialog({
           <div className="export-tab-content archive-export">
             <p>
               Package the entire current session — including the raw dataset,
-              per-population styles, individual point overrides, active axes, and
-              viewport zoom level — into a standalone HTML file.
+              per-population styles, individual point overrides, active axes,
+              and viewport zoom level — into a standalone HTML file.
             </p>
             <p className="field-note">
               Recipients can open the file offline in any modern web browser to
@@ -409,10 +431,7 @@ export function ExportDialog({
             One offline file · all loaded data, styles, zoom and tools
           </span>
         </div>
-        <button
-          className="button"
-          onClick={handleDownloadCsv}
-        >
+        <button className="button" onClick={handleDownloadCsv}>
           Filtered samples · CSV
         </button>
         <button

@@ -58,6 +58,7 @@ export default function App() {
         <Workspace
           key={`${source.revision}:${String(source.dataset.example)}`}
           dataset={source.dataset}
+          archive={source.archive}
           onUpload={openFilePicker}
           onClear={source.clear}
           onHelp={() => setHelpOpen(true)}

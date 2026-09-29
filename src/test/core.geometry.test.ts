@@ -1,11 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { convexHull, centroid } from "../core/geometry/hull";
 import { regressionLine } from "../core/geometry/regression";
-import {
-  paddedRange,
-  zoomRange,
-  wheelPixels,
-} from "../core/geometry/viewport";
+import { paddedRange, zoomRange, wheelPixels } from "../core/geometry/viewport";
 
 describe("core/geometry/hull", () => {
   it("computes strict 2D convex hull via monotone chain", () => {

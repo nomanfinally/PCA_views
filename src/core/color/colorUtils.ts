@@ -1,6 +1,6 @@
 /**
  * Color Utilities
- * 
+ *
  * Pure functions for hex/rgba conversions, luminance calculations, and color shading.
  */
 
@@ -29,16 +29,24 @@ export function shadeColor(color: string, amount: number): string {
 /**
  * Parse a hex or rgba color into numeric RGBA components.
  */
-export function parseRgba(color: string): { r: number; g: number; b: number; a: number } {
+export function parseRgba(color: string): {
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+} {
   if (color.startsWith("#")) {
     const hex = color.slice(1);
-    const expanded = hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
+    const expanded =
+      hex.length === 3 ? [...hex].map((c) => c + c).join("") : hex;
     const r = parseInt(expanded.slice(0, 2), 16) || 0;
     const g = parseInt(expanded.slice(2, 4), 16) || 0;
     const b = parseInt(expanded.slice(4, 6), 16) || 0;
     return { r, g, b, a: 1 };
   }
-  const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+  const match = color.match(
+    /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/,
+  );
   if (match) {
     return {
       r: parseInt(match[1], 10),
@@ -56,5 +64,8 @@ export function parseRgba(color: string): { r: number; g: number; b: number; a: 
 export function toRgbaString(color: string, alpha = 1): string {
   const { r, g, b, a } = parseRgba(color);
   const effectiveAlpha = Math.max(0, Math.min(1, a * alpha));
+  if (effectiveAlpha === 1 && color.startsWith("#")) {
+    return color;
+  }
   return `rgba(${r},${g},${b},${effectiveAlpha})`;
 }

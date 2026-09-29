@@ -18,9 +18,7 @@ describe("plot/spec/buildPlotSpec", () => {
       x: 0,
       y: 1,
       settings: defaultSettings,
-      populations: new Map([
-        ["POP_A", { hull: true, regression: true }],
-      ]),
+      populations: new Map([["POP_A", { hull: true, regression: true }]]),
       points: new Map(),
       selected: new Set([0]),
     };

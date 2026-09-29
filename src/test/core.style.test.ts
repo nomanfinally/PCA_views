@@ -33,7 +33,9 @@ describe("core/style/symbols", () => {
     expect(applyTreatmentToSymbol("circle-open", "filled")).toBe("circle");
     expect(applyTreatmentToSymbol("circle", "mixed", 0)).toBe("circle");
     expect(applyTreatmentToSymbol("circle", "mixed", 1)).toBe("circle-open");
-    expect(applyTreatmentToSymbol("circle", "inherit", 0, true)).toBe("circle-open");
+    expect(applyTreatmentToSymbol("circle", "inherit", 0, true)).toBe(
+      "circle-open",
+    );
   });
 
   it("resolves preset symbols with cyclic shape rotation", () => {

@@ -1,6 +1,6 @@
 /**
  * Viewport Coordinate Math
- * 
+ *
  * Functions for range padding, fractional zoom calculation, and wheel delta normalization.
  */
 
@@ -49,6 +49,10 @@ export function zoomRange(
 /**
  * Normalize DOM WheelEvent delta values across delta modes (0: pixel, 1: line, 2: page).
  */
-export function wheelPixels(delta: number, mode: number, height: number): number {
+export function wheelPixels(
+  delta: number,
+  mode: number,
+  height: number,
+): number {
   return delta * (mode === 1 ? 16 : mode === 2 ? height : 1);
 }

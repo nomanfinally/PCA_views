@@ -68,8 +68,12 @@ export function PopulationEditor({
                     : (value as PopulationStyle["markerTreatment"]),
               ...(switchingToHollow
                 ? {
-                    ...(s.outlineWidth === undefined ? { outlineWidth: 1.5 } : {}),
-                    ...(s.outlineMode === undefined ? { outlineMode: "matching" } : {}),
+                    ...(s.outlineWidth === undefined
+                      ? { outlineWidth: 1.5 }
+                      : {}),
+                    ...(s.outlineMode === undefined
+                      ? { outlineMode: "matching" }
+                      : {}),
                   }
                 : {}),
             });
@@ -203,13 +207,10 @@ export function PopulationEditor({
         />
         <Slider
           label={
-            isHollow
-              ? "Population outline width"
-              : "Population boundary width"
+            isHollow ? "Population outline width" : "Population boundary width"
           }
           value={
-            s.outlineWidth ??
-            (isHollow ? 1.5 : state.settings.outlineWidth)
+            s.outlineWidth ?? (isHollow ? 1.5 : state.settings.outlineWidth)
           }
           min={0.2}
           max={isHollow ? 4 : 3}

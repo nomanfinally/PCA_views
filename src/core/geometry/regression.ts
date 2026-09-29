@@ -1,6 +1,6 @@
 /**
  * Linear Regression Geometry
- * 
+ *
  * Ordinary least squares linear fit (y on x).
  */
 

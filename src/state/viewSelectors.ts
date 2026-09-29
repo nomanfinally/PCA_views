@@ -1,6 +1,6 @@
 /**
  * ViewState Selectors & Derived Query Functions
- * 
+ *
  * Pure functions extracting derived data from ViewState and Datasets.
  */
 
@@ -24,7 +24,10 @@ export function filteredSamples(dataset: Dataset, state: ViewState): Sample[] {
 /**
  * Returns the list of populations that currently have at least one visible sample.
  */
-export function selectVisiblePopulations(dataset: Dataset, state: ViewState): Population[] {
+export function selectVisiblePopulations(
+  dataset: Dataset,
+  state: ViewState,
+): Population[] {
   const activeSamples = filteredSamples(dataset, state);
   const activePopNames = new Set(activeSamples.map((s) => s.population));
   return dataset.populations.filter((p) => activePopNames.has(p.name));
@@ -54,7 +57,10 @@ export function selectPopulationCounts(
 /**
  * Checks whether a population is marked as hidden.
  */
-export function isPopulationHidden(state: ViewState, populationName: string): boolean {
+export function isPopulationHidden(
+  state: ViewState,
+  populationName: string,
+): boolean {
   return Boolean(state.populations.get(populationName)?.hidden);
 }
 
@@ -66,8 +72,13 @@ export function selectAxisVariance(
   state: ViewState,
   pcIndex: number,
 ): number | null {
-  const eigenvalues = state.spectrum.length > 0 ? state.spectrum : dataset.eigenvalues;
-  if (!state.settings.showVariance || !eigenvalues.length || pcIndex >= eigenvalues.length) {
+  const eigenvalues =
+    state.spectrum.length > 0 ? state.spectrum : dataset.eigenvalues;
+  if (
+    !state.settings.showVariance ||
+    !eigenvalues.length ||
+    pcIndex >= eigenvalues.length
+  ) {
     return null;
   }
 

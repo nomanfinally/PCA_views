@@ -1,6 +1,6 @@
 /**
  * Vector Marker Swatch Component
- * 
+ *
  * Crisp SVG preview of marker symbols, fills, and outline widths for legend rows and pickers.
  */
 
@@ -69,7 +69,9 @@ export function VectorSwatch({
       case "cross":
         return <path d="M-2-8H2V-2H8V2H2V8H-2V2H-8V-2H-2Z" />;
       case "x":
-        return <path d="M-6-8L0-2L6-8L8-6L2 0L8 6L6 8L0 2L-6 8L-8 6L-2 0L-8-6Z" />;
+        return (
+          <path d="M-6-8L0-2L6-8L8-6L2 0L8 6L6 8L0 2L-6 8L-8 6L-2 0L-8-6Z" />
+        );
       case "star":
         return (
           <polygon
@@ -98,7 +100,11 @@ export function VectorSwatch({
       strokeOpacity={outlineOpacity}
       strokeWidth={Math.max(strokeWidth, 0.6) * 1.6}
       strokeLinejoin="round"
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}
+      style={{
+        display: "inline-block",
+        verticalAlign: "middle",
+        flexShrink: 0,
+      }}
     >
       {renderShape()}
     </svg>

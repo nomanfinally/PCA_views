@@ -1,6 +1,6 @@
 /**
  * Deterministic Synthetic Example Dataset
- * 
+ *
  * Provides an immediate, zero-network interactive dataset for preview and testing.
  */
 

@@ -194,14 +194,6 @@ export function PlotToolbar({
           <>
             <button
               className="icon-button"
-              aria-label={`Cycle point size: ${s.size}px`}
-              title={`Cycle point size: ${s.size}px`}
-              onClick={() => patch({ size: cycleSize(s.size) })}
-            >
-              <CircleDot size={16} />
-            </button>
-            <button
-              className="icon-button"
               aria-label={`Cycle outline width: ${s.outlineWidth}px`}
               title={`Cycle outline width: ${s.outlineWidth}px`}
               onClick={() =>
@@ -237,14 +229,6 @@ export function PlotToolbar({
           </>
         ) : (
           <>
-            <button
-              className="icon-button"
-              aria-label={`Cycle point size: ${s.size}px`}
-              title={`Cycle point size: ${s.size}px`}
-              onClick={() => patch({ size: cycleSize(s.size) })}
-            >
-              <CircleDot size={16} />
-            </button>
             <button
               className="icon-button"
               aria-label={`Cycle point opacity: ${Math.round(s.opacity * 100)}%`}
@@ -392,7 +376,9 @@ export function PlotToolbar({
           aria-label="Toggle hover information"
           title="Toggle hover information"
           aria-pressed={s.hover !== "off"}
-          onClick={() => patch({ hover: s.hover === "off" ? "closest" : "off" })}
+          onClick={() =>
+            patch({ hover: s.hover === "off" ? "closest" : "off" })
+          }
         >
           <MessageSquare size={16} />
         </button>

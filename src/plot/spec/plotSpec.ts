@@ -1,6 +1,6 @@
 /**
  * Engine-Agnostic Plot Specification Models
- * 
+ *
  * Formal data structures defining a complete 2D PCA visualization.
  * Independent of rendering libraries (Plotly, Canvas 2D, WebGL, SVG).
  */

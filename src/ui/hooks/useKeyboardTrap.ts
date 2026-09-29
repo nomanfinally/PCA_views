@@ -19,20 +19,28 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
     if (!options.active) return;
 
     if (typeof document !== "undefined") {
-      previousActiveElement.current = document.activeElement as HTMLElement | null;
+      previousActiveElement.current =
+        document.activeElement as HTMLElement | null;
     }
 
     const container = containerRef.current;
     if (!container) return;
 
-    // Focus the first focusable element or the container itself
-    const focusableElements = container.querySelectorAll<HTMLElement>(
-      'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    );
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
-    } else {
-      container.focus();
+    // Focus the active tab, first focusable element, or container
+    if (!container.contains(document.activeElement)) {
+      const activeTab = container.querySelector<HTMLElement>(
+        '[role="tab"][aria-selected="true"]',
+      );
+      const firstFocusable = container.querySelector<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (activeTab) {
+        activeTab.focus();
+      } else if (firstFocusable) {
+        firstFocusable.focus();
+      } else {
+        container.focus();
+      }
     }
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -42,7 +50,14 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
       }
 
       if (event.key === "Tab") {
-        const focusable = Array.from(focusableElements);
+        const focusable = Array.from(
+          container.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+          ),
+        ).filter(
+          (el) => el.offsetParent !== null || el.getClientRects().length > 0,
+        );
+
         if (focusable.length === 0) {
           event.preventDefault();
           return;
@@ -52,12 +67,18 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
         const last = focusable[focusable.length - 1];
 
         if (event.shiftKey) {
-          if (document.activeElement === first) {
+          if (
+            document.activeElement === first ||
+            !container.contains(document.activeElement)
+          ) {
             last.focus();
             event.preventDefault();
           }
         } else {
-          if (document.activeElement === last) {
+          if (
+            document.activeElement === last ||
+            !container.contains(document.activeElement)
+          ) {
             first.focus();
             event.preventDefault();
           }

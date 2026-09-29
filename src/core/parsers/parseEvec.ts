@@ -1,6 +1,6 @@
 /**
  * smartPCA .evec Parser
- * 
+ *
  * High-performance, robust streaming parser for smartPCA eigenvector files.
  * Validates dimensions, eigenvalues, Fortran numeric formats, and duplicates.
  */
@@ -16,7 +16,7 @@ function parseNumericToken(token: string): number {
 
 /**
  * Parses smartPCA .evec file content into a typed Dataset.
- * 
+ *
  * Supports:
  * - UTF-8 Byte Order Marks (\uFEFF)
  * - Both CRLF (\r\n) and LF (\n) line endings
@@ -46,7 +46,9 @@ export function parseEvec(text: string, name: string): Dataset {
     if (rawLine.startsWith("#")) {
       if (/^#\s*eigvals\s*:/i.test(rawLine)) {
         if (eigenvalues.length > 0) {
-          throw new Error(`Line ${lineIndex + 1}: duplicate eigenvalue header.`);
+          throw new Error(
+            `Line ${lineIndex + 1}: duplicate eigenvalue header.`,
+          );
         }
         const values = rawLine
           .slice(rawLine.indexOf(":") + 1)

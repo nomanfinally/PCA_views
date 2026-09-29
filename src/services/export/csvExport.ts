@@ -1,6 +1,6 @@
 /**
  * CSV Export Service
- * 
+ *
  * Formula-safe serialization of biological sample coordinates to CSV format.
  */
 
@@ -31,7 +31,9 @@ export function samplesToCsv(samples: Sample[], pcCount: number): string {
   const rows = [
     header.map(formatCsvCell).join(","),
     ...samples.map((sample) =>
-      [sample.id, sample.population, ...sample.pcs].map(formatCsvCell).join(","),
+      [sample.id, sample.population, ...sample.pcs]
+        .map(formatCsvCell)
+        .join(","),
     ),
   ];
 
@@ -41,7 +43,11 @@ export function samplesToCsv(samples: Sample[], pcCount: number): string {
 /**
  * Triggers a browser download of a given text content.
  */
-export function downloadText(text: string, filename: string, mimeType = "text/csv;charset=utf-8"): void {
+export function downloadText(
+  text: string,
+  filename: string,
+  mimeType = "text/csv;charset=utf-8",
+): void {
   const blob = new Blob([text], { type: mimeType });
   downloadBlob(blob, filename);
 }

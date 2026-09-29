@@ -1,6 +1,6 @@
 /**
  * Categorical Color Palettes & Population Generators
- * 
+ *
  * Provides curated palette sequences for biological PCA populations
  * with golden-angle deterministic fallbacks for high-order groupings.
  */

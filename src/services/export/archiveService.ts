@@ -1,6 +1,6 @@
 /**
  * Interactive HTML Archive Service
- * 
+ *
  * Packages the dataset, complete view state, viewport ranges, and application runtime
  * into a single-file, self-contained, offline-runnable HTML file.
  */
@@ -42,9 +42,13 @@ export function serializeArchive(
     state: {
       ...state,
       inspector: null,
-      populations: state.populations instanceof Map ? [...state.populations] : state.populations,
+      populations:
+        state.populations instanceof Map
+          ? [...state.populations]
+          : state.populations,
       points: state.points instanceof Map ? [...state.points] : state.points,
-      selected: state.selected instanceof Set ? [...state.selected] : state.selected,
+      selected:
+        state.selected instanceof Set ? [...state.selected] : state.selected,
     },
     viewport,
     imageOptions,
@@ -131,9 +135,13 @@ export async function downloadArchive(archive: Archive): Promise<void> {
       css: document.getElementById("pca-style")?.textContent ?? "",
     };
   } else {
-    const response = await fetch(new URL("archive-runtime.json", document.baseURI));
+    const response = await fetch(
+      new URL("archive-runtime.json", document.baseURI),
+    );
     if (!response.ok) {
-      throw new Error("Could not load the offline viewer bundle. Please try again.");
+      throw new Error(
+        "Could not load the offline viewer bundle. Please try again.",
+      );
     }
     runtime = await response.json();
   }

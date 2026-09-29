@@ -1,6 +1,6 @@
 /**
  * Plot & Style Settings Models
- * 
+ *
  * Defines all configuration options, marker presets, symbol sets,
  * and default visual parameters for the PCA visualization.
  */
@@ -27,7 +27,7 @@ export const hullOpacityPresets = [0.05, 0.1, 0.15, 0.3, 0.5, 0.75] as const;
 
 export { chartBackgroundPresets } from "../color/contrast";
 
-export const axisThicknessPresets = [1, 1.25, 1.5, 2] as const;
+export const axisThicknessPresets = [0.5, 1, 1.25, 1.5, 1.75, 2] as const;
 
 export const legendPositions = [
   "top-right",
@@ -176,7 +176,7 @@ export const defaultSettings: PlotSettings = {
   palette: "solid",
   markerPreset: "circles",
   size: 7,
-  opacity: 0.9,
+  opacity: 1,
   outlineMode: "darker",
   outlineWidth: 0.8,
   labels: "none",

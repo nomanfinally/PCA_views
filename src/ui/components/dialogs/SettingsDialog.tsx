@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { RotateCcw, X } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import type { Dataset } from "../../../core/models/dataset";
 import type {
   GroupLabelStyle,
@@ -11,6 +11,7 @@ import {
   aspectRatios,
   chartBackgroundPresets,
   axisThicknessPresets,
+  legendPositions,
 } from "../../../core/models/settings";
 import { paletteNames, type PaletteName } from "../../../core/color/palettes";
 import { parseSpectrum } from "../../../core/parsers/parseSpectrum";
@@ -64,6 +65,8 @@ export function SettingsDialog({
   useEffect(() => {
     if (focusTitle && titleInputRef.current) {
       titleInputRef.current.focus();
+    } else {
+      document.getElementById(`settings-tab-${tab}`)?.focus();
     }
   }, [focusTitle]);
 
@@ -80,7 +83,7 @@ export function SettingsDialog({
   return (
     <Modal
       isOpen={true}
-      title="Plot Settings"
+      title="Plot settings"
       onClose={() => onClose(tab)}
       className="settings-modal"
       width={720}
@@ -88,16 +91,44 @@ export function SettingsDialog({
     >
       <div className="settings-container">
         {/* Tab Navigation List */}
-        <div className="settings-tabs" role="tablist" aria-label="Settings categories">
-          {settingsTabs.map((name) => (
+        <div
+          className="settings-tabs"
+          role="tablist"
+          aria-label="Settings sections"
+          aria-orientation="vertical"
+        >
+          {settingsTabs.map((name, index) => (
             <button
               key={name}
               id={`settings-tab-${name}`}
               role="tab"
               aria-selected={tab === name}
               aria-controls={`settings-panel-${name}`}
+              tabIndex={tab === name ? 0 : -1}
               className={`settings-tab-btn ${tab === name ? "active" : ""}`}
-              onClick={() => selectTab(name)}
+              onClick={(e) => {
+                selectTab(name);
+                e.currentTarget.focus();
+              }}
+              onKeyDown={(e) => {
+                let next: number;
+                if (e.key === "ArrowDown" || e.key === "ArrowRight") {
+                  next = (index + 1) % settingsTabs.length;
+                } else if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
+                  next =
+                    (index + settingsTabs.length - 1) % settingsTabs.length;
+                } else if (e.key === "Home") {
+                  next = 0;
+                } else if (e.key === "End") {
+                  next = settingsTabs.length - 1;
+                } else {
+                  return;
+                }
+                e.preventDefault();
+                document
+                  .getElementById(`settings-tab-${settingsTabs[next]}`)
+                  ?.focus();
+              }}
             >
               {name}
             </button>
@@ -110,6 +141,7 @@ export function SettingsDialog({
           role="tabpanel"
           id={`settings-panel-${tab}`}
           aria-labelledby={`settings-tab-${tab}`}
+          aria-label={tab}
         >
           {tab === "Chart" && (
             <>
@@ -141,9 +173,9 @@ export function SettingsDialog({
               <section>
                 <h3>Canvas</h3>
                 <label className="control-row">
-                  Background
+                  Preset
                   <select
-                    aria-label="Background tone"
+                    aria-label="Chart background preset"
                     value={s.chartBackground}
                     onChange={(e) =>
                       patch({
@@ -160,20 +192,58 @@ export function SettingsDialog({
                 </label>
 
                 <label className="control-row">
-                  Aspect ratio
-                  <select
-                    aria-label="Chart aspect ratio"
-                    value={s.aspectRatio}
-                    onChange={(e) =>
-                      patch({ aspectRatio: e.target.value as any })
-                    }
-                  >
-                    <option value="full">Fill available space</option>
-                    <option value="1:1">1:1 Square</option>
-                    <option value="4:3">4:3 Standard</option>
-                    <option value="16:9">16:9 Widescreen</option>
-                  </select>
+                  Background color
+                  <input
+                    aria-label="Chart background color"
+                    type="color"
+                    value={s.chartBackground}
+                    onChange={(e) => patch({ chartBackground: e.target.value })}
+                  />
                 </label>
+
+                <div
+                  className="aspect-options"
+                  role="group"
+                  aria-label="Chart aspect ratio"
+                >
+                  {aspectRatios.map((ratio) => {
+                    const number =
+                      ratio === "full"
+                        ? 1.7
+                        : Number(ratio.split(":")[0]) /
+                          Number(ratio.split(":")[1]);
+                    return (
+                      <button
+                        key={ratio}
+                        type="button"
+                        className={s.aspectRatio === ratio ? "active" : ""}
+                        aria-label={`Chart ratio ${ratio === "full" ? "Full span" : ratio}`}
+                        aria-pressed={s.aspectRatio === ratio}
+                        onClick={() => patch({ aspectRatio: ratio })}
+                      >
+                        <svg
+                          width="32"
+                          height="26"
+                          viewBox="0 0 32 26"
+                          aria-hidden="true"
+                        >
+                          <rect
+                            x={(32 - Math.min(28, 20 * number)) / 2}
+                            y={(26 - Math.min(20, 28 / number)) / 2}
+                            width={Math.min(28, 20 * number)}
+                            height={Math.min(20, 28 / number)}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeDasharray={
+                              ratio === "full" ? "3 2" : undefined
+                            }
+                          />
+                        </svg>
+                        <span>{ratio === "full" ? "Full span" : ratio}</span>
+                      </button>
+                    );
+                  })}
+                </div>
 
                 <label className="control-row">
                   Show grid lines
@@ -191,6 +261,58 @@ export function SettingsDialog({
                     checked={s.equalScale}
                     onChange={(e) => patch({ equalScale: e.target.checked })}
                   />
+                </label>
+
+                <Slider
+                  label="Tick text size"
+                  min={8}
+                  max={28}
+                  step={1}
+                  value={s.tickFontSize}
+                  onChange={(tickFontSize) => patch({ tickFontSize })}
+                />
+
+                <label className="control-row">
+                  Axes thickness
+                  <select
+                    aria-label="Axes thickness"
+                    value={String(s.axisLineWidth)}
+                    onChange={(e) =>
+                      patch({ axisLineWidth: Number(e.target.value) })
+                    }
+                  >
+                    {axisThicknessPresets.map((width) => (
+                      <option key={width} value={String(width)}>
+                        {String(width)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <Slider
+                  label="Axis title size"
+                  min={8}
+                  max={32}
+                  step={1}
+                  value={s.axisTitleSize}
+                  onChange={(axisTitleSize) => patch({ axisTitleSize })}
+                />
+
+                <label className="control-row">
+                  Axis title weight
+                  <select
+                    aria-label="Axis title weight"
+                    value={String(s.axisTitleWeight)}
+                    onChange={(e) =>
+                      patch({ axisTitleWeight: Number(e.target.value) })
+                    }
+                  >
+                    {[400, 500, 600, 700].map((weight) => (
+                      <option key={weight} value={String(weight)}>
+                        {weight}
+                      </option>
+                    ))}
+                  </select>
                 </label>
               </section>
             </>
@@ -250,18 +372,26 @@ export function SettingsDialog({
                   onChange={(size) => patch({ size })}
                 />
 
+                <Slider
+                  label="Point fill opacity"
+                  value={Math.round(s.opacity * 100)}
+                  min={0}
+                  max={100}
+                  step={5}
+                  unit="%"
+                  onChange={(pct) => patch({ opacity: pct / 100 })}
+                />
+
                 <label className="control-row">
                   Marker outlines
                   <select
                     aria-label="Marker outlines"
                     value={s.outlineMode}
                     onChange={(e) =>
-                      patch({
-                        outlineMode: e.target.value as OutlineMode,
-                      })
+                      patch({ outlineMode: e.target.value as OutlineMode })
                     }
                   >
-                    <option value="matching">Same as fill</option>
+                    <option value="matching">Match fill</option>
                     <option value="darker">Darker than fill</option>
                     <option value="black">Black</option>
                   </select>
@@ -270,21 +400,11 @@ export function SettingsDialog({
                 <Slider
                   label="Outline width"
                   value={s.outlineWidth}
-                  min={isHollow ? 0.5 : 0.4}
-                  max={isHollow ? 4 : 2}
+                  min={0.5}
+                  max={4}
                   step={0.1}
                   unit="px"
                   onChange={(outlineWidth) => patch({ outlineWidth })}
-                />
-
-                <Slider
-                  label="Point opacity"
-                  value={Math.round(s.opacity * 100)}
-                  min={0}
-                  max={100}
-                  step={5}
-                  unit="%"
-                  onChange={(pct) => patch({ opacity: pct / 100 })}
                 />
 
                 <Slider
@@ -314,7 +434,7 @@ export function SettingsDialog({
               <section>
                 <h3>Point labels</h3>
                 <label className="control-row">
-                  Point labels
+                  Point text
                   <select
                     aria-label="Point labels"
                     value={s.labels}
@@ -412,7 +532,7 @@ export function SettingsDialog({
               </label>
 
               <label className="control-row">
-                Position
+                Legend position
                 <select
                   aria-label="Legend position"
                   value={s.legendPosition}
@@ -420,15 +540,16 @@ export function SettingsDialog({
                     patch({ legendPosition: e.target.value as any })
                   }
                 >
-                  <option value="right">Right</option>
-                  <option value="bottom">Bottom</option>
-                  <option value="left">Left</option>
-                  <option value="top">Top</option>
+                  {legendPositions.map((p) => (
+                    <option key={p} value={p}>
+                      {p.replaceAll("-", " ")}
+                    </option>
+                  ))}
                 </select>
               </label>
 
               <label className="control-row">
-                Columns
+                Legend columns
                 <select
                   aria-label="Legend columns"
                   value={s.legendColumns}
@@ -436,10 +557,11 @@ export function SettingsDialog({
                     patch({ legendColumns: Number(e.target.value) as any })
                   }
                 >
-                  <option value={1}>1 Column</option>
-                  <option value={2}>2 Columns</option>
-                  <option value={3}>3 Columns</option>
-                  <option value={4}>4 Columns</option>
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
                 </select>
               </label>
 
@@ -458,12 +580,42 @@ export function SettingsDialog({
             <section>
               <h3>Hover tooltip</h3>
               <label className="control-row">
-                Enable hover tooltip
+                Show hover information
                 <input
+                  aria-label="Show hover information"
                   type="checkbox"
                   checked={s.hover !== "off"}
                   onChange={(e) =>
                     patch({ hover: e.target.checked ? "closest" : "off" })
+                  }
+                />
+              </label>
+              <label className="control-row">
+                FID · Population / group
+                <input
+                  aria-label="FID · Population / group"
+                  type="checkbox"
+                  checked={s.hoverFid}
+                  onChange={(e) => patch({ hoverFid: e.target.checked })}
+                />
+              </label>
+              <label className="control-row">
+                IID · Sample ID
+                <input
+                  aria-label="IID · Sample ID"
+                  type="checkbox"
+                  checked={s.hoverIid}
+                  onChange={(e) => patch({ hoverIid: e.target.checked })}
+                />
+              </label>
+              <label className="control-row">
+                PC coordinates
+                <input
+                  aria-label="PC coordinates"
+                  type="checkbox"
+                  checked={s.hoverCoordinates}
+                  onChange={(e) =>
+                    patch({ hoverCoordinates: e.target.checked })
                   }
                 />
               </label>
@@ -531,63 +683,89 @@ export function SettingsDialog({
                 />
               </label>
 
-              <label className="control-row">
-                Total variance sum override
+              <p className="field-note">
+                To show total variance explained, supply the full eigenvalue
+                spectrum or its sum.
+              </p>
+
+              <label className="file-control control-row">
+                Import eigenvalues (.eval)
                 <input
-                  aria-label="Total variance"
-                  type="number"
-                  step="any"
-                  value={s.varianceTotal ?? ""}
-                  placeholder="Auto (sum of eigenvalues)"
-                  onChange={(e) =>
-                    patch({
-                      varianceTotal: e.target.value ? Number(e.target.value) : undefined,
-                    })
-                  }
+                  aria-label="Import eigenvalues"
+                  type="file"
+                  accept=".eval,.txt"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      setSpectrumError("");
+                      const text = await file.text();
+                      const eigenvalues = parseSpectrum(text, dataset);
+                      dispatch({
+                        type: "spectrum",
+                        value: eigenvalues,
+                        name: file.name,
+                      });
+                    } catch (err: any) {
+                      setSpectrumError(
+                        err.message ?? "Unable to parse .eval file",
+                      );
+                    }
+                    e.target.value = "";
+                  }}
                 />
               </label>
 
-              <div className="section-divider" />
-
-              <h4>Custom Spectrum File (.eval)</h4>
-              <p className="field-note">
-                Optionally load eigenvalues from a dedicated smartPCA .eval file:
-              </p>
-              <input
-                type="file"
-                accept=".eval"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0];
-                  if (!file) return;
-                  try {
-                    const text = await file.text();
-                    const eigenvalues = parseSpectrum(text, dataset);
-                    dispatch({
-                      type: "spectrum",
-                      value: eigenvalues,
-                      name: file.name,
-                    });
-                    setSpectrumError("");
-                  } catch (err: any) {
-                    setSpectrumError(err.message ?? "Unable to parse .eval file");
-                  }
-                }}
-              />
               {spectrumError && (
-                <p className="data-warning">{spectrumError}</p>
+                <p className="field-error" role="alert">
+                  {spectrumError}
+                </p>
               )}
+
               {state.spectrumName && (
                 <p className="field-note">
                   Active spectrum: <strong>{state.spectrumName}</strong> (
                   {state.spectrum.length} eigenvalues)
                 </p>
               )}
+
+              {state.spectrum.length > 0 && (
+                <button
+                  type="button"
+                  className="button"
+                  onClick={() =>
+                    patch({
+                      varianceTotal: state.spectrum.reduce((a, b) => a + b, 0),
+                    })
+                  }
+                >
+                  Use this as the full spectrum
+                </button>
+              )}
+
+              <label className="control-row">
+                Total variance (sum of all eigenvalues)
+                <input
+                  aria-label="Total variance"
+                  type="number"
+                  step="any"
+                  placeholder="Unknown — use loaded PCs"
+                  value={s.varianceTotal ?? ""}
+                  onChange={(e) =>
+                    patch({
+                      varianceTotal: e.target.value
+                        ? Number(e.target.value)
+                        : undefined,
+                    })
+                  }
+                />
+              </label>
             </section>
           )}
         </div>
       </div>
 
-      <div className="modal-footer">
+      <div className="settings-footer modal-footer">
         <button
           className="text-button"
           onClick={() => dispatch({ type: "resetAppearance" })}
@@ -601,10 +779,7 @@ export function SettingsDialog({
         >
           Reset to defaults
         </button>
-        <button
-          className="btn-done btn-primary"
-          onClick={() => onClose(tab)}
-        >
+        <button className="btn-done btn-primary" onClick={() => onClose(tab)}>
           Done
         </button>
       </div>

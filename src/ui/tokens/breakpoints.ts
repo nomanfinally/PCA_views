@@ -1,6 +1,6 @@
 /**
  * Responsive Breakpoints
- * 
+ *
  * Standardized across CSS media queries and React responsive hooks.
  */
 

@@ -1,11 +1,15 @@
 /**
  * Marker Symbols, Presets, and Shape Sequences
- * 
+ *
  * Central registry for marker geometry symbols, hollow/filled treatments,
  * and deterministic sequence generators.
  */
 
-import type { MarkerSymbol, MarkerTreatment, MarkerPreset } from "../models/settings";
+import type {
+  MarkerSymbol,
+  MarkerTreatment,
+  MarkerPreset,
+} from "../models/settings";
 
 export const shapeSequence: MarkerSymbol[] = [
   "circle",
@@ -51,7 +55,7 @@ export function isHollowSymbol(symbol: string): boolean {
  * Strips any '-open' suffix from a marker symbol, returning its solid base shape.
  */
 export function toSolidSymbol(symbol: MarkerSymbol): MarkerSymbol {
-  return (symbol.replace(/-open$/, "")) as MarkerSymbol;
+  return symbol.replace(/-open$/, "") as MarkerSymbol;
 }
 
 /**
@@ -64,7 +68,10 @@ export function toHollowSymbol(symbol: MarkerSymbol): MarkerSymbol {
 /**
  * Derives the base marker symbol for a given preset and sample index.
  */
-export function getPresetSymbol(preset: MarkerPreset, sampleIndex = 0): MarkerSymbol {
+export function getPresetSymbol(
+  preset: MarkerPreset,
+  sampleIndex = 0,
+): MarkerSymbol {
   const isShapes = preset.includes("shapes");
   const isHollow = preset.startsWith("hollow");
   const base = isShapes
@@ -93,7 +100,9 @@ export function applyTreatmentToSymbol(
     return toHollowSymbol(symbol);
   }
   if (treatment === "mixed") {
-    return sampleIndex % 2 === 1 ? toHollowSymbol(symbol) : toSolidSymbol(symbol);
+    return sampleIndex % 2 === 1
+      ? toHollowSymbol(symbol)
+      : toSolidSymbol(symbol);
   }
   return symbol;
 }

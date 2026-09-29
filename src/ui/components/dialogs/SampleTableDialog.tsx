@@ -110,8 +110,12 @@ export function SampleTableDialog({
                     />
                     {sample.population}
                   </td>
-                  <td className="numeric">{sample.pcs[x]?.toFixed(4) ?? "–"}</td>
-                  <td className="numeric">{sample.pcs[y]?.toFixed(4) ?? "–"}</td>
+                  <td className="numeric">
+                    {sample.pcs[x]?.toFixed(4) ?? "–"}
+                  </td>
+                  <td className="numeric">
+                    {sample.pcs[y]?.toFixed(4) ?? "–"}
+                  </td>
                 </tr>
               ))}
             </tbody>

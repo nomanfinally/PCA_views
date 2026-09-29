@@ -297,8 +297,7 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
           ...populations.get(name),
           markerPreset: undefined,
           markerTreatment: undefined,
-          symbol: (base +
-            (isHollow ? "-open" : "")) as MarkerSymbol,
+          symbol: (base + (isHollow ? "-open" : "")) as MarkerSymbol,
         });
       });
       let nextSettings = { ...state.settings, markerPreset: action.value };
@@ -339,14 +338,26 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
         const wasHollow = state.settings.markerPreset.startsWith("hollow");
         if (isHollow && !wasHollow) {
           patch = {
-            outlineWidth: state.settings.outlineWidth === 0.8 ? 1.5 : state.settings.outlineWidth,
-            outlineMode: state.settings.outlineMode === "darker" ? "matching" : state.settings.outlineMode,
+            outlineWidth:
+              state.settings.outlineWidth === 0.8
+                ? 1.5
+                : state.settings.outlineWidth,
+            outlineMode:
+              state.settings.outlineMode === "darker"
+                ? "matching"
+                : state.settings.outlineMode,
             ...patch,
           };
         } else if (!isHollow && wasHollow) {
           patch = {
-            outlineWidth: state.settings.outlineWidth === 1.5 ? 0.8 : state.settings.outlineWidth,
-            outlineMode: state.settings.outlineMode === "matching" ? "darker" : state.settings.outlineMode,
+            outlineWidth:
+              state.settings.outlineWidth === 1.5
+                ? 0.8
+                : state.settings.outlineWidth,
+            outlineMode:
+              state.settings.outlineMode === "matching"
+                ? "darker"
+                : state.settings.outlineMode,
             ...patch,
           };
         }
@@ -540,9 +551,7 @@ export function markerAppearance(
       ? fillOpacity
       : state.settings.outlineOpacity;
   const outlineOpacity =
-    sample?.outlineOpacity ??
-    custom?.outlineOpacity ??
-    defaultOutlineOpacity;
+    sample?.outlineOpacity ?? custom?.outlineOpacity ?? defaultOutlineOpacity;
   return {
     color,
     symbol,

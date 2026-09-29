@@ -1,6 +1,6 @@
 /**
  * Application ViewState Models & Initialization
- * 
+ *
  * Defines the core persistent view state for PCA visualization,
  * including active PC axes, global settings, population overrides,
  * sample overrides, selection, and search filters.
@@ -50,10 +50,16 @@ export interface ViewState {
  * Computes deterministic default styling for a population index.
  * Automatically distributes diverse marker shapes when more than 8 populations are present.
  */
-export function populationDefaults(index: number, totalPopulations: number): PopulationStyle {
+export function populationDefaults(
+  index: number,
+  totalPopulations: number,
+): PopulationStyle {
   return {
     color: paletteColor(index, "solid"),
-    symbol: totalPopulations > 8 ? shapeSequence[index % shapeSequence.length] : "circle",
+    symbol:
+      totalPopulations > 8
+        ? shapeSequence[index % shapeSequence.length]
+        : "circle",
   };
 }
 

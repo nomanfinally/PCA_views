@@ -42,11 +42,7 @@ export function PointInspector({
   const isHollow = appearance.symbol.endsWith("-open");
   const markerStyle =
     custom.markerTreatment ??
-    (custom.symbol
-      ? isHollow
-        ? "hollow"
-        : "filled"
-      : "inherit");
+    (custom.symbol ? (isHollow ? "hollow" : "filled") : "inherit");
   const patch = (value: Partial<SampleStyle>) =>
     dispatch({ type: "point", key: sample.key, patch: value });
   const close = onClose ?? (() => dispatch({ type: "inspect", key: null }));
@@ -102,8 +98,8 @@ export function PointInspector({
           aria-label="Sample marker style"
           value={markerStyle}
           onChange={(e) => {
-            const nextTreatment =
-              e.target.value as SampleStyle["markerTreatment"];
+            const nextTreatment = e.target
+              .value as SampleStyle["markerTreatment"];
             const switchingToHollow = nextTreatment === "hollow";
             patch({
               markerTreatment: nextTreatment,
@@ -331,11 +327,7 @@ export function PointInspector({
             : "Fill & boundary transparency"}
         </summary>
         <Slider
-          label={
-            isHollow
-              ? "Sample outline width"
-              : "Sample boundary width"
-          }
+          label={isHollow ? "Sample outline width" : "Sample boundary width"}
           min={0.2}
           max={isHollow ? 4 : 3}
           step={0.1}
@@ -354,9 +346,7 @@ export function PointInspector({
         )}
         <Slider
           label={
-            isHollow
-              ? "Sample outline opacity"
-              : "Sample boundary opacity"
+            isHollow ? "Sample outline opacity" : "Sample boundary opacity"
           }
           value={appearance.outlineOpacity}
           percent

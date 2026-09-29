@@ -5,6 +5,7 @@
 PCA Views is a client-side genomics visualization web application designed to parse, explore, customize, and export smartPCA (`.evec`) eigenvector data.
 
 ### Module Inventory & Responsibilities
+
 - **Entry & Bootstrap**:
   - `src/main.tsx`: Mounts React application into `#root`.
   - `src/App.tsx`: Top-level application shell. Manages file dropzone events, global modal help dialog, and switches between empty/upload state and active workspace.
@@ -47,12 +48,13 @@ PCA Views is a client-side genomics visualization web application designed to pa
 ## 2. Coupling and Fragmentation
 
 ### 2.1 Unwanted Tight Coupling
+
 1. **Plotly Internals Leaked into Core UI (`PcaPlot.tsx`)**:
    `PcaPlot.tsx` directly accesses private Plotly properties:
    - `_fullLayout.xaxis.l2p`: Internal coordinate-to-pixel projection used for custom point hit testing.
    - `_fullLayout.xaxis._offset`, `_fullLayout.xaxis._length`: Internal canvas offsets for pointer and pinch gestures.
    - `_fullLayout.xaxis.range`, `_fullLayout.yaxis.range`: Internal axis spans.
-   *Impact*: Any minor Plotly patch or version bump that renames internal properties immediately breaks hit testing, point selection, context menus, touch zoom, and wheel zoom without compile-time warnings.
+     _Impact_: Any minor Plotly patch or version bump that renames internal properties immediately breaks hit testing, point selection, context menus, touch zoom, and wheel zoom without compile-time warnings.
 2. **Export System Bound to DOM and Canvas Elements**:
    - `capturePng` in `PcaPlot.tsx` imperatively injects a hidden DOM node (`left: -20000px`), calls `api.current.newPlot`, scrapes rendered DOM elements (`target.querySelectorAll('.xtick text, .ytick text')`), queries bounding rects, and tears down the DOM.
    - This ties export capabilities strictly to an active interactive DOM window, preventing clean headless rendering or unit testing.
@@ -60,6 +62,7 @@ PCA Views is a client-side genomics visualization web application designed to pa
    `plotModel.ts` directly creates `Data[]`, `Shape[]`, and `Annotations[]` conforming to Plotly's specific JSON schema. The domain layer is coupled directly to the rendering vendor rather than producing a clean, engine-agnostic visualization specification.
 
 ### 2.2 Unnecessary Fragmentation
+
 1. **Export Pipeline Fragmented Across Five Files**:
    Export features are needlessly split between:
    - `src/domain/export.ts` (CSV stringification)
@@ -67,7 +70,7 @@ PCA Views is a client-side genomics visualization web application designed to pa
    - `src/components/composePng.tsx` (Canvas 2D composition, misplaced in `components/`)
    - `src/components/ExportPanel.tsx` (UI modal)
    - `src/domain/archive.ts` (HTML archive packaging)
-   There is no single cohesive export service.
+     There is no single cohesive export service.
 2. **Style & Shape Resolution Fragmented Across the Stack**:
    The logic for determining a point's final visual representation (color, hollow vs filled, outline mode, outline width, size) is scattered across:
    - `viewState.ts` (`populationAppearance`, `markerAppearance`, `renderedMarker`)
@@ -75,7 +78,7 @@ PCA Views is a client-side genomics visualization web application designed to pa
    - `PopulationEditor.tsx` (marker treatment interpretation)
    - `PointInspector.tsx` (local sample override resolution)
    - `MarkerSwatch.tsx` (SVG swatch rendering)
-   There is no single Style Resolver module.
+     There is no single Style Resolver module.
 3. **Geometry Recalculation in View Components**:
    `Legend.tsx` lines 52-68 recalculates `convexHull` directly inside component render functions for the currently hovered population, rather than consuming precomputed geometry from the plot model.
 
@@ -84,13 +87,15 @@ PCA Views is a client-side genomics visualization web application designed to pa
 ## 3. Inconsistent Patterns
 
 ### 3.1 Naming Inconsistencies
-| Concept | Current Variants Across Files | Recommended Standard |
-|---|---|---|
+
+| Concept            | Current Variants Across Files                                                                                                   | Recommended Standard                                                                      |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Population / Group | `population`, `populations`, `allPopulations`, `groupLabels`, `groupLabelSize`, `groupLabelStyle`, `groupLabelConnector`, `FID` | **Group** (internally normalized) or **Population** (domain model), consistently applied. |
-| Sample / Point | `sample`, `samples`, `points`, `point`, `resetPoint`, `toggleMark`, `IID` | **Sample** for data identity, **Point** for visual scatter representation. |
-| Boundary / Outline | `outlineWidth`, `outlineMode`, `outlineColor`, `boundary width`, `boundary opacity`, `outline opacity` | **Outline** across all controls and state properties. |
+| Sample / Point     | `sample`, `samples`, `points`, `point`, `resetPoint`, `toggleMark`, `IID`                                                       | **Sample** for data identity, **Point** for visual scatter representation.                |
+| Boundary / Outline | `outlineWidth`, `outlineMode`, `outlineColor`, `boundary width`, `boundary opacity`, `outline opacity`                          | **Outline** across all controls and state properties.                                     |
 
 ### 3.2 State Management & Data Flow Inconsistencies
+
 - **Dual State Architecture**:
   The application maintains plot view state in a reducer (`viewReducer`), but holds UI and interaction states in more than 15 separate `useState` and `useRef` hooks across `Workspace.tsx` and `PcaPlot.tsx`.
 - **Action Granularity**:
@@ -99,6 +104,7 @@ PCA Views is a client-side genomics visualization web application designed to pa
   In `viewReducer`, state objects use `new Map(state.populations)` with shallow clones. However, nested object styles inside maps are shared references, meaning mutations to inner style objects could produce subtle rendering bugs if not strictly overwritten.
 
 ### 3.3 Styling Inconsistencies
+
 - **Monolithic CSS with Specificity Wars**:
   `src/styles.css` is 2,227 lines with zero modular scoping. Generic element rules (e.g. `button:hover:not(:disabled)`) have historically collided with custom button classes (e.g. `.settings-done`, `.primary-export`), turning dark buttons white on hover.
 - **Scattered & Arbitrary Breakpoints**:
@@ -107,6 +113,7 @@ PCA Views is a client-side genomics visualization web application designed to pa
   A handful of CSS custom properties (`--accent`, `--muted`, `--line`) coexist with over 40 hardcoded hex color values (`#222`, `#fff`, `#f1f2f3`, `#e0e0e0`, `#cbd5e1`, `#374151`, `#1f2328`, `#696969`, `#4e4e4e`).
 
 ### 3.4 Error Handling Inconsistencies
+
 - Errors are raised via strings in some places (`throw new Error(...)`), handled via local component state in others (`error` in `Workspace`, `error` in `PcaPlot`, `error` in `SettingsDialog`, `error` in `ExportPanel`), and swallowed silently in workers or touch listeners with empty `catch {}`. There is no central error reporting or user notification pipeline.
 
 ---
@@ -141,24 +148,25 @@ PCA Views is a client-side genomics visualization web application designed to pa
 
 ## 6. Prioritized Issue Matrix: Broken/Fragile vs. Inelegant
 
-| Priority | Category | Issue Description | Consequence |
-|---|---|---|---|
-| **P0 - Critical** | Fragile | Reliance on private Plotly internal properties (`_fullLayout.xaxis.l2p`, `_offset`, `_length`) for hit testing and touch gestures. | Breaking change on any Plotly upgrade; erratic behavior on non-standard DPI screens. |
-| **P0 - Critical** | Fragile | Offscreen DOM insertion and bounding-box scraping for image export. | Fails in headless browsers, background tabs, or test environments; DOM leaks if errors occur. |
-| **P0 - Critical** | Fragile | Asynchronous `queue.current` in `PcaPlot.tsx` with race conditions on rapid axis switching. | Visual glitches, dropped frames, stale coordinate projections, unhandled promise rejections. |
-| **P1 - High** | Architecture | Style resolution scattered across domain, reducer, and five separate UI components. | Inconsistent styling rules, hard-to-maintain overrides, duplicate suffix-checking logic. |
-| **P1 - High** | Architecture | Monolithic `styles.css` (2,227 lines) without CSS modules or design tokens. | Frequent CSS specificity collisions, style bleeding, unmaintainable media queries. |
-| **P1 - High** | Architecture | Giant multi-responsibility components (`PcaPlot`: 926 lines, `SettingsDialog`: 775 lines, `Workspace`: 514 lines). | Difficult to test, hard to reason about, high cognitive overhead. |
-| **P2 - Medium** | Inelegant | `react-dom/server` included in client bundle for Canvas legend rendering. | Unnecessary bundle weight and async blob overhead in export pipeline. |
-| **P2 - Medium** | Inelegant | Inconsistent terminology (`population` vs `group`, `boundary` vs `outline`, `sample` vs `point`). | Confusing API surface and developer friction. |
-| **P2 - Medium** | Inelegant | `embeddedArchive` executing global DOM query on module evaluation. | Hidden side effects on module load. |
-| **P3 - Low** | Inelegant | Redundant percentage formatting logic between `metadata.ts` and `AppHeader.tsx`. | Minor duplication, low risk. |
+| Priority          | Category     | Issue Description                                                                                                                  | Consequence                                                                                   |
+| ----------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **P0 - Critical** | Fragile      | Reliance on private Plotly internal properties (`_fullLayout.xaxis.l2p`, `_offset`, `_length`) for hit testing and touch gestures. | Breaking change on any Plotly upgrade; erratic behavior on non-standard DPI screens.          |
+| **P0 - Critical** | Fragile      | Offscreen DOM insertion and bounding-box scraping for image export.                                                                | Fails in headless browsers, background tabs, or test environments; DOM leaks if errors occur. |
+| **P0 - Critical** | Fragile      | Asynchronous `queue.current` in `PcaPlot.tsx` with race conditions on rapid axis switching.                                        | Visual glitches, dropped frames, stale coordinate projections, unhandled promise rejections.  |
+| **P1 - High**     | Architecture | Style resolution scattered across domain, reducer, and five separate UI components.                                                | Inconsistent styling rules, hard-to-maintain overrides, duplicate suffix-checking logic.      |
+| **P1 - High**     | Architecture | Monolithic `styles.css` (2,227 lines) without CSS modules or design tokens.                                                        | Frequent CSS specificity collisions, style bleeding, unmaintainable media queries.            |
+| **P1 - High**     | Architecture | Giant multi-responsibility components (`PcaPlot`: 926 lines, `SettingsDialog`: 775 lines, `Workspace`: 514 lines).                 | Difficult to test, hard to reason about, high cognitive overhead.                             |
+| **P2 - Medium**   | Inelegant    | `react-dom/server` included in client bundle for Canvas legend rendering.                                                          | Unnecessary bundle weight and async blob overhead in export pipeline.                         |
+| **P2 - Medium**   | Inelegant    | Inconsistent terminology (`population` vs `group`, `boundary` vs `outline`, `sample` vs `point`).                                  | Confusing API surface and developer friction.                                                 |
+| **P2 - Medium**   | Inelegant    | `embeddedArchive` executing global DOM query on module evaluation.                                                                 | Hidden side effects on module load.                                                           |
+| **P3 - Low**      | Inelegant    | Redundant percentage formatting logic between `metadata.ts` and `AppHeader.tsx`.                                                   | Minor duplication, low risk.                                                                  |
 
 ---
 
 ## 7. Next Steps: Target Architecture Preview
 
 To resolve these architectural issues cleanly, the rebuild should establish:
+
 1. **A Core Domain & Data Layer**: Strictly typed dataset models, robust file parsers, and a single, pure **Style Engine & Inheritance Resolver** (Sample overrides $\to$ Group overrides $\to$ Global defaults).
 2. **Decoupled Plot Specification Layer**: A clean visualization abstraction producing pure chart specifications, completely isolated from vendor-specific rendering code.
 3. **Dedicated Rendering Engine**: Encapsulate Plotly behind a robust adapter with standard public APIs, clean event boundaries, and robust hit-testing without private property hacking.

@@ -1,6 +1,6 @@
 /**
  * Two-Finger Pinch-to-Zoom Coordinator
- * 
+ *
  * Recognizes multi-touch pinch gestures using standard DOM bounding boxes
  * and mathematical coordinate projections, without touching private vendor internals.
  */
@@ -30,7 +30,12 @@ export class PinchZoomCoordinator {
   constructor(options: PinchZoomOptions) {
     this.element = options.element;
     this.onZoom = options.onZoom;
-    this.margin = options.margin ?? { left: 60, right: 24, top: 40, bottom: 60 };
+    this.margin = options.margin ?? {
+      left: 60,
+      right: 24,
+      top: 40,
+      bottom: 60,
+    };
   }
 
   public handleTouchStart = (event: TouchEvent): void => {
@@ -42,7 +47,10 @@ export class PinchZoomCoordinator {
         t1.clientY - t0.clientY,
       );
       this.currentFactor = 1;
-      this.activeAnchor = this.computeAnchor((t0.clientX + t1.clientX) / 2, (t0.clientY + t1.clientY) / 2);
+      this.activeAnchor = this.computeAnchor(
+        (t0.clientX + t1.clientX) / 2,
+        (t0.clientY + t1.clientY) / 2,
+      );
 
       if (event.cancelable) event.preventDefault();
     }
@@ -100,10 +108,19 @@ export class PinchZoomCoordinator {
   /**
    * Computes the normalized [0..1] plot domain anchor coordinate for screen client coordinates.
    */
-  public computeAnchor(clientX: number, clientY: number): { x: number; y: number } {
+  public computeAnchor(
+    clientX: number,
+    clientY: number,
+  ): { x: number; y: number } {
     const rect = this.element.getBoundingClientRect();
-    const plotWidth = Math.max(1, rect.width - this.margin.left - this.margin.right);
-    const plotHeight = Math.max(1, rect.height - this.margin.top - this.margin.bottom);
+    const plotWidth = Math.max(
+      1,
+      rect.width - this.margin.left - this.margin.right,
+    );
+    const plotHeight = Math.max(
+      1,
+      rect.height - this.margin.top - this.margin.bottom,
+    );
 
     const relX = clientX - rect.left - this.margin.left;
     const relY = clientY - rect.top - this.margin.top;

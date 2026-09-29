@@ -1,6 +1,6 @@
 /**
  * Spatial Hit-Testing Engine
- * 
+ *
  * High-performance 2D spatial search for point selection and hover detection.
  */
 

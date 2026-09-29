@@ -1,6 +1,6 @@
 /**
  * Contrast & Lightness Analysis
- * 
+ *
  * Computes luminance, grid/axis contrast tones for chart backgrounds,
  * and high-contrast foreground text colors.
  */
@@ -33,7 +33,7 @@ export function chartContrast(background: string): ChartContrastTheme {
   const channels = [0, 2, 4].map(
     (i) => parseInt(expanded.slice(i, i + 2), 16) / 255,
   );
-  
+
   // ITU-R BT.709 relative luminance formula
   const lightness =
     channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;

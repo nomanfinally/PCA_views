@@ -1,6 +1,6 @@
 /**
  * Concrete Plotly Renderer & Lifecycle Controller
- * 
+ *
  * Encapsulates the entire Plotly lifecycle (mount, react, relayout, resize, purge)
  * and isolates external components from vendor-specific DOM operations.
  */
@@ -12,7 +12,10 @@ import { mapSpecToPlotly } from "./plotlyMapper";
 
 export interface PlotlyRendererEvents {
   onSelect?: (sampleKeys: number[]) => void;
-  onAnnotationOffsetChange?: (annotationId: string, offset: { ax: number; ay: number }) => void;
+  onAnnotationOffsetChange?: (
+    annotationId: string,
+    offset: { ax: number; ay: number },
+  ) => void;
   onError?: (error: Error) => void;
 }
 
@@ -38,7 +41,11 @@ export class PlotlyRenderer {
   /**
    * Mounts the plot onto a container element with an initial PlotSpec.
    */
-  public async mount(container: HTMLElement, spec: PlotSpec, sampleCount = 0): Promise<void> {
+  public async mount(
+    container: HTMLElement,
+    spec: PlotSpec,
+    sampleCount = 0,
+  ): Promise<void> {
     this.container = container;
     this.isDisposed = false;
 
@@ -69,7 +76,8 @@ export class PlotlyRenderer {
    * Efficiently reconciles and redraws changes using Plotly.react.
    */
   public async update(spec: PlotSpec): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed) return;
+    if (!this.container || !this.api || !this.isReady || this.isDisposed)
+      return;
 
     try {
       const { data, layout, config } = mapSpecToPlotly(spec);
@@ -109,7 +117,8 @@ export class PlotlyRenderer {
    * Directly updates layout properties without redrawing traces.
    */
   public async relayout(layoutUpdate: Partial<Layout>): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed) return;
+    if (!this.container || !this.api || !this.isReady || this.isDisposed)
+      return;
 
     try {
       await this.api.relayout(this.container, layoutUpdate);
@@ -125,7 +134,8 @@ export class PlotlyRenderer {
    * Forces a resize recalculation when the container dimensions change.
    */
   public async resize(): Promise<void> {
-    if (!this.container || !this.api || !this.isReady || this.isDisposed) return;
+    if (!this.container || !this.api || !this.isReady || this.isDisposed)
+      return;
 
     try {
       await this.api.Plots.resize(this.container);
@@ -139,14 +149,16 @@ export class PlotlyRenderer {
    */
   public getViewportSnapshot(): ViewportSnapshot | null {
     if (!this.container) return null;
-    const chart = this.container as unknown as PlotlyHTMLElement;
-    const layout = chart.layout;
+    const chart = this.container as any;
+    const full = chart._fullLayout || chart.layout;
+    const xRange = full?.xaxis?.range || chart?.layout?.xaxis?.range;
+    const yRange = full?.yaxis?.range || chart?.layout?.yaxis?.range;
 
-    if (!layout?.xaxis?.range || !layout?.yaxis?.range) return null;
+    if (!xRange || !yRange) return null;
 
     return {
-      xRange: [layout.xaxis.range[0], layout.xaxis.range[1]],
-      yRange: [layout.yaxis.range[0], layout.yaxis.range[1]],
+      xRange: [xRange[0], xRange[1]],
+      yRange: [yRange[0], yRange[1]],
       width: this.container.clientWidth,
       height: this.container.clientHeight,
     };
@@ -164,12 +176,14 @@ export class PlotlyRenderer {
   /**
    * Captures a high-resolution raster image of the current plot.
    */
-  public async toImage(options: {
-    format?: "png" | "jpeg" | "webp" | "svg";
-    width?: number;
-    height?: number;
-    scale?: number;
-  } = {}): Promise<string> {
+  public async toImage(
+    options: {
+      format?: "png" | "jpeg" | "webp" | "svg";
+      width?: number;
+      height?: number;
+      scale?: number;
+    } = {},
+  ): Promise<string> {
     if (!this.container || !this.api || !this.isReady) {
       throw new Error("PlotlyRenderer is not ready for image capture.");
     }

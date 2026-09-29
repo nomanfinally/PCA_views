@@ -25,10 +25,14 @@ export function LegendDock({
   const [query, setQuery] = useState("");
   const [hiddenOnly, setHiddenOnly] = useState(false);
   const [limit, setLimit] = useState(100);
-  const [menu, setMenu] = useState<{ name: string; anchor: Anchor } | null>(null);
+  const [menu, setMenu] = useState<{ name: string; anchor: Anchor } | null>(
+    null,
+  );
 
   const names = dataset.populations.map((p) => p.name);
-  const hiddenCount = names.filter((n) => state.populations.get(n)?.hidden).length;
+  const hiddenCount = names.filter(
+    (n) => state.populations.get(n)?.hidden,
+  ).length;
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -40,7 +44,7 @@ export function LegendDock({
   }, [dataset.populations, query, hiddenOnly, state.populations]);
 
   const activePop = menu
-    ? dataset.populations.find((p) => p.name === menu.name) ?? null
+    ? (dataset.populations.find((p) => p.name === menu.name) ?? null)
     : null;
 
   const hullPossible = useMemo(() => {
@@ -50,7 +54,9 @@ export function LegendDock({
         s.population === activePop.name &&
         (!state.search ||
           s.id.toLowerCase().includes(state.search.trim().toLowerCase()) ||
-          s.population.toLowerCase().includes(state.search.trim().toLowerCase())),
+          s.population
+            .toLowerCase()
+            .includes(state.search.trim().toLowerCase())),
     );
     const coords: [number, number][] = popSamples.map((s) => [
       s.pcs[state.x] ?? 0,
@@ -211,7 +217,9 @@ export function LegendDock({
                 dispatch({
                   type: "population",
                   name: activePop.name,
-                  patch: { hidden: !state.populations.get(activePop.name)?.hidden },
+                  patch: {
+                    hidden: !state.populations.get(activePop.name)?.hidden,
+                  },
                 })
               }
             >

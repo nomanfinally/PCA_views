@@ -319,9 +319,7 @@ export function SettingsDialog({
                   )}
                   <Slider
                     label={
-                      isHollow
-                        ? "Outline opacity"
-                        : "Boundary opacity (gamma)"
+                      isHollow ? "Outline opacity" : "Boundary opacity (gamma)"
                     }
                     value={state.settings.outlineOpacity}
                     percent

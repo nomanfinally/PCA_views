@@ -1,6 +1,6 @@
 /**
  * Responsive Viewport Hook
- * 
+ *
  * Tracks window viewport dimensions and resolves mobile/tablet/desktop categories.
  */
 
@@ -19,11 +19,16 @@ export interface ResponsiveState {
 
 function getResponsiveState(width: number, height: number): ResponsiveState {
   const isMobile = width <= BREAKPOINTS.mobileMax;
-  const isTablet = width >= BREAKPOINTS.tabletMin && width <= BREAKPOINTS.tabletMax;
+  const isTablet =
+    width >= BREAKPOINTS.tabletMin && width <= BREAKPOINTS.tabletMax;
   const isDesktop = width >= BREAKPOINTS.desktopMin;
   const isCompact = isMobile || isTablet;
 
-  const device: BreakpointDevice = isMobile ? "mobile" : isTablet ? "tablet" : "desktop";
+  const device: BreakpointDevice = isMobile
+    ? "mobile"
+    : isTablet
+      ? "tablet"
+      : "desktop";
 
   return {
     isMobile,

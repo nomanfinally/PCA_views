@@ -201,4 +201,3 @@ it("opacity cycling starts at 0.9 and follows 80% > 100% > 60% > 40% > 20% > 0% 
   op = cycleOpacity(op);
   expect(op).toBe(0.9);
 });
-

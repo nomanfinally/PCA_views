@@ -1,6 +1,6 @@
 /**
  * Pure Canvas 2D PNG Image Composer
- * 
+ *
  * Renders high-resolution publication-quality PNG figures with headings,
  * chart graphics, and vector-rendered legend swatches.
  * Eliminates react-dom/server from the client bundle.
@@ -9,15 +9,15 @@
 import { toRgbaString } from "../../core/color/colorUtils";
 import type { Dataset, Sample } from "../../core/models/dataset";
 import type { PlotSettings } from "../../core/models/settings";
-import {
-  isHollowSymbol,
-  toSolidSymbol,
-} from "../../core/style/symbols";
+import { isHollowSymbol, toSolidSymbol } from "../../core/style/symbols";
 import {
   resolveMarkerStyle,
   type ResolvedMarkerStyle,
 } from "../../core/style/styleResolver";
-import { buildPlotSpec, type PlotViewState } from "../../plot/spec/buildPlotSpec";
+import {
+  buildPlotSpec,
+  type PlotViewState,
+} from "../../plot/spec/buildPlotSpec";
 import { mapSpecToPlotly } from "../../plot/adapters/plotly/plotlyMapper";
 import type { LabelOffset } from "../../plot/spec/plotSpec";
 import type { Layout } from "plotly.js";
@@ -173,8 +173,12 @@ export function arrangeImage(
 
   const minX = Math.floor(Math.min(0, legendX) * 2) / 2;
   const minY = Math.floor(Math.min(0, legendY) * 2) / 2;
-  const bodyWidth = Math.ceil(Math.max(chartWidth, legendX + legendWidth) - minX);
-  const bodyHeight = Math.ceil(Math.max(chartHeight, legendY + legendHeight) - minY);
+  const bodyWidth = Math.ceil(
+    Math.max(chartWidth, legendX + legendWidth) - minX,
+  );
+  const bodyHeight = Math.ceil(
+    Math.max(chartHeight, legendY + legendHeight) - minY,
+  );
 
   const titleHeight = options.title ? options.titleSize * 1.3 + 8 : 0;
   const subtitleHeight = options.subtitle ? options.subtitleSize * 1.3 + 8 : 0;
@@ -188,7 +192,11 @@ export function arrangeImage(
   const width = Math.ceil(Math.max(bodyWidth, headingWidth));
   const height = Math.ceil(bodyHeight + headingHeight + 16);
 
-  if (width * 2 > 16000 || height * 2 > 16000 || width * height * 4 > 64000000) {
+  if (
+    width * 2 > 16000 ||
+    height * 2 > 16000 ||
+    width * height * 4 > 64000000
+  ) {
     throw new Error(
       "This image is too large. Use more legend columns, smaller text, or fewer visible populations.",
     );
@@ -345,7 +353,10 @@ export function drawMarkerSwatch(
   }
 
   // Stroke
-  ctx.strokeStyle = toRgbaString(appearance.line.color, appearance.outlineOpacity);
+  ctx.strokeStyle = toRgbaString(
+    appearance.line.color,
+    appearance.outlineOpacity,
+  );
   ctx.lineWidth = Math.max(1, appearance.line.width * 1.5);
   ctx.lineJoin = "round";
   ctx.stroke();
@@ -457,7 +468,11 @@ export async function composePng(
         10 +
         box.columnWidths.slice(0, col).reduce((a, b) => a + b, 0) +
         col * options.legendColumnGap;
-      const y = box.y + 10 + row * (box.rowHeight + options.legendRowGap) + box.rowHeight / 2;
+      const y =
+        box.y +
+        10 +
+        row * (box.rowHeight + options.legendRowGap) +
+        box.rowHeight / 2;
 
       // Draw vector marker swatch directly with Canvas 2D
       drawMarkerSwatch(ctx, x + 6, y, 6, entry.appearance);

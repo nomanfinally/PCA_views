@@ -45,19 +45,28 @@ describe("state/viewReducer", () => {
     expect(state.settings.outlineWidth).toBe(0.8);
     expect(state.settings.outlineMode).toBe("darker");
 
-    state = viewReducer(state, viewActions.setMarkerPreset(state.populationNames, "hollow-circles"));
+    state = viewReducer(
+      state,
+      viewActions.setMarkerPreset(state.populationNames, "hollow-circles"),
+    );
     expect(state.settings.outlineWidth).toBe(1.5);
     expect(state.settings.outlineMode).toBe("matching");
 
     // Switching back to solid restores 0.8 / darker
-    state = viewReducer(state, viewActions.setMarkerPreset(state.populationNames, "circles"));
+    state = viewReducer(
+      state,
+      viewActions.setMarkerPreset(state.populationNames, "circles"),
+    );
     expect(state.settings.outlineWidth).toBe(0.8);
     expect(state.settings.outlineMode).toBe("darker");
   });
 
   it("isolates a single population", () => {
     let state = initialView(dataset);
-    state = viewReducer(state, viewActions.isolatePopulation(state.populationNames, "POP_B"));
+    state = viewReducer(
+      state,
+      viewActions.isolatePopulation(state.populationNames, "POP_B"),
+    );
 
     expect(state.populations.get("POP_A")?.hidden).toBe(true);
     expect(state.populations.get("POP_B")?.hidden).toBe(false);
@@ -66,7 +75,10 @@ describe("state/viewReducer", () => {
 
   it("preserves hidden flags when resetting population appearance", () => {
     let state = initialView(dataset);
-    state = viewReducer(state, viewActions.patchPopulation("POP_A", { color: "#ff0000", hidden: true }));
+    state = viewReducer(
+      state,
+      viewActions.patchPopulation("POP_A", { color: "#ff0000", hidden: true }),
+    );
     state = viewReducer(state, viewActions.resetPopulation("POP_A"));
 
     expect(state.populations.get("POP_A")?.color).toBe("#1f77b4");
@@ -99,13 +111,19 @@ describe("state/viewSelectors", () => {
     expect(filteredSamples(dataset, state)).toHaveLength(1);
 
     state = viewReducer(state, viewActions.setSearch(""));
-    state = viewReducer(state, viewActions.patchPopulation("POP_A", { hidden: true }));
+    state = viewReducer(
+      state,
+      viewActions.patchPopulation("POP_A", { hidden: true }),
+    );
     expect(filteredSamples(dataset, state)).toHaveLength(2); // Only S3 (POP_B) and S4 (POP_C)
   });
 
   it("calculates accurate total and visible population counts", () => {
     let state = initialView(dataset);
-    state = viewReducer(state, viewActions.patchPopulation("POP_B", { hidden: true }));
+    state = viewReducer(
+      state,
+      viewActions.patchPopulation("POP_B", { hidden: true }),
+    );
 
     const counts = selectPopulationCounts(dataset, state);
     expect(counts.get("POP_A")).toEqual({ total: 2, visible: 2 });

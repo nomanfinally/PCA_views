@@ -33,14 +33,20 @@ export function ShapePicker({
       className={`marker-shape-picker ui-shape-picker ${className}`.trim()}
       aria-label={label}
     >
-      {title && (
-        <legend>
-          {title}
-        </legend>
-      )}
+      {title && <legend>{title}</legend>}
 
       {allowInherit && (
-        <label className="marker-shape-default" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--font-size-sm)", marginBottom: "8px", cursor: "pointer" }}>
+        <label
+          className="marker-shape-default"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontSize: "var(--font-size-sm)",
+            marginBottom: "8px",
+            cursor: "pointer",
+          }}
+        >
           <input
             type="radio"
             name={name}
@@ -76,16 +82,23 @@ export function ShapePicker({
                     const nextIdx = (index + 1) % symbols.length;
                     onChange(symbols[nextIdx]);
                     const parent = e.currentTarget.closest("fieldset");
-                    const radios = parent?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
-                    const targetRadio = radios?.[allowInherit ? nextIdx + 1 : nextIdx];
+                    const radios = parent?.querySelectorAll<HTMLInputElement>(
+                      'input[type="radio"]',
+                    );
+                    const targetRadio =
+                      radios?.[allowInherit ? nextIdx + 1 : nextIdx];
                     targetRadio?.focus();
                   } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
                     e.preventDefault();
-                    const prevIdx = (index - 1 + symbols.length) % symbols.length;
+                    const prevIdx =
+                      (index - 1 + symbols.length) % symbols.length;
                     onChange(symbols[prevIdx]);
                     const parent = e.currentTarget.closest("fieldset");
-                    const radios = parent?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
-                    const targetRadio = radios?.[allowInherit ? prevIdx + 1 : prevIdx];
+                    const radios = parent?.querySelectorAll<HTMLInputElement>(
+                      'input[type="radio"]',
+                    );
+                    const targetRadio =
+                      radios?.[allowInherit ? prevIdx + 1 : prevIdx];
                     targetRadio?.focus();
                   }
                 }}
@@ -100,7 +113,12 @@ export function ShapePicker({
                   zIndex: 1,
                 }}
               />
-              <VectorSwatch symbol={symbol} color="#6b7280" lineColor="#111827" size={14} />
+              <VectorSwatch
+                symbol={symbol}
+                color="#6b7280"
+                lineColor="#111827"
+                size={14}
+              />
             </label>
           );
         })}

@@ -25,7 +25,10 @@ export function useIsMobile(breakpoint = 640): boolean {
   return isMobile;
 }
 
-export function useIsTablet(minBreakpoint = 641, maxBreakpoint = 1024): boolean {
+export function useIsTablet(
+  minBreakpoint = 641,
+  maxBreakpoint = 1024,
+): boolean {
   const [isTablet, setIsTablet] = useState(() => {
     if (typeof window === "undefined") return false;
     return (

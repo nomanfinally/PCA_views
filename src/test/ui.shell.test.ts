@@ -1,12 +1,15 @@
 /**
  * UI Components & Application Shell Unit Tests
- * 
+ *
  * Verifies interaction sequences, toolbar cyclers, settings resumability,
  * label font constraints, and button contrast guarantees.
  */
 
 import { describe, expect, it } from "vitest";
-import { settingsTabs, type SettingsTab } from "../ui/components/dialogs/SettingsDialog";
+import {
+  settingsTabs,
+  type SettingsTab,
+} from "../ui/components/dialogs/SettingsDialog";
 import { chartBackgroundPresets } from "../core/color/contrast";
 
 describe("Toolbar Interaction Cycles", () => {

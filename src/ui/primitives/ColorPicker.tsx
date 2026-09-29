@@ -39,9 +39,19 @@ export function ColorPicker({
   const inputId = id ?? generatedId;
 
   return (
-    <div className={`ui-color-picker color-control ${className}`.trim()} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div
+      className={`ui-color-picker color-control ${className}`.trim()}
+      style={{ display: "flex", flexDirection: "column", gap: "6px" }}
+    >
       {label && (
-        <label htmlFor={inputId} style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)", fontWeight: 500 }}>
+        <label
+          htmlFor={inputId}
+          style={{
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-secondary)",
+            fontWeight: 500,
+          }}
+        >
           {label}
         </label>
       )}
@@ -77,12 +87,25 @@ export function ColorPicker({
             }}
           />
         </span>
-        <span style={{ fontSize: "var(--font-size-xs)", fontFamily: "var(--font-family-mono)", color: "var(--color-text-secondary)" }}>
+        <span
+          style={{
+            fontSize: "var(--font-size-xs)",
+            fontFamily: "var(--font-family-mono)",
+            color: "var(--color-text-secondary)",
+          }}
+        >
           {activeColor.toUpperCase()}
         </span>
       </div>
       {presets.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "2px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "4px",
+            marginTop: "2px",
+          }}
+        >
           {presets.map((preset) => (
             <button
               key={preset}
@@ -93,7 +116,10 @@ export function ColorPicker({
                 height: "18px",
                 borderRadius: "var(--radius-xs)",
                 backgroundColor: preset,
-                border: preset.toLowerCase() === activeColor.toLowerCase() ? "2px solid var(--color-surface-900)" : "1px solid rgba(0,0,0,0.15)",
+                border:
+                  preset.toLowerCase() === activeColor.toLowerCase()
+                    ? "2px solid var(--color-surface-900)"
+                    : "1px solid rgba(0,0,0,0.15)",
                 cursor: "pointer",
                 padding: 0,
               }}

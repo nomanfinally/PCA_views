@@ -1,6 +1,6 @@
 /**
  * Spectrum Parser & Variance Title Formatter
- * 
+ *
  * Parses .eval eigenvalue files and formats PC axis titles with explained variance percentages.
  */
 
@@ -78,7 +78,10 @@ export function formatAxisTitle(
 /** Legacy alias for backwards compatibility */
 export const axisTitle = (
   dataset: Dataset,
-  state: { spectrum: number[]; settings: Pick<PlotSettings, "showVariance" | "varianceTotal"> },
+  state: {
+    spectrum: number[];
+    settings: Pick<PlotSettings, "showVariance" | "varianceTotal">;
+  },
   pc: number,
   compact = false,
 ) => formatAxisTitle(dataset, state.settings, state.spectrum, pc, compact);

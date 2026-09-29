@@ -260,10 +260,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
                 } catch {}
               }
               latest.current.onEdit(targetKey, {
-                x: Math.min(
-                  window.innerWidth - 260,
-                  Math.max(10, startX - 80),
-                ),
+                x: Math.min(window.innerWidth - 260, Math.max(10, startX - 80)),
                 y: Math.min(
                   window.innerHeight - 300,
                   Math.max(10, startY + 16),
@@ -617,7 +614,17 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         showlegend: false,
         dragmode: mode,
         margin: {
-          t: heading ? (isMobile ? 36 : isTablet ? 48 : 65) : isMobile ? 6 : isTablet ? 12 : 20,
+          t: heading
+            ? isMobile
+              ? 36
+              : isTablet
+                ? 48
+                : 65
+            : isMobile
+              ? 6
+              : isTablet
+                ? 12
+                : 20,
           r: isMobile ? 6 : isTablet ? 14 : 24,
           b: isMobile
             ? Math.max(
@@ -629,7 +636,10 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
                   38,
                   Math.round(tickFontSize + axisTitleSize + standoff + 7),
                 )
-              : Math.max(50, settings.tickFontSize + settings.axisTitleSize + 25),
+              : Math.max(
+                  50,
+                  settings.tickFontSize + settings.axisTitleSize + 25,
+                ),
           l: isMobile
             ? Math.max(
                 38,

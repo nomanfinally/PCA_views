@@ -1,6 +1,6 @@
 /**
  * Dynamic Plotly Chunk Loader
- * 
+ *
  * Conditionally loads either the lightweight basic 2D distribution (SVG)
  * or the high-performance WebGL (gl2d) distribution for large datasets (>5,000 samples).
  */

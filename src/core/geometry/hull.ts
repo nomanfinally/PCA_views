@@ -1,6 +1,6 @@
 /**
  * Convex Hull & Centroid Geometry
- * 
+ *
  * Monotone chain algorithm producing strict convex hulls without fake areas.
  */
 

@@ -33,7 +33,11 @@ describe("core/parsers/parseEvec", () => {
       S3 5 6 POP_M
     `;
     const dataset = parseEvec(raw, "test.evec");
-    expect(dataset.populations.map((p) => p.name)).toEqual(["POP_A", "POP_M", "POP_Z"]);
+    expect(dataset.populations.map((p) => p.name)).toEqual([
+      "POP_A",
+      "POP_M",
+      "POP_Z",
+    ]);
     expect(dataset.samples.map((s) => s.key)).toEqual([0, 1, 2]);
   });
 });
@@ -47,14 +51,27 @@ describe("core/parsers/parseSpectrum", () => {
 
   it("rejects spectrum with fewer PCs than dataset", () => {
     const dataset = parseEvec("S1 1 2 3 POP_A", "test.evec");
-    expect(() => parseSpectrum("10 5", dataset)).toThrow("Provide an .eval file");
+    expect(() => parseSpectrum("10 5", dataset)).toThrow(
+      "Provide an .eval file",
+    );
   });
 
   it("formats axis titles with accurate percentage", () => {
     const dataset = parseEvec("#eigvals: 60 40\nS1 1 2 POP_A", "test.evec");
-    const title = formatAxisTitle(dataset, defaultSettings, dataset.eigenvalues, 0);
+    const title = formatAxisTitle(
+      dataset,
+      defaultSettings,
+      dataset.eigenvalues,
+      0,
+    );
     expect(title).toBe("PC1 (60.00%)");
-    const compact = formatAxisTitle(dataset, defaultSettings, dataset.eigenvalues, 0, true);
+    const compact = formatAxisTitle(
+      dataset,
+      defaultSettings,
+      dataset.eigenvalues,
+      0,
+      true,
+    );
     expect(compact).toBe("PC1 (60.0%)");
   });
 });

@@ -18,10 +18,10 @@ const dataset = parseEvec("a 0 0 POP_A\nb 1 1 POP_B", "test.evec");
 
 describe("services/export/csvExport", () => {
   it("escapes spreadsheet formulas with a leading apostrophe", () => {
-    expect(formatCsvCell("=SUM(A1:A10)")).toBe("\"'=SUM(A1:A10)\"");
-    expect(formatCsvCell("+cmd")).toBe("\"'+cmd\"");
-    expect(formatCsvCell("-cmd")).toBe("\"'-cmd\"");
-    expect(formatCsvCell("@cmd")).toBe("\"'@cmd\"");
+    expect(formatCsvCell("=SUM(A1:A10)")).toBe('"\'=SUM(A1:A10)"');
+    expect(formatCsvCell("+cmd")).toBe('"\'+cmd"');
+    expect(formatCsvCell("-cmd")).toBe('"\'-cmd"');
+    expect(formatCsvCell("@cmd")).toBe('"\'@cmd"');
   });
 
   it("exports samples with PC header and escaped quotes", () => {
@@ -71,14 +71,21 @@ describe("services/export/archiveService", () => {
   });
 
   it("escapes script tags and Unicode line separators in archive HTML", () => {
-    const badDataset = parseEvec("s1 0 0 </script><script>alert(1)</script>", "evil.evec");
-    const archive = serializeArchive(badDataset, { populations: new Map(), points: new Map(), selected: new Set() }, {
-      xRange: [0, 1],
-      yRange: [0, 1],
-      width: 800,
-      height: 600,
-      offsets: [],
-    });
+    const badDataset = parseEvec(
+      "s1 0 0 </script><script>alert(1)</script>",
+      "evil.evec",
+    );
+    const archive = serializeArchive(
+      badDataset,
+      { populations: new Map(), points: new Map(), selected: new Set() },
+      {
+        xRange: [0, 1],
+        yRange: [0, 1],
+        width: 800,
+        height: 600,
+        offsets: [],
+      },
+    );
 
     const html = generateArchiveHtml(archive, {
       js: "console.log('runtime');",
@@ -94,7 +101,13 @@ describe("services/export/canvasComposer", () => {
   it("arranges images with consistent headings and bounds", () => {
     const options = defaultImageOptions(defaultSettings);
     const measure = (t: string) => t.length * 8;
-    const placement = arrangeImage(800, 600, ["POP_A", "POP_B"], options, measure);
+    const placement = arrangeImage(
+      800,
+      600,
+      ["POP_A", "POP_B"],
+      options,
+      measure,
+    );
 
     expect(placement.chart.width).toBe(800);
     expect(placement.chart.height).toBe(600);

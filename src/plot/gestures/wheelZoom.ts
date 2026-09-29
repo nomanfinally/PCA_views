@@ -1,6 +1,6 @@
 /**
  * Coalesced Mouse Wheel Zoom Handler
- * 
+ *
  * Smooth, cursor-anchored zoom handling across various mouse/trackpad delta modes.
  */
 
@@ -30,7 +30,12 @@ export class WheelZoomCoordinator {
   constructor(options: WheelZoomOptions) {
     this.element = options.element;
     this.onZoom = options.onZoom;
-    this.margin = options.margin ?? { left: 60, right: 24, top: 40, bottom: 60 };
+    this.margin = options.margin ?? {
+      left: 60,
+      right: 24,
+      top: 40,
+      bottom: 60,
+    };
   }
 
   public handleWheel = (event: WheelEvent): void => {
@@ -38,7 +43,11 @@ export class WheelZoomCoordinator {
     if (event.ctrlKey || event.metaKey || !event.shiftKey) {
       if (event.cancelable) event.preventDefault();
 
-      const pixels = wheelPixels(event.deltaY, event.deltaMode, this.element.clientHeight);
+      const pixels = wheelPixels(
+        event.deltaY,
+        event.deltaMode,
+        this.element.clientHeight,
+      );
       this.accumulatedDelta += pixels;
 
       this.activeAnchor = this.computeAnchor(event.clientX, event.clientY);
@@ -49,7 +58,9 @@ export class WheelZoomCoordinator {
           if (this.accumulatedDelta === 0) return;
 
           // Standard exponential zoom mapping: delta > 0 -> zoom out (factor > 1); delta < 0 -> zoom in (factor < 1)
-          const factor = Math.exp(Math.max(-0.8, Math.min(0.8, this.accumulatedDelta * 0.0015)));
+          const factor = Math.exp(
+            Math.max(-0.8, Math.min(0.8, this.accumulatedDelta * 0.0015)),
+          );
           this.accumulatedDelta = 0;
 
           this.onZoom({
@@ -62,10 +73,19 @@ export class WheelZoomCoordinator {
     }
   };
 
-  public computeAnchor(clientX: number, clientY: number): { x: number; y: number } {
+  public computeAnchor(
+    clientX: number,
+    clientY: number,
+  ): { x: number; y: number } {
     const rect = this.element.getBoundingClientRect();
-    const plotWidth = Math.max(1, rect.width - this.margin.left - this.margin.right);
-    const plotHeight = Math.max(1, rect.height - this.margin.top - this.margin.bottom);
+    const plotWidth = Math.max(
+      1,
+      rect.width - this.margin.left - this.margin.right,
+    );
+    const plotHeight = Math.max(
+      1,
+      rect.height - this.margin.top - this.margin.bottom,
+    );
 
     const relX = clientX - rect.left - this.margin.left;
     const relY = clientY - rect.top - this.margin.top;

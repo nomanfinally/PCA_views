@@ -75,9 +75,30 @@ export function HollowStrokeWidthIcon({ size = 16 }: { size?: number }) {
       aria-hidden="true"
     >
       <circle cx="7.5" cy="12" r="5" stroke="currentColor" strokeWidth="2.2" />
-      <line x1="15" y1="7" x2="21.5" y2="7" stroke="currentColor" strokeWidth="1.2" />
-      <line x1="15" y1="12" x2="21.5" y2="12" stroke="currentColor" strokeWidth="2.4" />
-      <line x1="15" y1="17" x2="21.5" y2="17" stroke="currentColor" strokeWidth="3.8" />
+      <line
+        x1="15"
+        y1="7"
+        x2="21.5"
+        y2="7"
+        stroke="currentColor"
+        strokeWidth="1.2"
+      />
+      <line
+        x1="15"
+        y1="12"
+        x2="21.5"
+        y2="12"
+        stroke="currentColor"
+        strokeWidth="2.4"
+      />
+      <line
+        x1="15"
+        y1="17"
+        x2="21.5"
+        y2="17"
+        stroke="currentColor"
+        strokeWidth="3.8"
+      />
     </svg>
   );
 }

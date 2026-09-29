@@ -11,7 +11,10 @@ import type { ViewState } from "../../../state/viewState";
 import { paddedRange, zoomRange } from "../../../core/geometry/viewport";
 import { buildPlotSpec } from "../../../plot/spec/buildPlotSpec";
 import type { LabelOffset } from "../../../plot/spec/plotSpec";
-import { PlotlyRenderer, type ViewportSnapshot } from "../../../plot/adapters/plotly/plotlyRenderer";
+import {
+  PlotlyRenderer,
+  type ViewportSnapshot,
+} from "../../../plot/adapters/plotly/plotlyRenderer";
 import { PinchZoomCoordinator } from "../../../plot/gestures/pinchZoom";
 import { WheelZoomCoordinator } from "../../../plot/gestures/wheelZoom";
 import { findClosestPoint } from "../../../plot/gestures/hitTest";
@@ -57,21 +60,39 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
     latestProps.current = props;
 
     // Build abstract plot specification
-    const spec = useMemo(
-      () => buildPlotSpec(dataset, samples, state, offsetsRef.current),
-      [
-        dataset,
-        samples,
-        state.x,
-        state.y,
-        state.settings,
-        state.populations,
-        state.points,
-        state.selected,
-        state.spectrum,
-        state.mode,
-      ],
-    );
+    const isFirstMount = useRef(true);
+    const spec = useMemo(() => {
+      const s = buildPlotSpec(dataset, samples, state, offsetsRef.current);
+      if (
+        isFirstMount.current &&
+        props.initialViewport?.xRange &&
+        props.initialViewport.xRange.length >= 2 &&
+        props.initialViewport?.yRange &&
+        props.initialViewport.yRange.length >= 2
+      ) {
+        s.layout.xaxis.range = [
+          props.initialViewport.xRange[0],
+          props.initialViewport.xRange[1],
+        ];
+        s.layout.yaxis.range = [
+          props.initialViewport.yRange[0],
+          props.initialViewport.yRange[1],
+        ];
+      }
+      return s;
+    }, [
+      dataset,
+      samples,
+      state.x,
+      state.y,
+      state.settings,
+      state.populations,
+      state.points,
+      state.selected,
+      state.spectrum,
+      state.mode,
+      props.initialViewport,
+    ]);
 
     const latestSpec = useRef(spec);
     latestSpec.current = spec;
@@ -84,7 +105,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       const renderer = new PlotlyRenderer({
         onSelect: (keys) => latestProps.current.onSelect(keys),
         onAnnotationOffsetChange: (id, offset) => {
-          offsetsRef.current.set(id, offset);
+          const { x, y } = latestProps.current.state;
+          offsetsRef.current.set(`${x}:${y}:${id}`, offset);
         },
         onError: (err) => {
           setRenderError(err.message);
@@ -96,7 +118,10 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       void renderer
         .mount(container, spec, dataset.samples.length)
         .then(() => {
-          if (isMounted) setIsReady(true);
+          if (isMounted) {
+            setIsReady(true);
+            isFirstMount.current = false;
+          }
         })
         .catch((err) => {
           if (isMounted) setRenderError(String(err.message ?? err));
@@ -166,35 +191,67 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       };
 
       container.addEventListener("wheel", handleWheel, { passive: false });
-      container.addEventListener("touchstart", handleTouchStart, { passive: true });
-      container.addEventListener("touchmove", handleTouchMove, { passive: false });
+      container.addEventListener("touchstart", handleTouchStart, {
+        passive: true,
+      });
+      container.addEventListener("touchmove", handleTouchMove, {
+        passive: false,
+      });
       container.addEventListener("touchend", handleTouchEnd, { passive: true });
-      container.addEventListener("touchcancel", handleTouchEnd, { passive: true });
+      container.addEventListener("touchcancel", handleTouchEnd, {
+        passive: true,
+      });
 
       // Hit testing helper
-      const hitTestPoint = (clientX: number, clientY: number): number | null => {
+      const hitTestPoint = (
+        clientX: number,
+        clientY: number,
+      ): number | null => {
         const chart = container as any;
         const full = chart._fullLayout;
         const rect = container.getBoundingClientRect();
-        const currentSpec = latestSpec.current;
-        const allPoints = currentSpec.traces.flatMap((t) => t.points);
+        const current = latestProps.current;
+        const { state, samples } = current;
 
-        if (full?.xaxis && full?.yaxis && typeof full.xaxis.l2p === "function") {
+        if (
+          full?.xaxis &&
+          full?.yaxis &&
+          typeof full.xaxis.l2p === "function" &&
+          typeof full.yaxis.l2p === "function"
+        ) {
           const px = clientX - rect.left - full.xaxis._offset;
           const py = clientY - rect.top - full.yaxis._offset;
-          if (px < 0 || py < 0 || px > full.xaxis._length || py > full.yaxis._length) {
+          if (
+            px < 0 ||
+            py < 0 ||
+            px > full.xaxis._length ||
+            py > full.yaxis._length
+          ) {
             return null;
           }
 
           let bestKey: number | null = null;
-          let minDistance = 22;
-          for (const p of allPoints) {
-            const sx = full.xaxis.l2p(p.x);
-            const sy = full.yaxis.l2p(p.y);
+          let minDistance = Infinity;
+          for (const sample of samples) {
+            const sx = full.xaxis.l2p(sample.pcs[state.x]);
+            const sy = full.yaxis.l2p(sample.pcs[state.y]);
+            if (
+              sx < 0 ||
+              sy < 0 ||
+              sx > full.xaxis._length ||
+              sy > full.yaxis._length
+            )
+              continue;
             const d = Math.hypot(sx - px, sy - py);
-            if (d <= minDistance) {
+            const radius = Math.max(
+              8,
+              (state.points.get(sample.key)?.size ??
+                state.populations.get(sample.population)?.size ??
+                state.settings.size) * 0.75,
+            );
+            if (d <= radius && d < minDistance) {
               minDistance = d;
-              bestKey = p.key;
+              bestKey = sample.key;
             }
           }
           return bestKey;
@@ -202,6 +259,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
 
         const snapshot = renderer.getViewportSnapshot();
         if (!snapshot) return null;
+        const currentSpec = latestSpec.current;
         const margin = currentSpec.layout.margin;
         const plotWidth = rect.width - margin.l - margin.r;
         const plotHeight = rect.height - margin.t - margin.b;
@@ -212,42 +270,91 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         if (px < 0 || px > plotWidth || py < 0 || py > plotHeight) return null;
 
         let bestKey: number | null = null;
-        let minDistance = 22;
-        for (const p of allPoints) {
+        let minDistance = Infinity;
+        for (const sample of samples) {
+          const xVal = sample.pcs[state.x];
+          const yVal = sample.pcs[state.y];
           const sx =
-            ((p.x - snapshot.xRange[0]) / (snapshot.xRange[1] - snapshot.xRange[0])) *
+            ((xVal - snapshot.xRange[0]) /
+              (snapshot.xRange[1] - snapshot.xRange[0])) *
             plotWidth;
           const sy =
-            (1 - (p.y - snapshot.yRange[0]) / (snapshot.yRange[1] - snapshot.yRange[0])) *
+            (1 -
+              (yVal - snapshot.yRange[0]) /
+                (snapshot.yRange[1] - snapshot.yRange[0])) *
             plotHeight;
           const d = Math.hypot(sx - px, sy - py);
-          if (d <= minDistance) {
+          const radius = Math.max(
+            8,
+            (state.points.get(sample.key)?.size ??
+              state.populations.get(sample.population)?.size ??
+              state.settings.size) * 0.75,
+          );
+          if (d <= radius && d < minDistance) {
             minDistance = d;
-            bestKey = p.key;
+            bestKey = sample.key;
           }
         }
         return bestKey;
       };
 
-      const handleCaptureClick = (e: MouseEvent) => {
-        if (e.button !== 0) return;
+      let press: { x: number; y: number; id: number; moved: boolean } | null =
+        null;
+      const isAnnotation = (target: EventTarget | null) =>
+        target instanceof Element && Boolean(target.closest(".annotation"));
+
+      const onPointerDown = (e: PointerEvent) => {
+        if (e.button !== 0 || isAnnotation(e.target)) return;
+        press = { x: e.clientX, y: e.clientY, id: e.pointerId, moved: false };
+        container.dataset.dragging = "true";
+        document.body.dataset.plotDrag = latestProps.current.state.mode;
+      };
+
+      const onPointerMove = (e: PointerEvent) => {
+        if (press && Math.hypot(e.clientX - press.x, e.clientY - press.y) > 6) {
+          press.moved = true;
+        }
+      };
+
+      const onPointerUp = (e: PointerEvent) => {
+        const start = press;
+        press = null;
+        delete container.dataset.dragging;
+        delete document.body.dataset.plotDrag;
+
+        if (
+          !start ||
+          start.moved ||
+          start.id !== e.pointerId ||
+          e.button !== 0 ||
+          Math.hypot(e.clientX - start.x, e.clientY - start.y) > 6
+        ) {
+          return;
+        }
+
         const hitKey = hitTestPoint(e.clientX, e.clientY);
         if (hitKey !== null) {
           latestProps.current.onMark(hitKey);
         }
       };
 
-      const handleCaptureContextMenu = (e: MouseEvent) => {
+      const onContextMenu = (e: MouseEvent) => {
+        if (isAnnotation(e.target)) return;
         const hitKey = hitTestPoint(e.clientX, e.clientY);
         if (hitKey !== null) {
           e.preventDefault();
           e.stopPropagation();
-          latestProps.current.onEdit(hitKey, { x: e.clientX + 8, y: e.clientY + 8 });
+          latestProps.current.onEdit(hitKey, {
+            x: e.clientX + 8,
+            y: e.clientY + 8,
+          });
         }
       };
 
-      container.addEventListener("click", handleCaptureClick, true);
-      container.addEventListener("contextmenu", handleCaptureContextMenu, true);
+      container.addEventListener("pointerdown", onPointerDown, true);
+      container.addEventListener("contextmenu", onContextMenu, true);
+      window.addEventListener("pointermove", onPointerMove, true);
+      window.addEventListener("pointerup", onPointerUp, true);
 
       // Resize observer
       const resizeObserver = new ResizeObserver(() => {
@@ -264,8 +371,10 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         container.removeEventListener("touchmove", handleTouchMove);
         container.removeEventListener("touchend", handleTouchEnd);
         container.removeEventListener("touchcancel", handleTouchEnd);
-        container.removeEventListener("click", handleCaptureClick, true);
-        container.removeEventListener("contextmenu", handleCaptureContextMenu, true);
+        container.removeEventListener("pointerdown", onPointerDown, true);
+        container.removeEventListener("contextmenu", onContextMenu, true);
+        window.removeEventListener("pointermove", onPointerMove, true);
+        window.removeEventListener("pointerup", onPointerUp, true);
         resizeObserver.disconnect();
         pinchCoordinator.destroy();
         wheelCoordinator.destroy();
@@ -380,9 +489,10 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       <div
         className="pca-plot-container plot"
         ref={containerRef}
+        data-tool={state.mode}
+        data-editing={state.inspector !== null ? "true" : undefined}
+        aria-label={`Scatter plot of PC${state.x + 1} against PC${state.y + 1}, ${samples.length} samples`}
         style={{
-          width: "100%",
-          height: "100%",
           position: "relative",
           touchAction: "none",
         }}
@@ -394,7 +504,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         )}
         {!samples.length && (
           <div className="plot-message">
-            No visible samples. Show populations in the legend or clear your search.
+            No visible samples. Show populations in the legend or clear your
+            search.
           </div>
         )}
       </div>

@@ -54,7 +54,11 @@ export function LegendRow({
         />
         <span className="legend-name">{population.name}</span>
         {custom.hull && (
-          <Pentagon size={11} className="hull-indicator" aria-label="Convex hull active" />
+          <Pentagon
+            size={11}
+            className="hull-indicator"
+            aria-label="Convex hull active"
+          />
         )}
         {state.settings.legendCounts && (
           <span className="legend-count">{population.count}</span>

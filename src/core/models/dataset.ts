@@ -1,6 +1,6 @@
 /**
  * Core Domain Models: Dataset, Sample, and Population
- * 
+ *
  * Pure entities representing biological samples and population groupings
  * parsed from smartPCA .evec files. Independent of visualization frameworks.
  */

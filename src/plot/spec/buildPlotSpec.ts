@@ -1,9 +1,9 @@
 /**
  * Plot Specification Builder
- * 
+ *
  * Pure transformation pipeline:
  * (Dataset, ActiveSamples, ViewState, LabelOffsets) -> PlotSpec
- * 
+ *
  * Constructs a complete engine-agnostic visualization specification.
  */
 
@@ -158,8 +158,7 @@ export function buildPlotSpec(
     // 3. Population Centroid Annotation
     if (popOverride?.label ?? settings.groupLabels) {
       const name = annotationName("population", pop.name);
-      const offset =
-        offsets.get(`${x}:${y}:${name}`) ??
+      const offset = offsets.get(`${x}:${y}:${name}`) ??
         offsets.get(`${x}:${y}:${pop.name}`) ?? { ax: 22, ay: -28 };
 
       annotations.push({

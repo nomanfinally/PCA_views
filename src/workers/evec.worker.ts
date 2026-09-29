@@ -7,7 +7,8 @@ self.onmessage = async (event: MessageEvent<File>) => {
     self.postMessage({ dataset });
   } catch (error) {
     self.postMessage({
-      error: error instanceof Error ? error.message : "Unable to read this file.",
+      error:
+        error instanceof Error ? error.message : "Unable to read this file.",
     });
   }
 };

@@ -1,11 +1,17 @@
 /**
  * PlotSpec to Plotly Mapper
- * 
+ *
  * Transforms an engine-agnostic PlotSpec into concrete Plotly Data, Layout, and Config objects.
  */
 
 import type { Annotations, Config, Data, Layout, Shape } from "plotly.js";
-import type { PlotAnnotation, PlotPoint, PlotShape, PlotSpec, PlotTrace } from "../../spec/plotSpec";
+import type {
+  PlotAnnotation,
+  PlotPoint,
+  PlotShape,
+  PlotSpec,
+  PlotTrace,
+} from "../../spec/plotSpec";
 
 export interface PlotlyBundle {
   data: Data[];
@@ -71,7 +77,11 @@ export function mapShapeToPlotly(shape: PlotShape): Partial<Shape> {
       y0: shape.line.y0,
       x1: shape.line.x1,
       y1: shape.line.y1,
-      line: { color: shape.color, width: shape.width, dash: shape.dash ?? "dash" },
+      line: {
+        color: shape.color,
+        width: shape.width,
+        dash: shape.dash ?? "dash",
+      },
       opacity: shape.opacity,
       layer: "below",
       xref: "x",
@@ -82,7 +92,9 @@ export function mapShapeToPlotly(shape: PlotShape): Partial<Shape> {
   return {};
 }
 
-export function mapAnnotationToPlotly(ann: PlotAnnotation): Partial<Annotations> & { name?: string } {
+export function mapAnnotationToPlotly(
+  ann: PlotAnnotation,
+): Partial<Annotations> & { name?: string } {
   return {
     name: ann.id,
     x: ann.x,
@@ -117,7 +129,7 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
   if (spec.overlays.markedKeys.length > 0) {
     const markedPoints = spec.overlays.markedKeys
       .map((k) => pointMap.get(k))
-      .filter((p): p is typeof allPoints[0] => Boolean(p));
+      .filter((p): p is (typeof allPoints)[0] => Boolean(p));
 
     if (markedPoints.length > 0) {
       data.push({
@@ -143,7 +155,7 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
   if (spec.overlays.selectionKeys.length > 0) {
     const selectedPoints = spec.overlays.selectionKeys
       .map((k) => pointMap.get(k))
-      .filter((p): p is typeof allPoints[0] => Boolean(p));
+      .filter((p): p is (typeof allPoints)[0] => Boolean(p));
 
     if (selectedPoints.length > 0) {
       data.push({
@@ -166,7 +178,9 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
   }
 
   const shapes: Partial<Shape>[] = spec.shapes.map(mapShapeToPlotly);
-  const annotations: Partial<Annotations>[] = spec.annotations.map(mapAnnotationToPlotly);
+  const annotations: Partial<Annotations>[] = spec.annotations.map(
+    mapAnnotationToPlotly,
+  );
 
   const layout: Partial<Layout> = {
     paper_bgcolor: spec.layout.background,

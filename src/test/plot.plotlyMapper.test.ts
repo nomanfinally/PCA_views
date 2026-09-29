@@ -18,12 +18,8 @@ describe("plot/adapters/plotly/plotlyMapper", () => {
       x: 0,
       y: 1,
       settings: defaultSettings,
-      populations: new Map([
-        ["POP_A", { hull: true, regression: true }],
-      ]),
-      points: new Map([
-        [0, { marked: true }],
-      ]),
+      populations: new Map([["POP_A", { hull: true, regression: true }]]),
+      points: new Map([[0, { marked: true }]]),
       selected: new Set([1]),
     };
 
