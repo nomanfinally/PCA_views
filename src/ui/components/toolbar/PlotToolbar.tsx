@@ -5,6 +5,7 @@ import {
   CaseSensitive,
   CircleDashed,
   CircleDot,
+  CircleX,
   Contrast,
   Crosshair,
   Eye,
@@ -139,6 +140,15 @@ export function PlotToolbar({
   const anyRegression = names.some((n) => state.populations.get(n)?.regression);
   const isHollow = s.markerPreset.startsWith("hollow");
 
+  const markedCount = React.useMemo(() => {
+    let count = 0;
+    for (const style of state.points.values()) {
+      if (style.marked) count++;
+    }
+    return count;
+  }, [state.points]);
+  const canClearMarks = markedCount > 0 || state.selected.size > 0;
+
   return (
     <div className="chart-tools" role="toolbar" aria-label="Plot tools">
       {/* Elevated Samples Table option - placed in toolbar, slightly elevated above normal tools */}
@@ -162,8 +172,8 @@ export function PlotToolbar({
         </button>
       </div>
 
-      {/* 1. Drag & interaction mode */}
-      <div className="tool-group" role="group" aria-label="Interaction mode">
+      {/* 1. Drag & interaction mode and marks */}
+      <div className="tool-group" role="group" aria-label="Interaction mode and marks">
         {(
           [
             { value: "pan", label: "Pan mode", Icon: Hand },
@@ -187,6 +197,21 @@ export function PlotToolbar({
             <Icon size={16} />
           </button>
         ))}
+        <button
+          className={`icon-button ${markedCount > 0 ? "has-marks" : ""}`}
+          aria-label="Clear marks"
+          title={
+            markedCount > 0
+              ? `Clear marks (${markedCount} marked)`
+              : state.selected.size > 0
+                ? `Clear selection (${state.selected.size} selected)`
+                : "Clear marks"
+          }
+          disabled={!canClearMarks}
+          onClick={() => dispatch({ type: "clearMarks" })}
+        >
+          <CircleX size={16} />
+        </button>
       </div>
 
       {/* 2. Zoom & fit controls */}

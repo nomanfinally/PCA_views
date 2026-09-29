@@ -70,6 +70,31 @@ describe("Toolbar Interaction Cycles", () => {
     width = cycleOutlineWidth(width);
     expect(width).toBe(2.5);
   });
+
+  it("determines Clear marks toolbar button enabled state correctly", () => {
+    const getClearMarksState = (markedCount: number, selectedCount: number) => {
+      const canClearMarks = markedCount > 0 || selectedCount > 0;
+      const title =
+        markedCount > 0
+          ? `Clear marks (${markedCount} marked)`
+          : selectedCount > 0
+            ? `Clear selection (${selectedCount} selected)`
+            : "Clear marks";
+      return { canClearMarks, title };
+    };
+
+    // No marks, no selection -> disabled
+    expect(getClearMarksState(0, 0).canClearMarks).toBe(false);
+    expect(getClearMarksState(0, 0).title).toBe("Clear marks");
+
+    // Marked points -> enabled with count
+    expect(getClearMarksState(3, 0).canClearMarks).toBe(true);
+    expect(getClearMarksState(3, 0).title).toBe("Clear marks (3 marked)");
+
+    // Selected points -> enabled with count
+    expect(getClearMarksState(0, 5).canClearMarks).toBe(true);
+    expect(getClearMarksState(0, 5).title).toBe("Clear selection (5 selected)");
+  });
 });
 
 describe("Settings Dialog Structure & Resumability", () => {

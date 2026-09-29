@@ -9,6 +9,7 @@ import {
   Camera,
   CircleDashed,
   CircleDot,
+  CircleX,
   CaseSensitive,
   Contrast,
   Eye,
@@ -172,9 +173,16 @@ export function PlotTools({
   const visible = names.some((n) => !state.populations.get(n)?.hidden);
   const hulls = names.some((n) => state.populations.get(n)?.hull),
     regression = names.some((n) => state.populations.get(n)?.regression);
+
+  let markedCount = 0;
+  for (const style of state.points.values()) {
+    if (style.marked) markedCount++;
+  }
+  const canClearMarks = markedCount > 0 || state.selected.size > 0;
+
   return (
     <div className="chart-tools" role="toolbar" aria-label="Plot tools">
-      <div className="tool-group" role="group" aria-label="Interaction mode">
+      <div className="tool-group" role="group" aria-label="Interaction mode and marks">
         {(
           [
             { value: "pan", label: "Pan mode", Icon: Hand },
@@ -198,6 +206,21 @@ export function PlotTools({
             <Icon size={16} />
           </button>
         ))}
+        <button
+          className={`icon-button ${markedCount > 0 ? "has-marks" : ""}`}
+          aria-label="Clear marks"
+          title={
+            markedCount > 0
+              ? `Clear marks (${markedCount} marked)`
+              : state.selected.size > 0
+                ? `Clear selection (${state.selected.size} selected)`
+                : "Clear marks"
+          }
+          disabled={!canClearMarks}
+          onClick={() => dispatch({ type: "clearMarks" })}
+        >
+          <CircleX size={16} />
+        </button>
       </div>
       <div className="tool-group" role="group" aria-label="Zoom and fit">
         <button

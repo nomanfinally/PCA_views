@@ -256,6 +256,13 @@ button.btn-done:active:not(:disabled) {
   background: var(--active-surface);
   color: var(--accent);
 }
+.icon-button.has-marks {
+  color: #d13e42;
+}
+.icon-button.has-marks:hover:not(:disabled) {
+  color: #b91c1c;
+  background: #fee2e2;
+}
 .text-button {
   font-size: 10px;
   padding: 0;
