@@ -140,5 +140,52 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     await exportCsvBtn.click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toContain(".csv");
+
+    // 8. Verify opening edit tool and saving unchanged value does NOT show 'edited' badge
+    const editDeltaBtn = page.getByRole("button", {
+      name: "Edit population for Delta",
+      exact: true,
+    });
+    await expect(editDeltaBtn).toBeVisible();
+    await editDeltaBtn.click();
+    const inputDelta = page.getByLabel("Edit Group ID for Delta");
+    await expect(inputDelta).toBeVisible();
+    await page.keyboard.press("Enter");
+    // Verify row for Delta does not show edited badge
+    await expect(rows.nth(3)).not.toContainText("edited");
+
+    // Close the table modal
+    await page.getByLabel("Close dialog", { exact: true }).click();
+    await expect(tableModal).not.toBeVisible();
+
+    // 9. Verify aspect ratio button cycles through exactly the four presets: full -> 1:1 -> 16:9 -> 4:5 -> full
+    const ratioBtn = page.getByRole("button", {
+      name: /^Cycle chart ratio:/,
+    });
+    await expect(ratioBtn).toHaveAttribute(
+      "aria-label",
+      "Cycle chart ratio: full",
+    );
+    await ratioBtn.click();
+    await expect(ratioBtn).toHaveAttribute(
+      "aria-label",
+      "Cycle chart ratio: 1:1",
+    );
+    await ratioBtn.click();
+    await expect(ratioBtn).toHaveAttribute(
+      "aria-label",
+      "Cycle chart ratio: 16:9",
+    );
+    await ratioBtn.click();
+    await expect(ratioBtn).toHaveAttribute(
+      "aria-label",
+      "Cycle chart ratio: 4:5",
+    );
+    await ratioBtn.click();
+    await expect(ratioBtn).toHaveAttribute(
+      "aria-label",
+      "Cycle chart ratio: full",
+    );
   });
 });
+

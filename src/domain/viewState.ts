@@ -9,10 +9,7 @@ export const aspectRatios = [
   "full",
   "1:1",
   "16:9",
-  "4:3",
-  "3:2",
   "4:5",
-  "9:16",
 ] as const;
 export type AspectRatio = (typeof aspectRatios)[number];
 export const legendPositions = [
@@ -31,8 +28,11 @@ export const markerTreatments = [
   "mixed",
 ] as const;
 export type MarkerTreatment = (typeof markerTreatments)[number];
-export const cycleValue = <T>(values: readonly T[], current: T) =>
-  values[(values.indexOf(current) + 1) % values.length];
+export const cycleValue = <T>(values: readonly T[], current: T) => {
+  const idx = values.indexOf(current);
+  if (idx === -1) return values[0];
+  return values[(idx + 1) % values.length];
+};
 export const shapeSequence: MarkerSymbol[] = [
   "circle",
   "square",

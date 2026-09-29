@@ -850,7 +850,7 @@ test("legend layout, ratio thumbnails, population styles and separate alpha cont
   await page.getByLabel("Plot settings", { exact: true }).click();
   await page.getByRole("tab", { name: "Markers", exact: true }).click();
   await page.getByRole("tab", { name: "Chart", exact: true }).click();
-  for (const ratio of ["1:1", "16:9", "4:3", "3:2", "4:5", "9:16"]) {
+  for (const ratio of ["1:1", "16:9", "4:5"]) {
     await page.getByLabel(`Chart ratio ${ratio}`, { exact: true }).click();
     const [x, y] = ratio.split(":").map(Number);
     await expect

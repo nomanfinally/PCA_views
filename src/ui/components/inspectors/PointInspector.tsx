@@ -18,6 +18,7 @@ import { Popover, type Anchor } from "../../primitives/Popover";
 
 export interface PointInspectorProps {
   dataset: Dataset;
+  originalDataset?: Dataset;
   state: ViewState;
   dispatch: React.Dispatch<ViewAction>;
   anchor?: Anchor | null;
@@ -26,6 +27,7 @@ export interface PointInspectorProps {
 
 export function PointInspector({
   dataset,
+  originalDataset,
   state,
   dispatch,
   anchor,
@@ -39,12 +41,24 @@ export function PointInspector({
   const sample = dataset.samples[state.inspector];
   if (!sample) return null;
 
-  const population = dataset.populations.find(
-    (p) => p.name === sample.population,
-  );
-  if (!population) return null;
+  const origPop =
+    originalDataset?.samples[sample.key]?.population ?? sample.population;
+  const currentPopName =
+    state.samplePopulations?.get(sample.key) ?? origPop;
+  const isCustomPop =
+    Boolean(state.samplePopulations?.get(sample.key)) &&
+    state.samplePopulations.get(sample.key) !== origPop;
 
-  const popStyle = state.populations.get(sample.population);
+  const population = dataset.populations.find(
+    (p) => p.name === currentPopName,
+  ) ?? {
+    name: currentPopName,
+    count: 1,
+    color: "#888888",
+    symbol: "circle",
+  };
+
+  const popStyle = state.populations.get(currentPopName);
   const custom = state.points.get(sample.key) ?? {};
   const isExcluded = Boolean(state.excludedSamples?.has(sample.key));
 
@@ -64,6 +78,23 @@ export function PointInspector({
     dispatch({ type: "point", key: sample.key, patch: patchValue });
 
   const close = onClose ?? (() => dispatch({ type: "inspect", key: null }));
+
+  const handleSavePop = () => {
+    const trimmed = popValue.trim();
+    if (!trimmed || trimmed === origPop) {
+      dispatch({
+        type: "resetSamplePopulation",
+        key: sample.key,
+      });
+    } else if (trimmed !== state.samplePopulations?.get(sample.key)) {
+      dispatch({
+        type: "setSamplePopulation",
+        key: sample.key,
+        population: trimmed,
+      });
+    }
+    setEditingPop(false);
+  };
 
   const contents = (
     <>
@@ -101,15 +132,29 @@ export function PointInspector({
             />
             <span
               className="point-population"
-              style={{ margin: 0, fontWeight: 600 }}
+              style={{ margin: 0, fontWeight: isCustomPop ? 600 : 500 }}
             >
-              {sample.population}
+              {currentPopName}
             </span>
+            {isCustomPop && (
+              <span
+                style={{
+                  fontSize: 10,
+                  background: "#e0e7ff",
+                  color: "#3730a3",
+                  padding: "1px 4px",
+                  borderRadius: 4,
+                  marginLeft: 4,
+                }}
+              >
+                edited
+              </span>
+            )}
             <button
               type="button"
               className="text-button btn-tiny-action"
               onClick={() => {
-                setPopValue(sample.population);
+                setPopValue(currentPopName);
                 setEditingPop(true);
               }}
               aria-label="Change group ID"
@@ -118,6 +163,23 @@ export function PointInspector({
             >
               Change FID
             </button>
+            {isCustomPop && (
+              <button
+                type="button"
+                className="icon-button"
+                aria-label={`Reset population for ${sample.id}`}
+                title={`Reset to original (${origPop})`}
+                onClick={() => {
+                  dispatch({
+                    type: "resetSamplePopulation",
+                    key: sample.key,
+                  });
+                }}
+                style={{ padding: 2, height: 20, width: 20, marginLeft: 2 }}
+              >
+                <RotateCcw size={11} />
+              </button>
+            )}
           </div>
         ) : (
           <div className="point-fid-edit">
@@ -141,16 +203,9 @@ export function PointInspector({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
-                    if (popValue.trim()) {
-                      dispatch({
-                        type: "setSamplePopulation",
-                        key: sample.key,
-                        population: popValue.trim(),
-                      });
-                      setEditingPop(false);
-                    }
+                    handleSavePop();
                   } else if (e.key === "Escape") {
-                    setPopValue(sample.population);
+                    setPopValue(currentPopName);
                     setEditingPop(false);
                   }
                 }}
@@ -159,16 +214,7 @@ export function PointInspector({
                 type="button"
                 className="btn-tiny"
                 style={{ fontSize: 11, padding: "2px 6px" }}
-                onClick={() => {
-                  if (popValue.trim()) {
-                    dispatch({
-                      type: "setSamplePopulation",
-                      key: sample.key,
-                      population: popValue.trim(),
-                    });
-                    setEditingPop(false);
-                  }
-                }}
+                onClick={handleSavePop}
               >
                 Save
               </button>
@@ -177,7 +223,7 @@ export function PointInspector({
                 className="btn-tiny"
                 style={{ fontSize: 11, padding: "2px 6px" }}
                 onClick={() => {
-                  setPopValue(sample.population);
+                  setPopValue(currentPopName);
                   setEditingPop(false);
                 }}
               >

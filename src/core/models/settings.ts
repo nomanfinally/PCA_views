@@ -16,10 +16,7 @@ export const aspectRatios = [
   "full",
   "1:1",
   "16:9",
-  "4:3",
-  "3:2",
   "4:5",
-  "9:16",
 ] as const;
 export type AspectRatio = (typeof aspectRatios)[number];
 

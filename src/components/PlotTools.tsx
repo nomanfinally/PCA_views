@@ -127,8 +127,11 @@ export function PlotTools({
   const s = state.settings;
   const patch = (value: Partial<typeof s>) =>
     dispatch({ type: "settings", patch: value });
-  const cycle = <T,>(values: readonly T[], current: T) =>
-    values[(values.indexOf(current) + 1) % values.length];
+  const cycle = <T,>(values: readonly T[], current: T) => {
+    const idx = values.indexOf(current);
+    if (idx === -1) return values[0];
+    return values[(idx + 1) % values.length];
+  };
   const cycleSize = (current: number) => {
     const presets = [7, 9, 11, 14, 3, 5];
     const idx = presets.indexOf(current);

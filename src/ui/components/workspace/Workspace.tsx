@@ -430,6 +430,7 @@ export function Workspace({
       {state.inspector !== null && (
         <PointInspector
           dataset={effectiveDataset}
+          originalDataset={dataset}
           state={state}
           dispatch={dispatch}
           anchor={pointAnchor}
@@ -478,6 +479,7 @@ export function Workspace({
       {tableOpen && (
         <SampleTableDialog
           dataset={effectiveDataset}
+          originalDataset={dataset}
           allSamples={effectiveDataset.samples}
           samples={activeSamples}
           x={state.x}

@@ -144,4 +144,23 @@ sample5 0.95 0.85 Han.DG`;
     expect(lines[4]).toContain("sample4");
     expect(lines[4]).toContain("Han.DG_excluded");
   });
+
+  it("resets custom sample population when reverted", () => {
+    const dataset = parseEvec(sampleEvec, "test.evec");
+    let state = initialView(dataset);
+
+    state = viewReducer(state, {
+      type: "setSamplePopulation",
+      key: 0,
+      population: "CustomGroup",
+    });
+    expect(state.samplePopulations.get(0)).toBe("CustomGroup");
+
+    state = viewReducer(state, {
+      type: "resetSamplePopulation",
+      key: 0,
+    });
+    expect(state.samplePopulations.has(0)).toBe(false);
+  });
 });
+

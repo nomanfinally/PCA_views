@@ -23,6 +23,7 @@ import { Modal } from "../../primitives/Modal";
 
 export interface SampleTableDialogProps {
   dataset?: Dataset;
+  originalDataset?: Dataset;
   samples?: Sample[];
   allSamples?: Sample[];
   x: number;
@@ -39,6 +40,7 @@ const PAGE_SIZE = 50;
 
 export function SampleTableDialog({
   dataset,
+  originalDataset,
   samples,
   allSamples,
   x,
@@ -125,7 +127,16 @@ export function SampleTableDialog({
 
   const handleSavePop = (key: number) => {
     const trimmed = editPopValue.trim();
-    if (trimmed && dispatch) {
+    const origPop =
+      originalDataset?.samples[key]?.population ??
+      sampleList.find((s) => s.key === key)?.population;
+    if (!dispatch) {
+      setEditingKey(null);
+      return;
+    }
+    if (!trimmed || trimmed === origPop) {
+      dispatch({ type: "resetSamplePopulation", key });
+    } else if (trimmed !== samplePops.get(key)) {
       dispatch({
         type: "setSamplePopulation",
         key,
@@ -273,9 +284,14 @@ export function SampleTableDialog({
             <tbody>
               {pageRows.map((sample) => {
                 const isExcluded = excludedKeys.has(sample.key);
+                const origPop =
+                  originalDataset?.samples[sample.key]?.population ??
+                  sample.population;
                 const currentPop =
-                  samplePops.get(sample.key) ?? sample.population;
-                const isCustomPop = samplePops.has(sample.key);
+                  samplePops.get(sample.key) ?? origPop;
+                const isCustomPop =
+                  Boolean(samplePops.get(sample.key)) &&
+                  samplePops.get(sample.key) !== origPop;
                 const isEditing = editingKey === sample.key;
                 const isMarked = Boolean(state?.points.get(sample.key)?.marked);
 
@@ -465,7 +481,7 @@ export function SampleTableDialog({
                               type="button"
                               className="icon-button"
                               aria-label={`Reset population for ${sample.id}`}
-                              title={`Reset to original (${sample.population})`}
+                              title={`Reset to original (${origPop})`}
                               onClick={() => {
                                 if (dispatch) {
                                   dispatch({

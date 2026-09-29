@@ -83,6 +83,7 @@ export function PlotToolbar({
 
   const cycle = <T,>(values: readonly T[], current: T): T => {
     const idx = values.indexOf(current);
+    if (idx === -1) return values[0];
     return values[(idx + 1) % values.length];
   };
 
