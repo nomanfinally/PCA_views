@@ -213,6 +213,8 @@ export interface ViewState {
   points: Map<number, SampleStyle>;
   selected: Set<number>;
   inspector: number | null;
+  excludedSamples: Set<number>;
+  samplePopulations: Map<number, string>;
   settings: PlotSettings;
 }
 const populationDefaults = (index: number, count: number): PopulationStyle => ({
@@ -239,6 +241,8 @@ export const initialView = (dataset?: Dataset): ViewState => ({
   points: new Map(),
   selected: new Set(),
   inspector: null,
+  excludedSamples: new Set(),
+  samplePopulations: new Map(),
   settings: {
     ...defaultSettings,
     markerPreset: (dataset?.populations.length ?? 0) > 8 ? "shapes" : "circles",
@@ -265,7 +269,13 @@ export type ViewAction =
   | { type: "select"; keys: number[] }
   | { type: "markSelection"; marked: boolean }
   | { type: "clearMarks" }
-  | { type: "resetAppearance" };
+  | { type: "resetAppearance" }
+  | { type: "toggleExcludeSample"; key: number }
+  | { type: "setSampleExcluded"; key: number; excluded: boolean }
+  | { type: "setMultipleExcluded"; keys: number[]; excluded: boolean }
+  | { type: "setSamplePopulation"; key: number; population: string }
+  | { type: "resetSamplePopulation"; key: number }
+  | { type: "clearAllExclusions" };
 export function viewReducer(state: ViewState, action: ViewAction): ViewState {
   switch (action.type) {
     case "resetView":
@@ -471,12 +481,90 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
         points: new Map(),
         selected: new Set(),
       };
+
+    case "toggleExcludeSample": {
+      const excludedSamples = new Set(state.excludedSamples);
+      if (excludedSamples.has(action.key)) {
+        excludedSamples.delete(action.key);
+      } else {
+        excludedSamples.add(action.key);
+      }
+      return { ...state, excludedSamples };
+    }
+
+    case "setSampleExcluded": {
+      const excludedSamples = new Set(state.excludedSamples);
+      if (action.excluded) {
+        excludedSamples.add(action.key);
+      } else {
+        excludedSamples.delete(action.key);
+      }
+      return { ...state, excludedSamples };
+    }
+
+    case "setMultipleExcluded": {
+      const excludedSamples = new Set(state.excludedSamples);
+      action.keys.forEach((key) => {
+        if (action.excluded) {
+          excludedSamples.add(key);
+        } else {
+          excludedSamples.delete(key);
+        }
+      });
+      return { ...state, excludedSamples };
+    }
+
+    case "clearAllExclusions":
+      return { ...state, excludedSamples: new Set() };
+
+    case "setSamplePopulation": {
+      const targetPop = action.population.trim();
+      if (!targetPop) return state;
+
+      const samplePopulations = new Map(state.samplePopulations);
+      samplePopulations.set(action.key, targetPop);
+
+      const populations = new Map(state.populations);
+      const populationNames = [...state.populationNames];
+
+      if (!populations.has(targetPop)) {
+        const index = populationNames.length;
+        populationNames.push(targetPop);
+        const totalCount = populationNames.length;
+        const isHollow = state.settings.markerPreset.startsWith("hollow");
+        const shape =
+          state.settings.markerPreset.includes("shapes") || totalCount > 8
+            ? shapeSequence[index % shapeSequence.length]
+            : "circle";
+        populations.set(targetPop, {
+          color: paletteColor(index, state.settings.palette),
+          symbol: (shape + (isHollow ? "-open" : "")) as MarkerSymbol,
+        });
+      }
+
+      return {
+        ...state,
+        samplePopulations,
+        populationNames,
+        populations,
+      };
+    }
+
+    case "resetSamplePopulation": {
+      const samplePopulations = new Map(state.samplePopulations);
+      samplePopulations.delete(action.key);
+      return { ...state, samplePopulations };
+    }
+
+    default:
+      return state;
   }
 }
 export function filteredSamples(dataset: Dataset, state: ViewState) {
   const query = state.search.trim().toLowerCase();
   return dataset.samples.filter(
     (s) =>
+      !state.excludedSamples?.has(s.key) &&
       !state.populations.get(s.population)?.hidden &&
       (!query ||
         s.id.toLowerCase().includes(query) ||

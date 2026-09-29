@@ -1,5 +1,5 @@
-import React from "react";
-import { Circle, RotateCcw, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Circle, Eye, EyeOff, RotateCcw, X } from "lucide-react";
 import type { Dataset } from "../../../core/models/dataset";
 import {
   markerSymbols,
@@ -31,6 +31,9 @@ export function PointInspector({
   anchor,
   onClose,
 }: PointInspectorProps) {
+  const [editingPop, setEditingPop] = useState(false);
+  const [popValue, setPopValue] = useState("");
+
   if (state.inspector === null) return null;
 
   const sample = dataset.samples[state.inspector];
@@ -43,6 +46,7 @@ export function PointInspector({
 
   const popStyle = state.populations.get(sample.population);
   const custom = state.points.get(sample.key) ?? {};
+  const isExcluded = Boolean(state.excludedSamples?.has(sample.key));
 
   const resolved = resolveMarkerStyle({
     population,
@@ -79,7 +83,161 @@ export function PointInspector({
         </div>
       )}
 
-      <p className="point-population">{sample.population}</p>
+      {/* Group ID (FID) with inline editing */}
+      <div className="point-fid-section">
+        {!editingPop ? (
+          <div className="point-fid-display">
+            <span
+              className="swatch"
+              style={{
+                background: resolved.color,
+                width: 10,
+                height: 10,
+                borderRadius: "50%",
+                display: "inline-block",
+                marginRight: 6,
+                flexShrink: 0,
+              }}
+            />
+            <span
+              className="point-population"
+              style={{ margin: 0, fontWeight: 600 }}
+            >
+              {sample.population}
+            </span>
+            <button
+              type="button"
+              className="text-button btn-tiny-action"
+              onClick={() => {
+                setPopValue(sample.population);
+                setEditingPop(true);
+              }}
+              aria-label="Change group ID"
+              title="Change group ID (FID)"
+              style={{ marginLeft: "auto", fontSize: 11, padding: "1px 6px" }}
+            >
+              Change FID
+            </button>
+          </div>
+        ) : (
+          <div className="point-fid-edit">
+            <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              <input
+                type="text"
+                className="point-fid-input"
+                aria-label="Group ID (FID)"
+                value={popValue}
+                onChange={(e) => setPopValue(e.target.value)}
+                list="inspector-population-datalist"
+                placeholder="New group ID..."
+                autoFocus
+                style={{
+                  fontSize: 12,
+                  padding: "3px 6px",
+                  borderRadius: 4,
+                  border: "1px solid #ccc",
+                  flex: 1,
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (popValue.trim()) {
+                      dispatch({
+                        type: "setSamplePopulation",
+                        key: sample.key,
+                        population: popValue.trim(),
+                      });
+                      setEditingPop(false);
+                    }
+                  } else if (e.key === "Escape") {
+                    setPopValue(sample.population);
+                    setEditingPop(false);
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="btn-tiny"
+                style={{ fontSize: 11, padding: "2px 6px" }}
+                onClick={() => {
+                  if (popValue.trim()) {
+                    dispatch({
+                      type: "setSamplePopulation",
+                      key: sample.key,
+                      population: popValue.trim(),
+                    });
+                    setEditingPop(false);
+                  }
+                }}
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                className="btn-tiny"
+                style={{ fontSize: 11, padding: "2px 6px" }}
+                onClick={() => {
+                  setPopValue(sample.population);
+                  setEditingPop(false);
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            <datalist id="inspector-population-datalist">
+              {dataset.populations.map((p) => (
+                <option key={p.name} value={p.name} />
+              ))}
+            </datalist>
+          </div>
+        )}
+      </div>
+
+      {/* Unplot / Exclude toggle */}
+      <div className="point-exclude-section" style={{ margin: "6px 0 8px" }}>
+        <button
+          type="button"
+          className={`button ${isExcluded ? "btn-include" : "btn-unplot"}`}
+          aria-label={isExcluded ? "Include sample in plot" : "Unplot sample"}
+          title={
+            isExcluded
+              ? "Include this sample back in the plot, convex hulls, and calculations"
+              : "Unplot this sample: removes dot and recalculates convex hulls & centroids"
+          }
+          style={{
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 6,
+            fontSize: 12,
+            padding: "4px 8px",
+            background: isExcluded ? "#ecfdf5" : "#fef2f2",
+            color: isExcluded ? "#065f46" : "#991b1b",
+            border: `1px solid ${isExcluded ? "#a7f3d0" : "#fecaca"}`,
+            borderRadius: 6,
+            cursor: "pointer",
+            fontWeight: 500,
+          }}
+          onClick={() => {
+            dispatch({
+              type: "setSampleExcluded",
+              key: sample.key,
+              excluded: !isExcluded,
+            });
+          }}
+        >
+          {isExcluded ? (
+            <>
+              <Eye size={13} /> Include in plot
+            </>
+          ) : (
+            <>
+              <EyeOff size={13} /> Unplot sample (exclude)
+            </>
+          )}
+        </button>
+      </div>
 
       <div className="point-coordinates">
         <span>

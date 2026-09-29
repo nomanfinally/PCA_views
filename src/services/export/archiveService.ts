@@ -49,6 +49,14 @@ export function serializeArchive(
       points: state.points instanceof Map ? [...state.points] : state.points,
       selected:
         state.selected instanceof Set ? [...state.selected] : state.selected,
+      excludedSamples:
+        state.excludedSamples instanceof Set
+          ? [...state.excludedSamples]
+          : (state.excludedSamples ?? []),
+      samplePopulations:
+        state.samplePopulations instanceof Map
+          ? [...state.samplePopulations]
+          : (state.samplePopulations ?? []),
     },
     viewport,
     imageOptions,
@@ -64,6 +72,10 @@ export function restoreArchiveState(archive: Archive): any {
     populations: new Map<string, PopulationStyle>(archive.state.populations),
     points: new Map<number, SampleStyle>(archive.state.points),
     selected: new Set<number>(archive.state.selected),
+    excludedSamples: new Set<number>(archive.state.excludedSamples ?? []),
+    samplePopulations: new Map<number, string>(
+      archive.state.samplePopulations ?? [],
+    ),
     inspector: null,
   };
 }

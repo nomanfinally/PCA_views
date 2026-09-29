@@ -42,6 +42,10 @@ export interface ViewState {
   selected: Set<number>;
   /** Sample key currently opened in the inspector popover, or null */
   inspector: number | null;
+  /** Set of sample keys that are unplotted / excluded from plotting and calculations */
+  excludedSamples: Set<number>;
+  /** Map of custom sample population / group ID overrides (key -> population) */
+  samplePopulations: Map<number, string>;
   /** Global plot appearance and canvas layout settings */
   settings: PlotSettings;
 }
@@ -87,6 +91,8 @@ export function initialView(dataset?: Dataset): ViewState {
     points: new Map(),
     selected: new Set(),
     inspector: null,
+    excludedSamples: new Set(),
+    samplePopulations: new Map(),
     settings: {
       ...defaultSettings,
       markerPreset: popCount > 8 ? "shapes" : "circles",

@@ -19,6 +19,7 @@ import {
   downloadBlob,
   downloadText,
   samplesToCsv,
+  samplesToEvec,
 } from "../../../services/export/csvExport";
 import {
   downloadArchive,
@@ -137,12 +138,29 @@ export function ExportDialog({
   };
 
   const handleDownloadCsv = () => {
-    const csvContent = samplesToCsv(samples, dataset.pcCount);
+    const csvContent = samplesToCsv(dataset.samples, dataset.pcCount, {
+      excludedKeys: state.excludedSamples,
+      samplePopulations: state.samplePopulations,
+    });
     const baseName = dataset.name.replace(/\.evec$/i, "");
     downloadText(
       csvContent,
       `${baseName}_filtered.csv`,
       "text/csv;charset=utf-8",
+    );
+    onClose();
+  };
+
+  const handleDownloadEvec = () => {
+    const evecContent = samplesToEvec(dataset.samples, dataset.eigenvalues, {
+      excludedKeys: state.excludedSamples,
+      samplePopulations: state.samplePopulations,
+    });
+    const baseName = dataset.name.replace(/\.evec$/i, "");
+    downloadText(
+      evecContent,
+      `${baseName}_export.evec`,
+      "text/plain;charset=utf-8",
     );
     onClose();
   };
@@ -166,9 +184,16 @@ export function ExportDialog({
     }
   };
 
+  type NumberOptionKey = {
+    [K in keyof ImageOptions]: NonNullable<ImageOptions[K]> extends number
+      ? K
+      : never;
+  }[keyof ImageOptions] &
+    keyof ImageOptions;
+
   const number = (
     label: string,
-    key: keyof ImageOptions,
+    key: NumberOptionKey,
     min: number,
     max: number,
   ) => (
@@ -179,15 +204,16 @@ export function ExportDialog({
         type="number"
         min={min}
         max={max}
-        value={Number(options[key])}
+        value={options[key] ?? ""}
         onChange={(e) => {
-          if (e.target.value !== "")
-            patchOptions({
-              [key]: Math.max(
-                min,
-                Math.min(max, Math.round(Number(e.target.value))),
-              ),
-            });
+          if (e.target.value !== "") {
+            const num = Number(e.target.value);
+            if (!isNaN(num)) {
+              patchOptions({
+                [key]: Math.max(min, Math.min(max, Math.round(num))),
+              });
+            }
+          }
         }}
       />
     </label>
@@ -366,22 +392,31 @@ export function ExportDialog({
           </div>
         )}
 
-        {/* Tab 2: CSV Data Export */}
+        {/* Tab 2: CSV / EVEC Data Export */}
         {activeTab === "csv" && (
           <div className="export-tab-content csv-export">
             <p>
-              Download filtered sample rows ({samples.length.toLocaleString()}{" "}
-              samples) including their Sample ID, Population, and principal
-              component coordinates in RFC 4180 compliant CSV format.
+              Download sample rows ({dataset.samples.length.toLocaleString()}{" "}
+              samples) including their Sample ID (IID), Population (FID), and
+              principal component coordinates in standard CSV or smartPCA .evec
+              format.
             </p>
             <p className="field-note">
-              Formula injection protection is automatically applied to prevent
-              spreadsheet macro execution when opened in Excel or Google Sheets.
+              Modified group labels are exported. Any unplotted/excluded samples
+              are included with "_excluded" appended to their group label (e.g.,
+              Han.DG_excluded).
             </p>
 
-            <button className="btn-primary" onClick={handleDownloadCsv}>
-              <Download size={14} /> Download CSV ({samples.length} rows)
-            </button>
+            <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+              <button className="btn-primary" onClick={handleDownloadCsv}>
+                <Download size={14} /> Download CSV ({dataset.samples.length}{" "}
+                rows)
+              </button>
+              <button className="button" onClick={handleDownloadEvec}>
+                <Download size={14} /> Download .evec ({dataset.samples.length}{" "}
+                rows)
+              </button>
+            </div>
           </div>
         )}
 

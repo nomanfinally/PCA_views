@@ -252,6 +252,80 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
         selected: new Set(),
       };
 
+    case "toggleExcludeSample": {
+      const excludedSamples = new Set(state.excludedSamples);
+      if (excludedSamples.has(action.key)) {
+        excludedSamples.delete(action.key);
+      } else {
+        excludedSamples.add(action.key);
+      }
+      return { ...state, excludedSamples };
+    }
+
+    case "setSampleExcluded": {
+      const excludedSamples = new Set(state.excludedSamples);
+      if (action.excluded) {
+        excludedSamples.add(action.key);
+      } else {
+        excludedSamples.delete(action.key);
+      }
+      return { ...state, excludedSamples };
+    }
+
+    case "setMultipleExcluded": {
+      const excludedSamples = new Set(state.excludedSamples);
+      action.keys.forEach((key) => {
+        if (action.excluded) {
+          excludedSamples.add(key);
+        } else {
+          excludedSamples.delete(key);
+        }
+      });
+      return { ...state, excludedSamples };
+    }
+
+    case "clearAllExclusions":
+      return { ...state, excludedSamples: new Set() };
+
+    case "setSamplePopulation": {
+      const targetPop = action.population.trim();
+      if (!targetPop) return state;
+
+      const samplePopulations = new Map(state.samplePopulations);
+      samplePopulations.set(action.key, targetPop);
+
+      const populations = new Map(state.populations);
+      const populationNames = [...state.populationNames];
+
+      if (!populations.has(targetPop)) {
+        const index = populationNames.length;
+        populationNames.push(targetPop);
+        const totalCount = populationNames.length;
+        const isHollow = state.settings.markerPreset.startsWith("hollow");
+        const shape =
+          state.settings.markerPreset.includes("shapes") || totalCount > 8
+            ? shapeSequence[index % shapeSequence.length]
+            : "circle";
+        populations.set(targetPop, {
+          color: paletteColor(index, state.settings.palette),
+          symbol: (shape + (isHollow ? "-open" : "")) as MarkerSymbol,
+        });
+      }
+
+      return {
+        ...state,
+        samplePopulations,
+        populationNames,
+        populations,
+      };
+    }
+
+    case "resetSamplePopulation": {
+      const samplePopulations = new Map(state.samplePopulations);
+      samplePopulations.delete(action.key);
+      return { ...state, samplePopulations };
+    }
+
     default:
       return state;
   }

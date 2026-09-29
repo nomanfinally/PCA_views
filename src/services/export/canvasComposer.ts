@@ -128,7 +128,7 @@ export function arrangeImage(
   const count = options.includeLegend ? names.length : 0;
   const columns = Math.max(
     1,
-    Math.min(Math.round(options.legendColumns), count || 1),
+    Math.min(Math.round(options.legendColumns || 1), count || 1),
   );
   const rows = Math.ceil(count / columns);
   const padding = count ? 10 : 0;
@@ -483,12 +483,20 @@ export async function composePng(
     });
   }
 
-  return new Promise<ComposedPngResult>((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve({ blob, placement });
-      else reject(new Error("Unable to create PNG export."));
-    }, "image/png");
-  });
+  try {
+    const dataUrl = canvas.toDataURL("image/png");
+    const parts = dataUrl.split(",");
+    const mime = parts[0].match(/:(.*?);/)?.[1] || "image/png";
+    const binary = atob(parts[1]);
+    const array = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      array[i] = binary.charCodeAt(i);
+    }
+    const blob = new Blob([array], { type: mime });
+    return { blob, placement };
+  } catch (err) {
+    throw new Error("Unable to create PNG export: " + String(err));
+  }
 }
 
 /**

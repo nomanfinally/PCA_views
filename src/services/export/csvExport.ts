@@ -18,10 +18,20 @@ export function formatCsvCell(value: string | number): string {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
+export interface SampleExportOptions {
+  excludedKeys?: Set<number>;
+  samplePopulations?: Map<number, string>;
+}
+
 /**
  * Serializes an array of samples and their principal component coordinates to standard CSV format.
+ * Applies formula-safety and appends '_excluded' for unplotted samples if options provided.
  */
-export function samplesToCsv(samples: Sample[], pcCount: number): string {
+export function samplesToCsv(
+  samples: Sample[],
+  pcCount: number,
+  options?: SampleExportOptions,
+): string {
   const header = [
     "Sample",
     "Population",
@@ -30,14 +40,56 @@ export function samplesToCsv(samples: Sample[], pcCount: number): string {
 
   const rows = [
     header.map(formatCsvCell).join(","),
-    ...samples.map((sample) =>
-      [sample.id, sample.population, ...sample.pcs]
-        .map(formatCsvCell)
-        .join(","),
-    ),
+    ...samples.map((sample) => {
+      const customPop = options?.samplePopulations?.get(sample.key);
+      const basePop = customPop ?? sample.population;
+      const isExcluded = Boolean(options?.excludedKeys?.has(sample.key));
+      const pop =
+        isExcluded && !basePop.endsWith("_excluded")
+          ? `${basePop}_excluded`
+          : basePop;
+
+      return [sample.id, pop, ...sample.pcs].map(formatCsvCell).join(",");
+    }),
   ];
 
   return rows.join("\r\n");
+}
+
+/**
+ * Serializes samples to smartPCA .evec format.
+ * Format:
+ * #eigvals:  val1  val2 ...
+ * SAMPLE_ID   PC1   PC2 ...  POPULATION
+ * Excluded samples retain their row with '_excluded' appended to their population.
+ */
+export function samplesToEvec(
+  samples: Sample[],
+  eigenvalues: number[] = [],
+  options?: SampleExportOptions,
+): string {
+  const lines: string[] = [];
+  if (eigenvalues && eigenvalues.length > 0) {
+    lines.push(`#eigvals: ${eigenvalues.map((v) => v.toFixed(6)).join("  ")}`);
+  }
+
+  for (const sample of samples) {
+    const customPop = options?.samplePopulations?.get(sample.key);
+    const basePop = customPop ?? sample.population;
+    const isExcluded = Boolean(options?.excludedKeys?.has(sample.key));
+    const pop =
+      isExcluded && !basePop.endsWith("_excluded")
+        ? `${basePop}_excluded`
+        : basePop;
+
+    const pcsStr = sample.pcs
+      .map((val) => val.toFixed(6).padStart(12, " "))
+      .join(" ");
+
+    lines.push(`${sample.id.padEnd(20, " ")} ${pcsStr}  ${pop}`);
+  }
+
+  return lines.join("\n") + "\n";
 }
 
 /**

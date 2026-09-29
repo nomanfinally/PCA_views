@@ -4,16 +4,81 @@
  * Pure functions extracting derived data from ViewState and Datasets.
  */
 
+import { paletteColor } from "../core/color/palettes";
 import type { Dataset, Population, Sample } from "../core/models/dataset";
 import type { ViewState } from "./viewState";
 
 /**
- * Filters dataset samples based on active search string and population hidden status.
+ * Derives an effective Dataset reflecting custom per-sample group ID (FID) reassignments.
+ */
+export function getEffectiveDataset(
+  dataset: Dataset,
+  samplePopulations?: Map<number, string>,
+): Dataset {
+  if (!samplePopulations || samplePopulations.size === 0) {
+    return dataset;
+  }
+
+  let hasChanges = false;
+  for (const [key, pop] of samplePopulations.entries()) {
+    const orig = dataset.samples[key];
+    if (orig && orig.population !== pop) {
+      hasChanges = true;
+      break;
+    }
+  }
+  if (!hasChanges) return dataset;
+
+  const samples = dataset.samples.map((s) => {
+    const custom = samplePopulations.get(s.key);
+    if (custom && custom !== s.population) {
+      return { ...s, population: custom };
+    }
+    return s;
+  });
+
+  const counts = new Map<string, number>();
+  for (const s of samples) {
+    counts.set(s.population, (counts.get(s.population) ?? 0) + 1);
+  }
+
+  const existingMap = new Map(dataset.populations.map((p) => [p.name, p]));
+  const orderedNames: string[] = [];
+  for (const p of dataset.populations) {
+    if (counts.has(p.name)) {
+      orderedNames.push(p.name);
+    }
+  }
+  for (const name of counts.keys()) {
+    if (!existingMap.has(name)) {
+      orderedNames.push(name);
+    }
+  }
+
+  const populations: Population[] = orderedNames.map((name, index) => {
+    const existing = existingMap.get(name);
+    return {
+      name,
+      count: counts.get(name) ?? 0,
+      color: existing?.color ?? paletteColor(index, "solid"),
+    };
+  });
+
+  return {
+    ...dataset,
+    samples,
+    populations,
+  };
+}
+
+/**
+ * Filters dataset samples based on active search string, population hidden status, and sample exclusion.
  */
 export function filteredSamples(dataset: Dataset, state: ViewState): Sample[] {
   const query = state.search.trim().toLowerCase();
   return dataset.samples.filter(
     (s) =>
+      !state.excludedSamples?.has(s.key) &&
       !state.populations.get(s.population)?.hidden &&
       (!query ||
         s.id.toLowerCase().includes(query) ||

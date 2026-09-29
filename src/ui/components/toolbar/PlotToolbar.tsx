@@ -52,6 +52,9 @@ export interface PlotToolbarProps {
   fullscreen: boolean;
   onFullscreen: () => void;
   onSettings: (tab?: string, focusTitle?: boolean) => void;
+  activeSamplesCount?: number;
+  totalSamplesCount?: number;
+  excludedCount?: number;
 }
 
 export function PlotToolbar({
@@ -64,9 +67,16 @@ export function PlotToolbar({
   fullscreen,
   onFullscreen,
   onSettings,
+  activeSamplesCount,
+  totalSamplesCount,
+  excludedCount,
 }: PlotToolbarProps) {
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;
+
+  const totalSamples = totalSamplesCount ?? dataset.samples.length;
+  const excluded = excludedCount ?? state.excludedSamples?.size ?? 0;
+  const plotted = activeSamplesCount ?? totalSamples - excluded;
 
   const patch = (settingsPatch: Partial<typeof s>) =>
     dispatch({ type: "settings", patch: settingsPatch });
@@ -122,6 +132,27 @@ export function PlotToolbar({
 
   return (
     <div className="chart-tools" role="toolbar" aria-label="Plot tools">
+      {/* Elevated Samples Table option - placed in toolbar, slightly elevated above normal tools */}
+      <div className="tool-group elevated-tool-group">
+        <button
+          className="toolbar-samples-table-btn"
+          aria-label="Sample table"
+          title="Open samples table: view all samples, edit group IDs (FID), unplot/plot samples"
+          onClick={onTable}
+        >
+          <Table2 size={13} className="table-btn-icon" />
+          <span className="table-btn-label">Samples Table</span>
+          <span className="table-btn-pill">
+            {plotted.toLocaleString()} plotted
+          </span>
+          {excluded > 0 && (
+            <span className="table-btn-pill pill-excluded">
+              {excluded.toLocaleString()} unplotted
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* 1. Drag & interaction mode */}
       <div className="tool-group" role="group" aria-label="Interaction mode">
         {(
@@ -424,14 +455,6 @@ export function PlotToolbar({
       </div>
 
       <div className="tool-group" role="group" aria-label="Data and export">
-        <button
-          className="icon-button"
-          aria-label="Sample table"
-          title="Open sample table"
-          onClick={onTable}
-        >
-          <Table2 size={16} />
-        </button>
         <button
           className="icon-button"
           aria-label="Export"

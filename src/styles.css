@@ -352,6 +352,53 @@ button.settings-done:active:not(:disabled) {
   height: 20px;
   width: 20px;
 }
+.elevated-tool-group {
+  margin-right: 4px;
+  border-right: 1px solid #ebebeb;
+  padding-right: 6px;
+}
+.toolbar-samples-table-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #1e293b;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  top: -2px; /* slightly elevated above normal tools */
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.08),
+    0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+}
+.toolbar-samples-table-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+.toolbar-samples-table-btn .table-btn-icon {
+  color: #4f46e5;
+}
+.toolbar-samples-table-btn .table-btn-label {
+  font-weight: 600;
+}
+.table-btn-pill {
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-weight: 500;
+}
+.table-btn-pill.pill-excluded {
+  background: #fee2e2;
+  color: #991b1b;
+}
 .chart-tools {
   display: flex;
   align-items: center;
@@ -956,8 +1003,38 @@ button.settings-done:active:not(:disabled) {
 .point-population {
   font-size: 10px;
   color: #696969;
-  padding: 0 12px;
   overflow-wrap: anywhere;
+}
+.point-fid-section {
+  padding: 6px 12px;
+  border-bottom: 1px solid #efefef;
+}
+.point-fid-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-tiny-action {
+  font-size: 11px;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+  background: #eef2ff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-tiny-action:hover {
+  background: #e0e7ff;
+}
+.point-exclude-section {
+  padding: 0 12px;
+}
+.btn-unplot:hover {
+  background: #fee2e2 !important;
+  border-color: #f87171 !important;
+}
+.btn-include:hover {
+  background: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
 }
 .point-coordinates {
   display: flex;
@@ -1206,6 +1283,60 @@ td .swatch {
   text-align: center;
   padding: 30px;
   color: var(--muted);
+}
+.table-dialog-container {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 20px;
+  min-height: 0;
+  flex: 1;
+}
+.table-top-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.badge-toggle {
+  transition: all 0.15s ease;
+}
+.badge-toggle:hover {
+  filter: brightness(0.95);
+}
+.row-excluded {
+  background: #fdf2f2 !important;
+  opacity: 0.75;
+}
+.row-excluded td {
+  color: #888;
+}
+.btn-tiny {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-tiny:hover {
+  background: #e5e7eb;
+}
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 11px;
+  color: #696969;
+}
+.table-pagination .pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .empty-surface {
   flex: 1;

@@ -12,10 +12,19 @@ export interface ViewportSnapshot {
 export interface Archive {
   version: 1;
   dataset: Dataset;
-  state: Omit<ViewState, "populations" | "points" | "selected"> & {
+  state: Omit<
+    ViewState,
+    | "populations"
+    | "points"
+    | "selected"
+    | "excludedSamples"
+    | "samplePopulations"
+  > & {
     populations: [string, import("./viewState").PopulationStyle][];
     points: [number, import("./viewState").SampleStyle][];
     selected: number[];
+    excludedSamples?: number[];
+    samplePopulations?: [number, string][];
   };
   viewport: ViewportSnapshot;
   imageOptions?: ImageOptions;
@@ -35,6 +44,14 @@ export function serializeArchive(
       populations: [...state.populations],
       points: [...state.points],
       selected: [...state.selected],
+      excludedSamples:
+        state.excludedSamples instanceof Set
+          ? [...state.excludedSamples]
+          : (state.excludedSamples ?? []),
+      samplePopulations:
+        state.samplePopulations instanceof Map
+          ? [...state.samplePopulations]
+          : (state.samplePopulations ?? []),
     },
     viewport,
     imageOptions,
@@ -48,6 +65,8 @@ export function restoreArchiveState(archive: Archive): ViewState {
     populations: new Map(archive.state.populations),
     points: new Map(archive.state.points),
     selected: new Set(archive.state.selected),
+    excludedSamples: new Set(archive.state.excludedSamples ?? []),
+    samplePopulations: new Map(archive.state.samplePopulations ?? []),
     inspector: null,
   };
 }

@@ -12,6 +12,7 @@ import { initialView, type ViewState } from "../../../state/viewState";
 import { viewReducer } from "../../../state/viewReducer";
 import {
   filteredSamples,
+  getEffectiveDataset,
   selectAxisVariance,
 } from "../../../state/viewSelectors";
 import {
@@ -84,21 +85,27 @@ export function Workspace({
 
   const plotRef = useRef<PlotHandle | null>(null);
 
+  // Effective dataset reflecting custom per-sample group IDs
+  const effectiveDataset = useMemo(
+    () => getEffectiveDataset(dataset, state.samplePopulations),
+    [dataset, state.samplePopulations],
+  );
+
   // Derived filtered samples
   const activeSamples = useMemo(
-    () => filteredSamples(dataset, state),
-    [dataset, state],
+    () => filteredSamples(effectiveDataset, state),
+    [effectiveDataset, state],
   );
 
   // Population color map
   const colors = useMemo(() => {
     const map = new Map<string, string>();
-    for (const pop of dataset.populations) {
+    for (const pop of effectiveDataset.populations) {
       const custom = state.populations.get(pop.name);
       map.set(pop.name, custom?.color ?? pop.color);
     }
     return map;
-  }, [dataset.populations, state.populations]);
+  }, [effectiveDataset.populations, state.populations]);
 
   // Status counts
   const markedCount = useMemo(() => {
@@ -320,7 +327,10 @@ export function Workspace({
       <div className={`plot-workspace ${state.legend ? "with-legend" : ""}`}>
         <main className="chart-surface">
           <PlotToolbar
-            dataset={dataset}
+            dataset={effectiveDataset}
+            activeSamplesCount={activeSamples.length}
+            totalSamplesCount={effectiveDataset.samples.length}
+            excludedCount={state.excludedSamples.size}
             state={state}
             dispatch={dispatch}
             plotRef={plotRef}
@@ -346,7 +356,7 @@ export function Workspace({
             <PcaPlotCanvas
               ref={plotRef}
               initialViewport={archive?.viewport}
-              dataset={dataset}
+              dataset={effectiveDataset}
               samples={activeSamples}
               state={state}
               onMark={(key) => dispatch({ type: "toggleMark", key })}
@@ -363,7 +373,7 @@ export function Workspace({
 
         {state.legend && (
           <LegendDock
-            dataset={dataset}
+            dataset={effectiveDataset}
             state={state}
             dispatch={dispatch}
             onSettings={() => handleOpenSettings("Legend")}
@@ -413,7 +423,7 @@ export function Workspace({
       {/* 6. Point Inspector Popover */}
       {state.inspector !== null && (
         <PointInspector
-          dataset={dataset}
+          dataset={effectiveDataset}
           state={state}
           dispatch={dispatch}
           anchor={pointAnchor}
@@ -427,7 +437,7 @@ export function Workspace({
       {/* 7. Settings Dialog (Tab resumable!) */}
       {settingsOpen && (
         <SettingsDialog
-          dataset={dataset}
+          dataset={effectiveDataset}
           state={state}
           dispatch={dispatch}
           initialTab={activeSettingsTab}
@@ -448,7 +458,7 @@ export function Workspace({
       {/* 8. Export Dialog */}
       {exportOpen && (
         <ExportDialog
-          dataset={dataset}
+          dataset={effectiveDataset}
           samples={activeSamples}
           state={state}
           plotRef={plotRef}
@@ -461,16 +471,23 @@ export function Workspace({
       {/* 9. Sample Table Dialog */}
       {tableOpen && (
         <SampleTableDialog
+          dataset={effectiveDataset}
+          allSamples={effectiveDataset.samples}
           samples={activeSamples}
           x={state.x}
           y={state.y}
           selected={
-            state.inspector !== null ? dataset.samples[state.inspector] : null
+            state.inspector !== null
+              ? effectiveDataset.samples[state.inspector]
+              : null
           }
           onSelect={(sample) => {
             dispatch({ type: "inspect", key: sample.key, mark: true });
+            setTableOpen(false);
           }}
           colors={colors}
+          state={state}
+          dispatch={dispatch}
           onClose={() => setTableOpen(false)}
         />
       )}

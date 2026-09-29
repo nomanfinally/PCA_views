@@ -33,11 +33,35 @@ export type ViewAction =
   | { type: "select"; keys: number[] }
   | { type: "markSelection"; marked: boolean }
   | { type: "clearMarks" }
-  | { type: "resetAppearance" };
+  | { type: "resetAppearance" }
+  | { type: "toggleExcludeSample"; key: number }
+  | { type: "setSampleExcluded"; key: number; excluded: boolean }
+  | { type: "setMultipleExcluded"; keys: number[]; excluded: boolean }
+  | { type: "setSamplePopulation"; key: number; population: string }
+  | { type: "resetSamplePopulation"; key: number }
+  | { type: "clearAllExclusions" };
 
 // Action Creators
 export const viewActions = {
   resetView: (dataset: Dataset): ViewAction => ({ type: "resetView", dataset }),
+  toggleExcludeSample: (key: number): ViewAction => ({
+    type: "toggleExcludeSample",
+    key,
+  }),
+  setSampleExcluded: (key: number, excluded: boolean): ViewAction => ({
+    type: "setSampleExcluded",
+    key,
+    excluded,
+  }),
+  setSamplePopulation: (key: number, population: string): ViewAction => ({
+    type: "setSamplePopulation",
+    key,
+    population,
+  }),
+  resetSamplePopulation: (key: number): ViewAction => ({
+    type: "resetSamplePopulation",
+    key,
+  }),
   setSpectrum: (value: number[], name: string): ViewAction => ({
     type: "spectrum",
     value,
