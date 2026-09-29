@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, X } from "lucide-react";
 import type { Dataset } from "../../../core/models/dataset";
 import type {
   GroupLabelStyle,
@@ -85,7 +85,7 @@ export function SettingsDialog({
       isOpen={true}
       title="Plot settings"
       onClose={() => onClose(tab)}
-      className="settings-modal"
+      className="settings-modal settings-dialog"
       width={880}
       maxWidth="min(95vw, 920px)"
       noPadding={true}
@@ -796,19 +796,25 @@ export function SettingsDialog({
 
       <div className="settings-footer modal-footer">
         <button
-          className="text-button"
+          className="button"
+          onClick={() => dispatch({ type: "clearMarks" })}
+        >
+          <X size={13} /> Clear marks
+        </button>
+        <button
+          className="button"
           onClick={() => dispatch({ type: "resetAppearance" })}
         >
           <RotateCcw size={13} /> Reset styles
         </button>
         <button
-          className="text-button"
+          className="button"
           title="Restore default styles, visibility, axes, zoom and label positions"
           onClick={onReset}
         >
           Reset to defaults
         </button>
-        <button className="btn-done btn-primary" onClick={() => onClose(tab)}>
+        <button className="button settings-done" onClick={() => onClose(tab)}>
           Done
         </button>
       </div>

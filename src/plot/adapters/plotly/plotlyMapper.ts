@@ -244,7 +244,7 @@ export function mapSpecToPlotly(
   );
 
   const layout: Partial<Layout> = {
-    paper_bgcolor: spec.layout.background,
+    paper_bgcolor: "transparent",
     plot_bgcolor: spec.layout.background,
     margin: spec.layout.margin,
     dragmode: spec.layout.dragMode,

@@ -79,9 +79,9 @@ Sample_02  0.025 -0.019 0.011 Group_B`}
         </p>
       </div>
 
-      <div className="modal-footer">
-        <button className="btn-done btn-primary" onClick={onClose}>
-          Got it
+      <div className="modal-footer" style={{ justifyContent: "flex-end" }}>
+        <button className="button settings-done" onClick={onClose}>
+          Done
         </button>
       </div>
     </Modal>
