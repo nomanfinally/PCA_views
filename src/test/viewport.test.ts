@@ -25,3 +25,43 @@ describe("cursor anchored zoom", () => {
     expect(wheelPixels(2, 2, 800)).toBe(1600);
   });
 });
+
+describe("clampCentroidToViewport", () => {
+  it("leaves on-screen centroids untouched", async () => {
+    const { clampCentroidToViewport } =
+      await import("../core/geometry/viewport");
+    const result = clampCentroidToViewport([2, 3], [0, 10], [0, 10]);
+    expect(result.isOffscreen).toBe(false);
+    expect(result.clamped).toEqual([2, 3]);
+    expect(result.edgeSide).toBeNull();
+  });
+
+  it("clamps offscreen centroids to the right edge with directionality", async () => {
+    const { clampCentroidToViewport } =
+      await import("../core/geometry/viewport");
+    const result = clampCentroidToViewport([50, 5], [0, 10], [0, 10], 0.94);
+    expect(result.isOffscreen).toBe(true);
+    expect(result.edgeSide).toBe("right");
+    expect(result.clamped[0]).toBeCloseTo(5 + 5 * 0.94, 4);
+    expect(result.clamped[1]).toBeCloseTo(5, 4);
+  });
+
+  it("clamps offscreen centroids to the top edge", async () => {
+    const { clampCentroidToViewport } =
+      await import("../core/geometry/viewport");
+    const result = clampCentroidToViewport([5, 80], [0, 10], [0, 10], 0.94);
+    expect(result.isOffscreen).toBe(true);
+    expect(result.edgeSide).toBe("top");
+    expect(result.clamped[0]).toBeCloseTo(5, 4);
+    expect(result.clamped[1]).toBeCloseTo(5 + 5 * 0.94, 4);
+  });
+
+  it("handles reversed axis ranges correctly", async () => {
+    const { clampCentroidToViewport } =
+      await import("../core/geometry/viewport");
+    const result = clampCentroidToViewport([-30, 5], [10, 0], [10, 0], 0.94);
+    expect(result.isOffscreen).toBe(true);
+    expect(result.edgeSide).toBe("left");
+    expect(result.clamped[0]).toBeCloseTo(5 - 5 * 0.94, 4);
+  });
+});

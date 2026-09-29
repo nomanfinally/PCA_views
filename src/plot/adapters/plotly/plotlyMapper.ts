@@ -12,6 +12,7 @@ import type {
   PlotSpec,
   PlotTrace,
 } from "../../spec/plotSpec";
+import { clampCentroidToViewport } from "../../../core/geometry/viewport";
 
 export interface PlotlyBundle {
   data: Data[];
@@ -94,17 +95,63 @@ export function mapShapeToPlotly(shape: PlotShape): Partial<Shape> {
 
 export function mapAnnotationToPlotly(
   ann: PlotAnnotation,
+  viewport?: {
+    xRange?: [number, number];
+    yRange?: [number, number];
+    clampEdge?: boolean;
+  },
 ): Partial<Annotations> & { name?: string } {
+  let targetX = ann.x;
+  let targetY = ann.y;
+  let offsetAx = ann.offset.ax;
+  let offsetAy = ann.offset.ay;
+
+  if (
+    viewport?.clampEdge &&
+    viewport.xRange &&
+    viewport.xRange.length >= 2 &&
+    viewport.yRange &&
+    viewport.yRange.length >= 2 &&
+    ann.kind === "population" &&
+    ann.centroid
+  ) {
+    const { clamped, isOffscreen, edgeSide } = clampCentroidToViewport(
+      ann.centroid,
+      [viewport.xRange[0], viewport.xRange[1]],
+      [viewport.yRange[0], viewport.yRange[1]],
+    );
+    if (isOffscreen) {
+      targetX = clamped[0];
+      targetY = clamped[1];
+      // If user hasn't customized offset (offset is default ax: 22, ay: -28), position inside screen:
+      if (ann.offset.ax === 22 && ann.offset.ay === -28) {
+        if (edgeSide === "right") {
+          offsetAx = -36;
+          offsetAy = 0;
+        } else if (edgeSide === "left") {
+          offsetAx = 36;
+          offsetAy = 0;
+        } else if (edgeSide === "top") {
+          offsetAx = 0;
+          offsetAy = 28;
+        } else if (edgeSide === "bottom") {
+          offsetAx = 0;
+          offsetAy = -28;
+        }
+      }
+    }
+  }
+
   return {
     name: ann.id,
-    x: ann.x,
-    y: ann.y,
+    x: targetX,
+    y: targetY,
     xref: "x",
     yref: "y",
     text: ann.text,
     showarrow: true,
-    ax: ann.offset.ax,
-    ay: ann.offset.ay,
+    ax: offsetAx,
+    ay: offsetAy,
     arrowhead: 0,
     arrowwidth: 1,
     arrowcolor: ann.connector ? ann.color : "rgba(0,0,0,0)",
@@ -118,7 +165,13 @@ export function mapAnnotationToPlotly(
   };
 }
 
-export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
+export function mapSpecToPlotly(
+  spec: PlotSpec,
+  currentViewport?: {
+    xRange?: [number, number];
+    yRange?: [number, number];
+  },
+): PlotlyBundle {
   const data: Data[] = spec.traces.map(mapTraceToPlotly);
 
   // Overlay Traces: Marked points and Selection
@@ -178,8 +231,16 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
   }
 
   const shapes: Partial<Shape>[] = spec.shapes.map(mapShapeToPlotly);
-  const annotations: Partial<Annotations>[] = spec.annotations.map(
-    mapAnnotationToPlotly,
+  const clampEdge = spec.settings?.clampGroupLabelsToEdge ?? true;
+  const xRange = currentViewport?.xRange ?? spec.layout.xaxis.range;
+  const yRange = currentViewport?.yRange ?? spec.layout.yaxis.range;
+
+  const annotations: Partial<Annotations>[] = spec.annotations.map((ann) =>
+    mapAnnotationToPlotly(ann, {
+      xRange,
+      yRange,
+      clampEdge,
+    }),
   );
 
   const layout: Partial<Layout> = {

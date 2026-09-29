@@ -45,4 +45,55 @@ describe("plot/adapters/plotly/plotlyMapper", () => {
     expect(bundle.config.displayModeBar).toBe(false);
     expect(bundle.config.scrollZoom).toBe(false);
   });
+
+  it("clamps offscreen group labels to the edge when clampGroupLabelsToEdge is enabled", () => {
+    const state: PlotViewState = {
+      x: 0,
+      y: 1,
+      settings: {
+        ...defaultSettings,
+        groupLabels: true,
+        clampGroupLabelsToEdge: true,
+      },
+      populations: new Map(),
+      points: new Map(),
+      selected: new Set(),
+    };
+
+    const spec = buildPlotSpec(dataset, dataset.samples, state);
+    // POP_B centroid is at x = 0.5, y = 0.6
+    // Simulate a zoom viewport focused on POP_A: [0, 0.35] x [0, 0.35]
+    const bundleClamped = mapSpecToPlotly(spec, {
+      xRange: [0, 0.35],
+      yRange: [0, 0.35],
+    });
+
+    const popBClamped = bundleClamped.layout.annotations?.find(
+      (a: any) => a.text === "POP_B",
+    );
+    expect(popBClamped).toBeDefined();
+    // Clamped x should be at the upper edge of the visible x-span (inside [0, 0.35])
+    expect(popBClamped!.x).toBeLessThan(0.35);
+    expect(popBClamped!.x).toBeGreaterThan(0.3);
+
+    // When clampGroupLabelsToEdge is disabled, it retains the native out-of-range centroid
+    const specUnclamped = {
+      ...spec,
+      settings: {
+        ...defaultSettings,
+        groupLabels: true,
+        clampGroupLabelsToEdge: false,
+      },
+    };
+    const bundleUnclamped = mapSpecToPlotly(specUnclamped, {
+      xRange: [0, 0.35],
+      yRange: [0, 0.35],
+    });
+    const popBUnclamped = bundleUnclamped.layout.annotations?.find(
+      (a: any) => a.text === "POP_B",
+    );
+    expect(popBUnclamped).toBeDefined();
+    expect(popBUnclamped!.x).toBe(0.5);
+    expect(popBUnclamped!.y).toBe(0.6);
+  });
 });

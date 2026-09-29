@@ -161,13 +161,15 @@ export function buildPlotSpec(
       const offset = offsets.get(`${x}:${y}:${name}`) ??
         offsets.get(`${x}:${y}:${pop.name}`) ?? { ax: 22, ay: -28 };
 
+      const c = centroid(coords);
       annotations.push({
         id: name,
         kind: "population",
         targetKey: pop.name,
         text: pop.name,
-        x: centroid(coords)[0],
-        y: centroid(coords)[1],
+        x: c[0],
+        y: c[1],
+        centroid: c,
         offset,
         style: popOverride?.labelStyle ?? settings.groupLabelStyle,
         color: popOverride?.labelColor ?? popOverride?.color ?? pop.color,
@@ -338,5 +340,6 @@ export function buildPlotSpec(
       selectionKeys,
       markedKeys,
     },
+    settings: state.settings,
   };
 }

@@ -500,6 +500,17 @@ export function SettingsDialog({
                 </label>
 
                 <label className="control-row">
+                  Stick offscreen group labels to edge
+                  <input
+                    type="checkbox"
+                    checked={s.clampGroupLabelsToEdge}
+                    onChange={(e) =>
+                      patch({ clampGroupLabelsToEdge: e.target.checked })
+                    }
+                  />
+                </label>
+
+                <label className="control-row">
                   Group label style
                   <select
                     aria-label="Group label style"

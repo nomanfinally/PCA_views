@@ -10,6 +10,7 @@ import type {
   AspectRatio,
   DragMode,
   GroupLabelStyle,
+  PlotSettings,
 } from "../../core/models/settings";
 import type { RenderedMarkerStyle } from "../../core/style/styleResolver";
 
@@ -57,6 +58,7 @@ export interface PlotAnnotation {
   text: string;
   x: number;
   y: number;
+  centroid?: [number, number];
   offset: LabelOffset;
   style: GroupLabelStyle;
   color: string;
@@ -104,4 +106,5 @@ export interface PlotSpec {
   annotations: PlotAnnotation[];
   layout: PlotLayoutSpec;
   overlays: PlotOverlay;
+  settings?: PlotSettings;
 }

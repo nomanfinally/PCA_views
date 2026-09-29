@@ -170,6 +170,7 @@ export interface PlotSettings {
   legendCounts: boolean;
   pointLabelSize: number;
   groupLabelSize: number;
+  clampGroupLabelsToEdge: boolean;
 }
 
 export const defaultSettings: PlotSettings = {
@@ -198,6 +199,7 @@ export const defaultSettings: PlotSettings = {
   groupLabels: false,
   groupLabelStyle: "background",
   groupLabelConnector: true,
+  clampGroupLabelsToEdge: true,
   tickFontSize: 12,
   axisLineWidth: 1.25,
   axisTitleSize: 14,

@@ -15,6 +15,7 @@ import {
   PlotlyRenderer,
   type ViewportSnapshot,
 } from "../../../plot/adapters/plotly/plotlyRenderer";
+import { mapAnnotationToPlotly } from "../../../plot/adapters/plotly/plotlyMapper";
 import { PinchZoomCoordinator } from "../../../plot/gestures/pinchZoom";
 import { WheelZoomCoordinator } from "../../../plot/gestures/wheelZoom";
 import { findClosestPoint } from "../../../plot/gestures/hitTest";
@@ -97,6 +98,25 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
     const latestSpec = useRef(spec);
     latestSpec.current = spec;
 
+    const updateAnnotationsForRange = (
+      xRange: [number, number],
+      yRange: [number, number],
+    ) => {
+      const renderer = rendererRef.current;
+      const currentSpec = latestSpec.current;
+      const settings = latestProps.current.state.settings;
+      if (!renderer || !currentSpec) return;
+
+      const mapped = currentSpec.annotations.map((ann) =>
+        mapAnnotationToPlotly(ann, {
+          xRange,
+          yRange,
+          clampEdge: settings.clampGroupLabelsToEdge,
+        }),
+      );
+      void renderer.relayout({ annotations: mapped as any });
+    };
+
     // Initialize PlotlyRenderer and gesture coordinators
     useEffect(() => {
       const container = containerRef.current;
@@ -107,6 +127,9 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         onAnnotationOffsetChange: (id, offset) => {
           const { x, y } = latestProps.current.state;
           offsetsRef.current.set(`${x}:${y}:${id}`, offset);
+        },
+        onRangeChange: (xRange, yRange) => {
+          updateAnnotationsForRange(xRange, yRange);
         },
         onError: (err) => {
           setRenderError(err.message);
@@ -142,12 +165,19 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           if (!snapshot) return;
           const newX = zoomRange(snapshot.xRange, factor, anchorX);
           const newY = zoomRange(snapshot.yRange, factor, anchorY);
-          void rendererRef.current.relayout({
-            "xaxis.range": newX as any,
-            "yaxis.range": newY as any,
-            "xaxis.autorange": false,
-            "yaxis.autorange": false,
-          });
+          void rendererRef.current
+            .relayout({
+              "xaxis.range": newX as any,
+              "yaxis.range": newY as any,
+              "xaxis.autorange": false,
+              "yaxis.autorange": false,
+            })
+            .then(() => {
+              updateAnnotationsForRange(
+                newX as [number, number],
+                newY as [number, number],
+              );
+            });
         },
       });
 
@@ -165,12 +195,19 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           if (!snapshot) return;
           const newX = zoomRange(snapshot.xRange, factor, anchorX);
           const newY = zoomRange(snapshot.yRange, factor, anchorY);
-          void rendererRef.current.relayout({
-            "xaxis.range": newX as any,
-            "yaxis.range": newY as any,
-            "xaxis.autorange": false,
-            "yaxis.autorange": false,
-          });
+          void rendererRef.current
+            .relayout({
+              "xaxis.range": newX as any,
+              "yaxis.range": newY as any,
+              "xaxis.autorange": false,
+              "yaxis.autorange": false,
+            })
+            .then(() => {
+              updateAnnotationsForRange(
+                newX as [number, number],
+                newY as [number, number],
+              );
+            });
         },
       });
 
@@ -401,10 +438,17 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
 
           const newX = zoomRange(snapshot.xRange, factor, 0.5);
           const newY = zoomRange(snapshot.yRange, factor, 0.5);
-          void renderer.relayout({
-            "xaxis.range": newX as any,
-            "yaxis.range": newY as any,
-          });
+          void renderer
+            .relayout({
+              "xaxis.range": newX as any,
+              "yaxis.range": newY as any,
+            })
+            .then(() => {
+              updateAnnotationsForRange(
+                newX as [number, number],
+                newY as [number, number],
+              );
+            });
         },
 
         reset() {
@@ -412,12 +456,18 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           if (!renderer) return;
           const allX = dataset.samples.map((s) => s.pcs[state.x] ?? 0);
           const allY = dataset.samples.map((s) => s.pcs[state.y] ?? 0);
-          void renderer.relayout({
-            "xaxis.range": paddedRange(allX) as any,
-            "yaxis.range": paddedRange(allY) as any,
-            "xaxis.autorange": false,
-            "yaxis.autorange": false,
-          });
+          const padX = paddedRange(allX);
+          const padY = paddedRange(allY);
+          void renderer
+            .relayout({
+              "xaxis.range": padX as any,
+              "yaxis.range": padY as any,
+              "xaxis.autorange": false,
+              "yaxis.autorange": false,
+            })
+            .then(() => {
+              updateAnnotationsForRange(padX, padY);
+            });
         },
 
         fit() {
@@ -426,12 +476,18 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           const activeSamples = samples.length ? samples : dataset.samples;
           const activeX = activeSamples.map((s) => s.pcs[state.x] ?? 0);
           const activeY = activeSamples.map((s) => s.pcs[state.y] ?? 0);
-          void renderer.relayout({
-            "xaxis.range": paddedRange(activeX) as any,
-            "yaxis.range": paddedRange(activeY) as any,
-            "xaxis.autorange": false,
-            "yaxis.autorange": false,
-          });
+          const padX = paddedRange(activeX);
+          const padY = paddedRange(activeY);
+          void renderer
+            .relayout({
+              "xaxis.range": padX as any,
+              "yaxis.range": padY as any,
+              "xaxis.autorange": false,
+              "yaxis.autorange": false,
+            })
+            .then(() => {
+              updateAnnotationsForRange(padX, padY);
+            });
         },
 
         async capturePng(): Promise<ChartImage> {

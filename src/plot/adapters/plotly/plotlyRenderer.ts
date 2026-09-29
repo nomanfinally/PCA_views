@@ -16,6 +16,7 @@ export interface PlotlyRendererEvents {
     annotationId: string,
     offset: { ax: number; ay: number },
   ) => void;
+  onRangeChange?: (xRange: [number, number], yRange: [number, number]) => void;
   onError?: (error: Error) => void;
 }
 
@@ -80,7 +81,6 @@ export class PlotlyRenderer {
       return;
 
     try {
-      const { data, layout, config } = mapSpecToPlotly(spec);
       const chart = this.container as unknown as PlotlyHTMLElement;
       const previous = chart?.layout;
 
@@ -90,6 +90,16 @@ export class PlotlyRenderer {
         Boolean(previous?.xaxis?.range) &&
         Boolean(previous?.yaxis?.range);
       this.currentAxesKey = newAxesKey;
+
+      const previousRanges =
+        sameAxes && previous?.xaxis?.range && previous?.yaxis?.range
+          ? {
+              xRange: previous.xaxis.range as [number, number],
+              yRange: previous.yaxis.range as [number, number],
+            }
+          : undefined;
+
+      const { data, layout, config } = mapSpecToPlotly(spec, previousRanges);
 
       if (sameAxes && previous?.xaxis?.range && previous?.yaxis?.range) {
         layout.xaxis = {
@@ -232,7 +242,7 @@ export class PlotlyRenderer {
       }
     });
 
-    // Annotation drag event
+    // Annotation drag event & Range change events
     chart.on?.("plotly_relayout", (event: any) => {
       if (!event || typeof event !== "object") return;
       const hasAnnotationChange = Object.keys(event).some((k) =>
@@ -251,6 +261,21 @@ export class PlotlyRenderer {
               ay: annotation.ay,
             });
           }
+        }
+      }
+
+      const isRangeChange = Object.keys(event).some(
+        (k) =>
+          k.startsWith("xaxis.range") ||
+          k.startsWith("yaxis.range") ||
+          k === "xaxis.autorange" ||
+          k === "yaxis.autorange",
+      );
+
+      if (isRangeChange) {
+        const snap = this.getViewportSnapshot();
+        if (snap) {
+          this.events.onRangeChange?.(snap.xRange, snap.yRange);
         }
       }
     });
