@@ -582,7 +582,7 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
         : isTablet
           ? Math.min(11.5, settings.axisTitleSize)
           : settings.axisTitleSize;
-      const standoff = isMobile ? 3 : isTablet ? 6 : 13;
+      const standoff = isMobile ? 2 : isTablet ? 3 : 4;
 
       const axis = {
         showgrid: settings.grid,
@@ -618,27 +618,27 @@ export const PcaPlot = forwardRef<PlotHandle, Props>(
             ? isMobile
               ? 36
               : isTablet
-                ? 48
-                : 65
+                ? 44
+                : 50
             : isMobile
               ? 6
               : isTablet
-                ? 12
-                : 20,
-          r: isMobile ? 6 : isTablet ? 14 : 24,
+                ? 10
+                : 12,
+          r: isMobile ? 6 : isTablet ? 14 : 18,
           b: isMobile
             ? Math.max(
-                26,
-                Math.round(tickFontSize + axisTitleSize + standoff + 4),
+                24,
+                Math.round(tickFontSize + axisTitleSize + standoff + 3),
               )
             : isTablet
               ? Math.max(
-                  38,
-                  Math.round(tickFontSize + axisTitleSize + standoff + 7),
+                  30,
+                  Math.round(tickFontSize + axisTitleSize + standoff + 5),
                 )
               : Math.max(
-                  50,
-                  settings.tickFontSize + settings.axisTitleSize + 25,
+                  34,
+                  Math.round(settings.tickFontSize + settings.axisTitleSize + standoff + 6),
                 ),
           l: isMobile
             ? Math.max(

@@ -281,10 +281,15 @@ export function buildPlotSpec(
   const theme = chartContrast(settings.chartBackground);
   const spectrum = state.spectrum ?? [];
 
+  const hasHeading = Boolean(
+    settings.title?.trim() || settings.subtitle?.trim(),
+  );
+
   const xaxis: PlotAxisSpec = {
     title: formatAxisTitle(dataset, settings, spectrum, x),
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
+    standoff: 4,
     range: paddedRange(dataset.samples.map((s) => s.pcs[x] ?? 0)),
     grid: settings.grid,
     gridColor: theme.grid,
@@ -301,6 +306,7 @@ export function buildPlotSpec(
     title: formatAxisTitle(dataset, settings, spectrum, y),
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
+    standoff: 8,
     range: paddedRange(dataset.samples.map((s) => s.pcs[y] ?? 0)),
     grid: settings.grid,
     gridColor: theme.grid,
@@ -314,12 +320,25 @@ export function buildPlotSpec(
     mirror: settings.axisFrame === "enclosed",
   };
 
+  const margin = {
+    l: Math.max(
+      50,
+      Math.round(settings.tickFontSize * 2.2 + settings.axisTitleSize + 14),
+    ),
+    r: 18,
+    t: hasHeading ? 50 : 12,
+    b: Math.max(
+      34,
+      Math.round(settings.tickFontSize + settings.axisTitleSize + 10),
+    ),
+  };
+
   const layout: PlotLayoutSpec = {
     title: settings.title,
     subtitle: settings.subtitle,
     background: settings.chartBackground,
     aspectRatio: settings.aspectRatio,
-    margin: { l: 60, r: 24, t: 40, b: 60 },
+    margin,
     xaxis,
     yaxis,
     dragMode: state.mode ?? state.dragMode ?? "pan",

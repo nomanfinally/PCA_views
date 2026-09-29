@@ -255,6 +255,7 @@ export function mapSpecToPlotly(
       autorange: false,
       title: {
         text: spec.layout.xaxis.title,
+        standoff: spec.layout.xaxis.standoff ?? 4,
         font: {
           size: spec.layout.xaxis.titleSize,
           weight: spec.layout.xaxis.titleWeight,
@@ -284,6 +285,7 @@ export function mapSpecToPlotly(
       autorange: false,
       title: {
         text: spec.layout.yaxis.title,
+        standoff: spec.layout.yaxis.standoff ?? 8,
         font: {
           size: spec.layout.yaxis.titleSize,
           weight: spec.layout.yaxis.titleWeight,

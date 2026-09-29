@@ -79,6 +79,7 @@ export interface PlotAxisSpec {
   lineColor: string;
   lineWidth: number;
   tickFontSize: number;
+  standoff?: number;
   spikes: boolean;
   scaleAnchor?: "x" | "y";
   mirror?: boolean;
