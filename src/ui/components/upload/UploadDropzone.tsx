@@ -33,7 +33,7 @@ export function UploadDropzone({
         </p>
 
         <button
-          className="btn-primary primary large"
+          className="primary large"
           onClick={onUpload}
           disabled={loading}
         >

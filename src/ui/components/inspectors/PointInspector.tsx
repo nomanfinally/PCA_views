@@ -134,7 +134,7 @@ export function PointInspector({
                 style={{
                   fontSize: 12,
                   padding: "3px 6px",
-                  borderRadius: 4,
+                  borderRadius: 3,
                   border: "1px solid #ccc",
                   flex: 1,
                 }}
@@ -215,7 +215,7 @@ export function PointInspector({
             background: isExcluded ? "#ecfdf5" : "#fef2f2",
             color: isExcluded ? "#065f46" : "#991b1b",
             border: `1px solid ${isExcluded ? "#a7f3d0" : "#fecaca"}`,
-            borderRadius: 6,
+            borderRadius: 3,
             cursor: "pointer",
             fontWeight: 500,
           }}

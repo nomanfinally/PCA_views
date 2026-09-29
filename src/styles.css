@@ -162,7 +162,9 @@ select {
   background: #f0f0f0;
   color: #696969;
 }
-.button {
+.button,
+.btn,
+.btn-secondary {
   border: 1px solid #d0d7de;
   border-radius: 3px;
   background: #ffffff;
@@ -176,19 +178,25 @@ select {
     border-color 0.15s ease,
     color 0.15s ease;
 }
-.button:hover:not(:disabled) {
+.button:hover:not(:disabled),
+.btn:hover:not(:disabled),
+.btn-secondary:hover:not(:disabled) {
   background: #f0f2f5;
   color: #111827;
   border-color: #cbd5e1;
 }
-.button:active:not(:disabled) {
+.button:active:not(:disabled),
+.btn:active:not(:disabled),
+.btn-secondary:active:not(:disabled) {
   background: #e2e8f0;
   color: #0f172a;
 }
 .primary,
 .primary-export,
 .settings-footer .settings-done,
-.button-dark {
+.button-dark,
+.btn-primary,
+.btn-done {
   border: 1px solid #1f2328;
   border-radius: 3px;
   background: #1f2328;
@@ -206,9 +214,13 @@ select {
 .primary-export:hover:not(:disabled),
 .settings-footer .settings-done:hover:not(:disabled),
 .button-dark:hover:not(:disabled),
+.btn-primary:hover:not(:disabled),
+.btn-done:hover:not(:disabled),
 button.primary:hover:not(:disabled),
 button.primary-export:hover:not(:disabled),
-button.settings-done:hover:not(:disabled) {
+button.settings-done:hover:not(:disabled),
+button.btn-primary:hover:not(:disabled),
+button.btn-done:hover:not(:disabled) {
   background: #374151 !important;
   color: #ffffff !important;
   border-color: #374151 !important;
@@ -218,9 +230,13 @@ button.settings-done:hover:not(:disabled) {
 .primary-export:active:not(:disabled),
 .settings-footer .settings-done:active:not(:disabled),
 .button-dark:active:not(:disabled),
+.btn-primary:active:not(:disabled),
+.btn-done:active:not(:disabled),
 button.primary:active:not(:disabled),
 button.primary-export:active:not(:disabled),
-button.settings-done:active:not(:disabled) {
+button.settings-done:active:not(:disabled),
+button.btn-primary:active:not(:disabled),
+button.btn-done:active:not(:disabled) {
   background: #111827 !important;
   color: #ffffff !important;
   border-color: #111827 !important;
@@ -264,7 +280,7 @@ button.settings-done:active:not(:disabled) {
   display: inline;
 }
 .legend-close-btn {
-  display: none;
+  display: inline-flex;
 }
 .mobile-maximize-btn {
   display: none;
@@ -298,33 +314,33 @@ button.settings-done:active:not(:disabled) {
 .axis-select-label {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   cursor: pointer;
 }
 .axis-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 19px;
-  height: 19px;
-  border-radius: 4px;
-  background: #f1f5f9;
-  color: #334155;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  background: #f0f0f0;
+  color: #555555;
   font-size: 10px;
-  font-weight: 700;
-  border: 1px solid #cbd5e1;
+  font-weight: 600;
+  border: 1px solid #d0d7de;
   user-select: none;
   flex-shrink: 0;
 }
 .axis-select-label select,
 .axes-bar select {
-  height: 28px;
-  min-width: 72px;
-  border: 1px solid #cbd5e1;
-  border-radius: 5px;
-  color: #1e293b;
+  height: 27px;
+  min-width: 68px;
+  border: 1px solid #d0d7de;
+  border-radius: 3px;
+  color: #363636;
   background: #ffffff;
-  padding: 0 8px;
+  padding: 0 6px;
   font-size: 11px;
   font-weight: 500;
   outline: none;
@@ -333,33 +349,32 @@ button.settings-done:active:not(:disabled) {
 }
 .axis-select-label select:hover,
 .axes-bar select:hover {
-  border-color: #94a3b8;
-  background: #f8fafc;
+  border-color: #999999;
+  background: #f7f7f7;
 }
 .axis-select-label select:focus,
 .axes-bar select:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  border-color: #555555;
 }
 .swap-axes-btn,
 .axes-bar .icon-button {
-  width: 26px;
-  height: 26px;
-  border-radius: 5px;
-  color: #64748b;
+  width: 27px;
+  height: 27px;
+  border-radius: 3px;
+  color: #696969;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #d0d7de;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 .swap-axes-btn:hover,
 .axes-bar .icon-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #94a3b8;
+  background: #f2f2f2;
+  color: #222222;
+  border-color: #999999;
 }
 .axis-toolbar-divider {
   width: 1px;
@@ -424,43 +439,42 @@ button.settings-done:active:not(:disabled) {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 9px;
+  height: 27px;
+  padding: 0 8px;
   font-size: 11px;
   font-weight: 500;
-  color: #1e293b;
+  color: #1f2328;
   background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #d0d7de;
+  border-radius: 3px;
   cursor: pointer;
-  position: relative;
-  top: -2px; /* slightly elevated above normal tools */
-  box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.08),
-    0 1px 2px rgba(0, 0, 0, 0.04);
-  transition: all 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 .toolbar-samples-table-btn:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background: #f0f2f5;
+  border-color: #cbd5e1;
+  color: #111827;
 }
 .toolbar-samples-table-btn .table-btn-icon {
-  color: #4f46e5;
+  color: #555555;
 }
 .toolbar-samples-table-btn .table-btn-label {
-  font-weight: 600;
+  font-weight: 500;
 }
 .table-btn-pill {
   font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 10px;
-  background: #e0e7ff;
-  color: #3730a3;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: #f0f0f0;
+  color: #555555;
   font-weight: 500;
 }
 .table-btn-pill.pill-excluded {
-  background: #fee2e2;
-  color: #991b1b;
+  background: #fef2f2;
+  color: #b91c1c;
 }
 .chart-tools {
   display: flex;
@@ -1078,14 +1092,15 @@ button.settings-done:active:not(:disabled) {
 }
 .btn-tiny-action {
   font-size: 11px;
-  color: #4f46e5;
-  border: 1px solid #e0e7ff;
-  background: #eef2ff;
-  border-radius: 4px;
+  color: #1f2328;
+  border: 1px solid #d0d7de;
+  background: #f6f8fa;
+  border-radius: 3px;
   cursor: pointer;
 }
 .btn-tiny-action:hover {
-  background: #e0e7ff;
+  background: #f0f2f5;
+  border-color: #cbd5e1;
 }
 .point-exclude-section {
   padding: 0 12px;
@@ -1388,7 +1403,7 @@ td .swatch {
   justify-content: center;
   background: #f3f4f6;
   border: 1px solid #d1d5db;
-  border-radius: 4px;
+  border-radius: 3px;
   cursor: pointer;
 }
 .btn-tiny:hover {
@@ -2164,7 +2179,6 @@ body[data-plot-drag="lasso"] .dragcover {
   min-width: 0;
 }
 .search-tools > .icon-button {
-  width: 26px;
   flex-shrink: 0;
 }
 .settings-backdrop {
@@ -2181,7 +2195,7 @@ body[data-plot-drag="lasso"] .dragcover {
   overflow: hidden;
   background: white;
   border: 1px solid #aaa;
-  border-radius: 4px;
+  border-radius: 3px;
   box-shadow: 0 12px 50px #0003;
 }
 .settings-dialog .modal-header h2,

@@ -88,7 +88,7 @@ export function Modal({
           flexDirection: "column",
           backgroundColor: "var(--color-surface-0)",
           color: "var(--color-text-primary)",
-          borderRadius: "var(--radius-lg)",
+          borderRadius: "3px",
           boxShadow: "var(--shadow-modal)",
           border: "1px solid var(--color-border)",
           outline: "none",
@@ -97,18 +97,19 @@ export function Modal({
       >
         {/* Header */}
         <div
+          className="modal-header"
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 20px",
+            padding: "12px 16px",
             borderBottom: "1px solid var(--color-border)",
           }}
         >
           <h2
             id={titleId}
             style={{
-              fontSize: "var(--font-size-md)",
+              fontSize: "13px",
               fontWeight: 600,
               color: "var(--color-text-primary)",
               margin: 0,
@@ -120,13 +121,7 @@ export function Modal({
             type="button"
             onClick={onClose}
             aria-label={closeLabel}
-            className="btn btn-ghost"
-            style={{
-              padding: "4px",
-              borderRadius: "var(--radius-sm)",
-              color: "var(--color-text-muted)",
-              cursor: "pointer",
-            }}
+            className="icon-button modal-close-btn"
           >
             <X size={18} />
           </button>

@@ -181,11 +181,11 @@ export function SampleTableDialog({
               onClick={() => setStatusFilter("all")}
               style={{
                 fontSize: 12,
-                padding: "4px 8px",
-                background: statusFilter === "all" ? "#e0e7ff" : "transparent",
-                color: statusFilter === "all" ? "#3730a3" : "#4b5563",
+                padding: "3px 8px",
+                background: statusFilter === "all" ? "#f0f0f0" : "transparent",
+                color: statusFilter === "all" ? "#1f2328" : "#555555",
                 fontWeight: statusFilter === "all" ? 600 : 400,
-                borderRadius: 6,
+                borderRadius: 3,
               }}
             >
               All ({sampleList.length})
@@ -195,12 +195,12 @@ export function SampleTableDialog({
               onClick={() => setStatusFilter("plotted")}
               style={{
                 fontSize: 12,
-                padding: "4px 8px",
+                padding: "3px 8px",
                 background:
                   statusFilter === "plotted" ? "#ecfdf5" : "transparent",
-                color: statusFilter === "plotted" ? "#065f46" : "#4b5563",
+                color: statusFilter === "plotted" ? "#065f46" : "#555555",
                 fontWeight: statusFilter === "plotted" ? 600 : 400,
-                borderRadius: 6,
+                borderRadius: 3,
               }}
             >
               Plotted ({plottedCount})
@@ -210,12 +210,12 @@ export function SampleTableDialog({
               onClick={() => setStatusFilter("excluded")}
               style={{
                 fontSize: 12,
-                padding: "4px 8px",
+                padding: "3px 8px",
                 background:
                   statusFilter === "excluded" ? "#fef2f2" : "transparent",
-                color: statusFilter === "excluded" ? "#991b1b" : "#4b5563",
+                color: statusFilter === "excluded" ? "#991b1b" : "#555555",
                 fontWeight: statusFilter === "excluded" ? 600 : 400,
-                borderRadius: 6,
+                borderRadius: 3,
               }}
             >
               Excluded ({excludedCount})

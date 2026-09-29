@@ -420,7 +420,7 @@ export function ExportDialog({
             </p>
 
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-              <button className="btn-primary" onClick={handleDownloadCsv}>
+              <button className="button button-dark" onClick={handleDownloadCsv}>
                 <Download size={14} /> Download CSV ({dataset.samples.length}{" "}
                 rows)
               </button>
@@ -447,7 +447,7 @@ export function ExportDialog({
             </p>
 
             <button
-              className="btn-primary"
+              className="button button-dark"
               disabled={archiveBusy}
               onClick={handleDownloadArchive}
             >
@@ -482,7 +482,7 @@ export function ExportDialog({
           Filtered samples · CSV
         </button>
         <button
-          className="button primary-export btn-primary"
+          className="button primary-export"
           disabled={!composedBlob || isComposing}
           onClick={handleDownloadPng}
         >
