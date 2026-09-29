@@ -22,20 +22,30 @@ export function Slider({
   step?: number;
   percent?: boolean;
 }) {
+  const effectiveMin = percent ? 0 : min;
+  const effectiveMax = percent ? 100 : max;
+  const effectiveStep = percent ? (step && step < 1 ? Math.round(step * 100) : 5) : step;
+  const displayVal = percent ? Math.round(value * 100) : value;
+
   return (
     <label className="control-row">
       {label}
-      <div className="range-value">
+      <div className="range-value" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
         <input
           aria-label={label}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          type="number"
+          min={effectiveMin}
+          max={effectiveMax}
+          step={effectiveStep}
+          value={displayVal}
+          onChange={(e) => {
+            const num = Number(e.target.value);
+            if (!isNaN(num)) {
+              onChange(percent ? num / 100 : num);
+            }
+          }}
         />
-        <output>{percent ? `${Math.round(value * 100)}%` : value}</output>
+        {percent && <span style={{ fontSize: "11px", color: "#696969" }}>%</span>}
       </div>
     </label>
   );

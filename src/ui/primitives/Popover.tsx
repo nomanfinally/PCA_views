@@ -83,10 +83,21 @@ export function Popover({
     if (!active) return;
 
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Element | null;
+      if (!target) return;
       if (
         containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
+        !containerRef.current.contains(target)
       ) {
+        // Do not close when interacting with portaled child elements like color picker palettes
+        if (
+          target.closest(".organized-color-palette-popover") ||
+          target.closest(".ui-color-picker") ||
+          target.closest(".color-control") ||
+          target.closest("[data-portal-popover]")
+        ) {
+          return;
+        }
         onClose();
       }
     };

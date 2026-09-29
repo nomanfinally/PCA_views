@@ -246,10 +246,10 @@ export function SettingsDialog({
                   </label>
                   <label className="control-row">
                     Point size
-                    <div className="range-value">
+                    <div className="range-value" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <input
                         aria-label="Point size"
-                        type="range"
+                        type="number"
                         min="3"
                         max="16"
                         value={s.size}
@@ -257,7 +257,7 @@ export function SettingsDialog({
                           patch({ size: Number(e.target.value) })
                         }
                       />
-                      <output>{s.size}</output>
+                      <span style={{ fontSize: "11px", color: "#696969" }}>px</span>
                     </div>
                   </label>
                   <label className="control-row">
@@ -278,10 +278,10 @@ export function SettingsDialog({
                   </label>
                   <label className="control-row">
                     Outline width
-                    <div className="range-value">
+                    <div className="range-value" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                       <input
                         aria-label="Outline width"
-                        type="range"
+                        type="number"
                         min={isHollow ? "0.5" : "0.4"}
                         max={isHollow ? "4" : "2"}
                         step="0.1"
@@ -290,7 +290,7 @@ export function SettingsDialog({
                           patch({ outlineWidth: Number(e.target.value) })
                         }
                       />
-                      <output>{s.outlineWidth}</output>
+                      <span style={{ fontSize: "11px", color: "#696969" }}>px</span>
                     </div>
                   </label>
 

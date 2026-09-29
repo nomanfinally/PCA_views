@@ -212,6 +212,39 @@ export function PopulationEditor({
             onChange={(labelSize) => patch({ labelSize })}
           />
 
+          <ColorPicker
+            label="Group label color"
+            color={custom.labelColor ?? custom.color ?? population.color}
+            onChange={(labelColor) => patch({ labelColor })}
+          />
+          {custom.labelColor !== undefined && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                marginTop: "-2px",
+                marginBottom: "4px",
+              }}
+            >
+              <button
+                type="button"
+                className="button-link"
+                style={{
+                  fontSize: "10px",
+                  color: "var(--color-primary, #2563eb)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                  textDecoration: "underline",
+                }}
+                onClick={() => patch({ labelColor: undefined })}
+              >
+                Match group color
+              </button>
+            </div>
+          )}
+
           <label className="control-row">
             Connect to centroid
             <input
@@ -303,15 +336,6 @@ export function PopulationEditor({
       <details>
         <summary>More label &amp; hull controls</summary>
         <Slider
-          label="Group label size"
-          value={custom.labelSize ?? state.settings.groupLabelSize}
-          min={8}
-          max={28}
-          step={1}
-          onChange={(labelSize) => patch({ labelSize })}
-        />
-
-        <Slider
           label="Point label size"
           value={custom.pointLabelSize ?? state.settings.pointLabelSize}
           min={7}
@@ -325,12 +349,6 @@ export function PopulationEditor({
           value={custom.labelOpacity ?? 1}
           percent
           onChange={(labelOpacity) => patch({ labelOpacity })}
-        />
-
-        <ColorPicker
-          label="Population label color"
-          color={custom.labelColor ?? custom.color ?? population.color}
-          onChange={(labelColor) => patch({ labelColor })}
         />
 
         <label className="control-row">

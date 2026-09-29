@@ -391,6 +391,8 @@ export function ColorPicker({
             className="organized-color-palette-popover"
             role="dialog"
             aria-label={`${label ?? "Color"} palette`}
+            onMouseDown={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
             style={{
               position: "fixed",
               top: popoverPos.top,

@@ -130,10 +130,10 @@ export function PointInspector({
       />
       <label className="control-row">
         Size
-        <div className="range-value">
+        <div className="range-value" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <input
             aria-label="Sample size"
-            type="range"
+            type="number"
             min="3"
             max="24"
             step="1"
@@ -146,7 +146,7 @@ export function PointInspector({
               })
             }
           />
-          <output>{appearance.size}px</output>
+          <span style={{ fontSize: "11px", color: "#696969" }}>px</span>
         </div>
       </label>
       <ColorControl
