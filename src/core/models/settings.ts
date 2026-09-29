@@ -29,6 +29,9 @@ export { chartBackgroundPresets } from "../color/contrast";
 
 export const axisThicknessPresets = [0.5, 1, 1.25, 1.5, 1.75, 2] as const;
 
+export const axisFramePresets = ["enclosed", "standard"] as const;
+export type AxisFrame = (typeof axisFramePresets)[number];
+
 export const legendPositions = [
   "top-right",
   "top-left",
@@ -171,6 +174,7 @@ export interface PlotSettings {
   pointLabelSize: number;
   groupLabelSize: number;
   clampGroupLabelsToEdge: boolean;
+  axisFrame: AxisFrame;
 }
 
 export const defaultSettings: PlotSettings = {
@@ -200,6 +204,7 @@ export const defaultSettings: PlotSettings = {
   groupLabelStyle: "background",
   groupLabelConnector: true,
   clampGroupLabelsToEdge: true,
+  axisFrame: "enclosed",
   tickFontSize: 12,
   axisLineWidth: 1.25,
   axisTitleSize: 14,

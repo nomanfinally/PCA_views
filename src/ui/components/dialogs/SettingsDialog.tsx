@@ -86,10 +86,12 @@ export function SettingsDialog({
       title="Plot settings"
       onClose={() => onClose(tab)}
       className="settings-modal"
-      width={720}
+      width={880}
+      maxWidth="min(95vw, 920px)"
+      noPadding={true}
       closeLabel="Close settings"
     >
-      <div className="settings-container">
+      <div className="settings-layout settings-container">
         {/* Tab Navigation List */}
         <div
           className="settings-tabs"
@@ -286,6 +288,22 @@ export function SettingsDialog({
                         {String(width)}
                       </option>
                     ))}
+                  </select>
+                </label>
+
+                <label className="control-row">
+                  Axes border
+                  <select
+                    aria-label="Axes border"
+                    value={s.axisFrame ?? "enclosed"}
+                    onChange={(e) =>
+                      patch({
+                        axisFrame: e.target.value as typeof s.axisFrame,
+                      })
+                    }
+                  >
+                    <option value="enclosed">Enclosed (all 4 sides)</option>
+                    <option value="standard">Two axes (bottom & left)</option>
                   </select>
                 </label>
 

@@ -266,6 +266,8 @@ export function mapSpecToPlotly(
       zerolinecolor: spec.layout.xaxis.zeroLineColor,
       linecolor: spec.layout.xaxis.lineColor,
       linewidth: spec.layout.xaxis.lineWidth,
+      showline: true,
+      mirror: spec.layout.xaxis.mirror ?? true,
       tickfont: {
         size: spec.layout.xaxis.tickFontSize,
         color: spec.layout.xaxis.lineColor,
@@ -293,6 +295,8 @@ export function mapSpecToPlotly(
       zerolinecolor: spec.layout.yaxis.zeroLineColor,
       linecolor: spec.layout.yaxis.lineColor,
       linewidth: spec.layout.yaxis.lineWidth,
+      showline: true,
+      mirror: spec.layout.yaxis.mirror ?? true,
       tickfont: {
         size: spec.layout.yaxis.tickFontSize,
         color: spec.layout.yaxis.lineColor,

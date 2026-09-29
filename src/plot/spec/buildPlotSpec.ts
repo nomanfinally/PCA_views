@@ -294,6 +294,7 @@ export function buildPlotSpec(
     lineWidth: settings.axisLineWidth,
     tickFontSize: settings.tickFontSize,
     spikes: settings.spikes,
+    mirror: settings.axisFrame === "enclosed",
   };
 
   const yaxis: PlotAxisSpec = {
@@ -310,6 +311,7 @@ export function buildPlotSpec(
     tickFontSize: settings.tickFontSize,
     spikes: settings.spikes,
     scaleAnchor: settings.equalScale ? "x" : undefined,
+    mirror: settings.axisFrame === "enclosed",
   };
 
   const layout: PlotLayoutSpec = {

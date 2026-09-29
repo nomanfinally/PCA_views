@@ -177,122 +177,6 @@ export function Workspace({
         />
       )}
 
-      {/* 2. Axis Controls & Search Toolbar */}
-      <div className="workspace-toolbar">
-        <div className="axis-pickers">
-          <label className="axis-select-label">
-            <span className="axis-badge">X</span>
-            <select
-              aria-label="Horizontal axis"
-              value={state.x}
-              onChange={(e) =>
-                dispatch({
-                  type: "axes",
-                  x: Number(e.target.value),
-                  y: state.y,
-                })
-              }
-            >
-              {Array.from({ length: dataset.pcCount }, (_, i) => {
-                const variance = selectAxisVariance(dataset, state, i);
-                return (
-                  <option key={i} value={i} disabled={i === state.y}>
-                    PC{i + 1}
-                    {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-
-          <button
-            className="icon-button swap-axes-btn"
-            aria-label="Swap axes"
-            title="Swap horizontal and vertical axes"
-            onClick={() => dispatch({ type: "axes", x: state.y, y: state.x })}
-          >
-            <ArrowLeftRight size={14} />
-          </button>
-
-          <label className="axis-select-label">
-            <span className="axis-badge">Y</span>
-            <select
-              aria-label="Vertical axis"
-              value={state.y}
-              onChange={(e) =>
-                dispatch({
-                  type: "axes",
-                  x: state.x,
-                  y: Number(e.target.value),
-                })
-              }
-            >
-              {Array.from({ length: dataset.pcCount }, (_, i) => {
-                const variance = selectAxisVariance(dataset, state, i);
-                return (
-                  <option key={i} value={i} disabled={i === state.x}>
-                    PC{i + 1}
-                    {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
-                  </option>
-                );
-              })}
-            </select>
-          </label>
-        </div>
-
-        <div className="search-tools">
-          <div className="sample-search search-field">
-            <Search size={13} aria-hidden="true" />
-            <input
-              aria-label="Search samples"
-              placeholder={isMobile ? "Search…" : "Find sample or population…"}
-              value={state.search}
-              onChange={(e) =>
-                dispatch({ type: "search", value: e.target.value })
-              }
-            />
-            {state.search && (
-              <button
-                className="icon-button"
-                aria-label="Clear sample search"
-                onClick={() => dispatch({ type: "search", value: "" })}
-              >
-                <X size={12} />
-              </button>
-            )}
-          </div>
-
-          <button
-            className={`icon-button ${state.legend ? "active" : ""}`}
-            aria-label="Toggle legend"
-            title="Toggle legend dock"
-            aria-pressed={state.legend}
-            onClick={() => dispatch({ type: "legend" })}
-          >
-            <PanelRight size={17} />
-          </button>
-
-          {isCompact && (
-            <button
-              className={`icon-button mobile-maximize-btn ${maximizedPlot ? "active" : ""}`}
-              aria-label={
-                maximizedPlot ? "Restore normal view" : "Maximize plot area"
-              }
-              title={
-                maximizedPlot ? "Restore normal view" : "Maximize plot area"
-              }
-              onClick={() => setMaximizedPlot(!maximizedPlot)}
-            >
-              {maximizedPlot ? (
-                <Minimize2 size={16} />
-              ) : (
-                <Maximize2 size={16} />
-              )}
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* 3. Floating Selection Pill */}
       {state.selected.size > 0 && (
         <div
@@ -326,20 +210,142 @@ export function Workspace({
       {/* 4. Main Plot & Legend Area */}
       <div className={`plot-workspace ${state.legend ? "with-legend" : ""}`}>
         <main className="chart-surface">
-          <PlotToolbar
-            dataset={effectiveDataset}
-            activeSamplesCount={activeSamples.length}
-            totalSamplesCount={effectiveDataset.samples.length}
-            excludedCount={state.excludedSamples.size}
-            state={state}
-            dispatch={dispatch}
-            plotRef={plotRef}
-            onExport={() => setExportOpen(true)}
-            onTable={() => setTableOpen(true)}
-            fullscreen={fullscreen}
-            onFullscreen={toggleFullscreen}
-            onSettings={handleOpenSettings}
-          />
+          {/* Integrated Single-Row Toolbar */}
+          <div className="workspace-toolbar">
+            <PlotToolbar
+              dataset={effectiveDataset}
+              activeSamplesCount={activeSamples.length}
+              totalSamplesCount={effectiveDataset.samples.length}
+              excludedCount={state.excludedSamples.size}
+              state={state}
+              dispatch={dispatch}
+              plotRef={plotRef}
+              onExport={() => setExportOpen(true)}
+              onTable={() => setTableOpen(true)}
+              fullscreen={fullscreen}
+              onFullscreen={toggleFullscreen}
+              onSettings={handleOpenSettings}
+            />
+
+            <div className="axis-toolbar-divider" aria-hidden="true" />
+
+            <div className="axis-pickers">
+              <label className="axis-select-label">
+                <span className="axis-badge">X</span>
+                <select
+                  aria-label="Horizontal axis"
+                  value={state.x}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "axes",
+                      x: Number(e.target.value),
+                      y: state.y,
+                    })
+                  }
+                >
+                  {Array.from({ length: dataset.pcCount }, (_, i) => {
+                    const variance = selectAxisVariance(dataset, state, i);
+                    return (
+                      <option key={i} value={i} disabled={i === state.y}>
+                        PC{i + 1}
+                        {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+
+              <button
+                className="icon-button swap-axes-btn"
+                aria-label="Swap axes"
+                title="Swap horizontal and vertical axes"
+                onClick={() =>
+                  dispatch({ type: "axes", x: state.y, y: state.x })
+                }
+              >
+                <ArrowLeftRight size={14} />
+              </button>
+
+              <label className="axis-select-label">
+                <span className="axis-badge">Y</span>
+                <select
+                  aria-label="Vertical axis"
+                  value={state.y}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "axes",
+                      x: state.x,
+                      y: Number(e.target.value),
+                    })
+                  }
+                >
+                  {Array.from({ length: dataset.pcCount }, (_, i) => {
+                    const variance = selectAxisVariance(dataset, state, i);
+                    return (
+                      <option key={i} value={i} disabled={i === state.y}>
+                        PC{i + 1}
+                        {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
+                      </option>
+                    );
+                  })}
+                </select>
+              </label>
+            </div>
+
+            <div className="search-tools">
+              <div className="sample-search search-field">
+                <Search size={13} aria-hidden="true" />
+                <input
+                  aria-label="Search samples"
+                  placeholder={
+                    isMobile ? "Search…" : "Find sample or population…"
+                  }
+                  value={state.search}
+                  onChange={(e) =>
+                    dispatch({ type: "search", value: e.target.value })
+                  }
+                />
+                {state.search && (
+                  <button
+                    className="icon-button"
+                    aria-label="Clear sample search"
+                    onClick={() => dispatch({ type: "search", value: "" })}
+                  >
+                    <X size={12} />
+                  </button>
+                )}
+              </div>
+
+              <button
+                className={`icon-button ${state.legend ? "active" : ""}`}
+                aria-label="Toggle legend"
+                title="Toggle legend dock"
+                aria-pressed={state.legend}
+                onClick={() => dispatch({ type: "legend" })}
+              >
+                <PanelRight size={17} />
+              </button>
+
+              {isCompact && (
+                <button
+                  className={`icon-button mobile-maximize-btn ${maximizedPlot ? "active" : ""}`}
+                  aria-label={
+                    maximizedPlot ? "Restore normal view" : "Maximize plot area"
+                  }
+                  title={
+                    maximizedPlot ? "Restore normal view" : "Maximize plot area"
+                  }
+                  onClick={() => setMaximizedPlot(!maximizedPlot)}
+                >
+                  {maximizedPlot ? (
+                    <Minimize2 size={16} />
+                  ) : (
+                    <Maximize2 size={16} />
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
 
           <div
             className={`plot-container ${state.settings.aspectRatio !== "full" ? "has-ratio" : ""} ${state.settings.aspectRatio === "1:1" ? "is-square" : ""}`}

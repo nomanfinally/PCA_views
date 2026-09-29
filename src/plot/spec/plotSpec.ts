@@ -81,6 +81,7 @@ export interface PlotAxisSpec {
   tickFontSize: number;
   spikes: boolean;
   scaleAnchor?: "x" | "y";
+  mirror?: boolean;
 }
 
 export interface PlotLayoutSpec {

@@ -16,6 +16,7 @@ export interface ModalProps {
   width?: number | string;
   className?: string;
   closeLabel?: string;
+  noPadding?: boolean;
 }
 
 export function Modal({
@@ -24,10 +25,11 @@ export function Modal({
   onClose,
   children,
   footer,
-  maxWidth = 540,
+  maxWidth,
   width,
   className = "",
   closeLabel = "Close dialog",
+  noPadding = false,
 }: ModalProps) {
   const titleId = useId();
   const containerRef = useKeyboardTrap<HTMLDivElement>({
@@ -36,6 +38,17 @@ export function Modal({
   });
 
   if (!isOpen) return null;
+
+  const resolvedMaxWidth =
+    maxWidth !== undefined
+      ? typeof maxWidth === "number"
+        ? `${maxWidth}px`
+        : maxWidth
+      : width !== undefined
+        ? typeof width === "number"
+          ? `${Math.max(width, 540)}px`
+          : width
+        : "min(94vw, 540px)";
 
   return (
     <div
@@ -69,7 +82,7 @@ export function Modal({
                 ? `${width}px`
                 : width
               : "100%",
-          maxWidth: typeof maxWidth === "number" ? `${maxWidth}px` : maxWidth,
+          maxWidth: resolvedMaxWidth,
           maxHeight: "90vh",
           display: "flex",
           flexDirection: "column",
@@ -121,10 +134,14 @@ export function Modal({
 
         {/* Body */}
         <div
+          className="ui-modal-body"
           style={{
-            padding: "20px",
-            overflowY: "auto",
+            padding: noPadding ? 0 : "20px",
+            overflowY: noPadding ? "hidden" : "auto",
+            display: "flex",
+            flexDirection: "column",
             flex: 1,
+            minHeight: 0,
           }}
         >
           {children}

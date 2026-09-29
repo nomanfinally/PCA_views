@@ -141,7 +141,9 @@ export function SampleTableDialog({
       title="Sample Table & Data Editor"
       onClose={onClose}
       className="table-modal"
-      width={860}
+      width={1160}
+      maxWidth="min(96vw, 1180px)"
+      noPadding={true}
     >
       <div className="table-dialog-container">
         {/* Header toolbar: Search, Status filters & Export buttons */}
