@@ -368,7 +368,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
 
     return (
       <div
-        className="pca-plot-container"
+        className="pca-plot-container plot"
         ref={containerRef}
         onClick={handleClick}
         onContextMenu={handleContextMenu}

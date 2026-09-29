@@ -50,6 +50,7 @@ export function ShapePicker({
           <input
             type="radio"
             name={name}
+            aria-label="Population default"
             checked={value === undefined}
             onChange={() => onChange(undefined)}
             style={{ accentColor: "var(--color-surface-900)" }}
