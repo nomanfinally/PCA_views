@@ -369,14 +369,19 @@ const loadImage = (url: string) =>
     image.src = url;
   });
 
+export interface ComposedPngResult {
+  blob: Blob;
+  placement: ImagePlacement;
+}
+
 /**
- * Composes a full exported figure onto a high-DPI Canvas 2D and returns a PNG Blob.
+ * Composes a full exported figure onto a high-DPI Canvas 2D and returns a PNG Blob and layout placement.
  */
 export async function composePng(
   chart: ChartImage,
   entries: ImageLegendEntry[],
   options: ImageOptions,
-): Promise<Blob> {
+): Promise<ComposedPngResult> {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d")!;
 
@@ -463,9 +468,9 @@ export async function composePng(
     });
   }
 
-  return new Promise<Blob>((resolve, reject) => {
+  return new Promise<ComposedPngResult>((resolve, reject) => {
     canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
+      if (blob) resolve({ blob, placement });
       else reject(new Error("Unable to create PNG export."));
     }, "image/png");
   });

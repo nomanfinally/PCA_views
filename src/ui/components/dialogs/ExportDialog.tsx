@@ -37,6 +37,7 @@ export function ExportDialog({
   const [chart, setChart] = useState<ChartImage | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [composedBlob, setComposedBlob] = useState<Blob | null>(null);
+  const [placement, setPlacement] = useState<ImagePlacement | null>(null);
   const [isComposing, setIsComposing] = useState(true);
   const [archiveBusy, setArchiveBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -84,14 +85,15 @@ export function ExportDialog({
 
     const timer = setTimeout(() => {
       void composePng(chart, legend, options)
-        .then((blob) => {
+        .then((result) => {
           if (isMounted) {
-            const url = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(result.blob);
             setPreviewUrl((prev) => {
               if (prev) URL.revokeObjectURL(prev);
               return url;
             });
-            setComposedBlob(blob);
+            setComposedBlob(result.blob);
+            setPlacement(result.placement);
             setIsComposing(false);
           }
         })
@@ -111,14 +113,16 @@ export function ExportDialog({
 
   const handleDownloadPng = () => {
     if (!composedBlob) return;
-    const baseName = dataset.name.replace(/\.[^/.]+$/, "");
-    downloadBlob(composedBlob, `${baseName}-pc${state.x + 1}-pc${state.y + 1}.png`);
+    const baseName = dataset.name.replace(/\.evec$/i, "");
+    downloadBlob(composedBlob, `${baseName}_PC${state.x + 1}_PC${state.y + 1}.png`);
+    onClose();
   };
 
   const handleDownloadCsv = () => {
     const csvContent = samplesToCsv(samples, dataset.pcCount);
-    const baseName = dataset.name.replace(/\.[^/.]+$/, "");
-    downloadText(csvContent, `${baseName}-samples.csv`, "text/csv;charset=utf-8");
+    const baseName = dataset.name.replace(/\.evec$/i, "");
+    downloadText(csvContent, `${baseName}_filtered.csv`, "text/csv;charset=utf-8");
+    onClose();
   };
 
   const handleDownloadArchive = async () => {
@@ -139,6 +143,50 @@ export function ExportDialog({
       setArchiveBusy(false);
     }
   };
+
+  const number = (
+    label: string,
+    key: keyof ImageOptions,
+    min: number,
+    max: number,
+  ) => (
+    <label className="control-row">
+      {label}
+      <input
+        aria-label={label}
+        type="number"
+        min={min}
+        max={max}
+        value={Number(options[key])}
+        onChange={(e) => {
+          if (e.target.value !== "")
+            patchOptions({
+              [key]: Math.max(
+                min,
+                Math.min(max, Math.round(Number(e.target.value))),
+              ),
+            });
+        }}
+      />
+    </label>
+  );
+
+  const weight = (label: string, key: keyof ImageOptions) => (
+    <label className="control-row">
+      {label}
+      <select
+        aria-label={label}
+        value={String(options[key])}
+        onChange={(e) => patchOptions({ [key]: Number(e.target.value) })}
+      >
+        {[400, 500, 600, 700, 800].map((w) => (
+          <option key={w} value={w}>
+            {w === 400 ? "Normal" : w === 700 ? "Bold" : w}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
 
   return (
     <Modal
@@ -189,79 +237,109 @@ export function ExportDialog({
               ) : previewUrl ? (
                 <img
                   src={previewUrl}
-                  alt="Export preview"
+                  alt="PNG export preview"
                   className="preview-image"
+                  data-plot-box={JSON.stringify(placement?.plotBox)}
+                  data-legend-box={JSON.stringify(placement?.legend)}
+                  data-chart-x={placement?.chart.x}
+                  data-chart-y={placement?.chart.y}
+                  data-chart-width={chart?.width}
+                  data-chart-height={chart?.height}
                 />
               ) : null}
             </div>
 
-            <div className="image-options-panel">
-              <label className="control-row">
-                Resolution scale
-                <select
-                  value={options.scale ?? 2}
-                  onChange={(e) =>
-                    patchOptions({ scale: Number(e.target.value) })
-                  }
-                >
-                  <option value={1}>1× Screen (72 DPI)</option>
-                  <option value={2}>2× High-DPI (144 DPI)</option>
-                  <option value={3}>3× Print (300 DPI)</option>
-                  <option value={4}>4× Ultra (600 DPI)</option>
-                </select>
-              </label>
+            <div className="image-options-panel export-controls">
+              <section>
+                <h3>Heading</h3>
+                <label className="stacked-control">
+                  Title
+                  <input
+                    aria-label="Export title"
+                    value={options.title}
+                    onChange={(e) => patchOptions({ title: e.target.value })}
+                  />
+                </label>
+                {number("Title font size", "titleSize", 8, 64)}
+                {weight("Title font weight", "titleWeight")}
+                <label className="stacked-control">
+                  Subtitle
+                  <input
+                    aria-label="Export subtitle"
+                    value={options.subtitle}
+                    onChange={(e) => patchOptions({ subtitle: e.target.value })}
+                  />
+                </label>
+                {number("Subtitle font size", "subtitleSize", 8, 48)}
+                {weight("Subtitle font weight", "subtitleWeight")}
+              </section>
 
-              <label className="control-row">
-                Legend placement
-                <select
-                  value={options.includeLegend ? options.legendPosition : "none"}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "none") {
-                      patchOptions({ includeLegend: false });
-                    } else {
-                      patchOptions({
-                        includeLegend: true,
-                        legendPosition: val as any,
-                      });
+              <section>
+                <h3>Legend</h3>
+                <label className="control-row">
+                  Include population legend
+                  <input
+                    type="checkbox"
+                    checked={options.includeLegend}
+                    onChange={(e) =>
+                      patchOptions({ includeLegend: e.target.checked })
                     }
-                  }}
-                >
-                  <option value="right">Right of chart</option>
-                  <option value="bottom">Below chart</option>
-                  <option value="left">Left of chart</option>
-                  <option value="top">Above chart</option>
-                  <option value="none">No legend</option>
-                </select>
-              </label>
+                  />
+                </label>
+                <label className="control-row">
+                  Position
+                  <select
+                    aria-label="Export legend position"
+                    value={options.legendPosition}
+                    onChange={(e) =>
+                      patchOptions({
+                        legendPosition: e.target
+                          .value as ImageOptions["legendPosition"],
+                      })
+                    }
+                  >
+                    {["right", "left", "top", "bottom"].map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {number("Export legend columns", "legendColumns", 1, 6)}
+                {number("Legend font size", "legendFontSize", 8, 32)}
+                {weight("Legend font weight", "legendFontWeight")}
+                {number("Legend row spacing", "legendRowGap", 0, 32)}
+                {number("Legend column spacing", "legendColumnGap", 0, 64)}
+                <label className="control-row">
+                  Legend box boundary
+                  <input
+                    type="checkbox"
+                    checked={options.legendBorder}
+                    onChange={(e) =>
+                      patchOptions({ legendBorder: e.target.checked })
+                    }
+                  />
+                </label>
+              </section>
 
-              <label className="control-row">
-                Export title
-                <input
-                  type="text"
-                  value={options.title}
-                  onChange={(e) => patchOptions({ title: e.target.value })}
-                  placeholder="Defaults to dataset name"
-                />
-              </label>
-
-              <label className="control-row">
-                Export subtitle
-                <input
-                  type="text"
-                  value={options.subtitle}
-                  onChange={(e) => patchOptions({ subtitle: e.target.value })}
-                  placeholder="Defaults to axis summary"
-                />
-              </label>
-
-              <button
-                className="btn-primary primary-export"
-                disabled={isComposing || !composedBlob}
-                onClick={handleDownloadPng}
-              >
-                <Download size={14} /> Download PNG
-              </button>
+              <section>
+                <h3>Resolution</h3>
+                <label className="control-row">
+                  Scale
+                  <select
+                    aria-label="Export scale"
+                    value={options.scale ?? 2}
+                    onChange={(e) =>
+                      patchOptions({ scale: Number(e.target.value) })
+                    }
+                  >
+                    <option value={1}>1× Screen (72 DPI)</option>
+                    <option value={2}>2× High-DPI (144 DPI)</option>
+                    <option value={3}>3× Print (300 DPI)</option>
+                    <option value={4}>4× Ultra (600 DPI)</option>
+                  </select>
+                </label>
+              </section>
             </div>
           </div>
         )}
@@ -318,9 +396,31 @@ export function ExportDialog({
         )}
       </div>
 
-      <div className="modal-footer">
-        <button className="btn-secondary" onClick={onClose}>
-          Close
+      <div className="modal-footer export-footer">
+        <div className="export-archive">
+          <button
+            className="button"
+            disabled={archiveBusy}
+            onClick={handleDownloadArchive}
+          >
+            {archiveBusy ? "Preparing HTML…" : "Download interactive HTML"}
+          </button>
+          <span>
+            One offline file · all loaded data, styles, zoom and tools
+          </span>
+        </div>
+        <button
+          className="button"
+          onClick={handleDownloadCsv}
+        >
+          Filtered samples · CSV
+        </button>
+        <button
+          className="button primary-export btn-primary"
+          disabled={!composedBlob || isComposing}
+          onClick={handleDownloadPng}
+        >
+          Download PNG
         </button>
       </div>
     </Modal>

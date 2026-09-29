@@ -10,6 +10,7 @@
 import { chartContrast } from "../../core/color/contrast";
 import { centroid, convexHull, type Point } from "../../core/geometry/hull";
 import { regressionLine } from "../../core/geometry/regression";
+import { paddedRange } from "../../core/geometry/viewport";
 import type { Dataset, Sample } from "../../core/models/dataset";
 import type {
   DragMode,
@@ -55,6 +56,7 @@ export const annotationName = (
 export interface PlotViewState {
   x: number;
   y: number;
+  mode?: DragMode;
   dragMode?: DragMode;
   settings: PlotSettings;
   populations: Map<string, PopulationStyle>;
@@ -282,6 +284,7 @@ export function buildPlotSpec(
     title: formatAxisTitle(dataset, settings, spectrum, x),
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
+    range: paddedRange(dataset.samples.map((s) => s.pcs[x] ?? 0)),
     grid: settings.grid,
     gridColor: theme.grid,
     zeroLine: true,
@@ -296,6 +299,7 @@ export function buildPlotSpec(
     title: formatAxisTitle(dataset, settings, spectrum, y),
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
+    range: paddedRange(dataset.samples.map((s) => s.pcs[y] ?? 0)),
     grid: settings.grid,
     gridColor: theme.grid,
     zeroLine: true,
@@ -315,7 +319,7 @@ export function buildPlotSpec(
     margin: { l: 60, r: 24, t: 40, b: 60 },
     xaxis,
     yaxis,
-    dragMode: state.dragMode ?? "pan",
+    dragMode: state.mode ?? state.dragMode ?? "pan",
     hoverMode: settings.hover,
   };
 

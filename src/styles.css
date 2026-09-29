@@ -379,6 +379,8 @@ button.settings-done:active:not(:disabled) {
   min-height: 0;
   position: relative;
   display: flex;
+  flex-direction: column;
+  flex: 1;
   background: #ffffff;
   touch-action: none;
 }

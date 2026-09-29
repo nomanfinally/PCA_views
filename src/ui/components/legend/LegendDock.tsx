@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { EyeOff, Search, Settings2, X } from "lucide-react";
+import { Eye, EyeOff, Search, Settings2, X } from "lucide-react";
 import type { Dataset, Population } from "../../../core/models/dataset";
 import type { ViewAction } from "../../../state/viewActions";
 import type { ViewState } from "../../../state/viewState";
@@ -205,6 +205,41 @@ export function LegendDock({
             dispatch={dispatch}
             hullPossible={hullPossible}
           />
+          <div className="popover-actions">
+            <button
+              onClick={() =>
+                dispatch({
+                  type: "population",
+                  name: activePop.name,
+                  patch: { hidden: !state.populations.get(activePop.name)?.hidden },
+                })
+              }
+            >
+              {state.populations.get(activePop.name)?.hidden ? (
+                <Eye size={14} />
+              ) : (
+                <EyeOff size={14} />
+              )}{" "}
+              {state.populations.get(activePop.name)?.hidden
+                ? "Show population"
+                : "Hide population"}
+            </button>
+            <button
+              onClick={() => {
+                dispatch({ type: "isolate", names, name: activePop.name });
+                setMenu(null);
+              }}
+            >
+              Show only this population
+            </button>
+            <button
+              onClick={() =>
+                dispatch({ type: "resetPopulation", name: activePop.name })
+              }
+            >
+              Reset population style
+            </button>
+          </div>
         </Popover>
       )}
     </aside>

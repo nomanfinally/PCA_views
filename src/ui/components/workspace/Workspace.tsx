@@ -143,7 +143,7 @@ export function Workspace({
 
   return (
     <div
-      className={`workspace-shell ${maximizedPlot ? "maximized-plot" : ""}`}
+      className={`workspace-root ${maximizedPlot ? "maximized-plot" : ""}`}
       data-legend-position={state.settings.legendPosition}
     >
       {/* 1. Header */}
@@ -159,7 +159,7 @@ export function Workspace({
       )}
 
       {/* 2. Axis Controls & Search Toolbar */}
-      <div className="workspace-subbar">
+      <div className="workspace-toolbar">
         <div className="axis-pickers">
           <label className="axis-select-label">
             <span className="axis-badge">X</span>
@@ -277,23 +277,19 @@ export function Workspace({
       {/* 3. Floating Selection Pill */}
       {state.selected.size > 0 && (
         <div className="selection-bar" role="toolbar" aria-label="Selection actions">
-          <span className="selection-count">
-            {state.selected.size.toLocaleString()} samples selected
-          </span>
+          <strong>{state.selected.size} selected</strong>
           <button
-            className="btn-sm"
             onClick={() => dispatch({ type: "markSelection", marked: true })}
           >
-            Mark
+            Mark selected
           </button>
           <button
-            className="btn-sm"
             onClick={() => dispatch({ type: "markSelection", marked: false })}
           >
-            Unmark
+            Unmark selected
           </button>
-          <button className="btn-sm" onClick={handleExportSelection}>
-            Export CSV
+          <button onClick={handleExportSelection}>
+            Export selection
           </button>
           <button
             className="icon-button"
@@ -321,21 +317,25 @@ export function Workspace({
             onSettings={handleOpenSettings}
           />
 
-          <PcaPlotCanvas
-            ref={plotRef}
-            initialViewport={archive?.viewport}
-            dataset={dataset}
-            samples={activeSamples}
-            state={state}
-            onMark={(key) => dispatch({ type: "toggleMark", key })}
-            onEdit={(key, anchor) => {
-              setPointAnchor(anchor);
-              dispatch({ type: "inspect", key });
-            }}
-            onSelect={(keys) => dispatch({ type: "select", keys })}
-            isMobile={isMobile}
-            isTablet={isTablet}
-          />
+          <div
+            className={`plot-container ${state.settings.aspectRatio === "1:1" ? "is-square" : ""}`}
+          >
+            <PcaPlotCanvas
+              ref={plotRef}
+              initialViewport={archive?.viewport}
+              dataset={dataset}
+              samples={activeSamples}
+              state={state}
+              onMark={(key) => dispatch({ type: "toggleMark", key })}
+              onEdit={(key, anchor) => {
+                setPointAnchor(anchor);
+                dispatch({ type: "inspect", key });
+              }}
+              onSelect={(keys) => dispatch({ type: "select", keys })}
+              isMobile={isMobile}
+              isTablet={isTablet}
+            />
+          </div>
         </main>
 
         {state.legend && (
@@ -351,41 +351,37 @@ export function Workspace({
       {/* 5. Status Bar */}
       {!maximizedPlot && (
         <footer className="statusbar" role="contentinfo">
-          <div className="status-stats">
+          <div>
+            <span className="status-dot" />
             <span>
-              {activeSamples.length.toLocaleString()} of{" "}
+              {activeSamples.length.toLocaleString()} /{" "}
               {dataset.samples.length.toLocaleString()} samples visible
             </span>
+            {hiddenCount > 0 && (
+              <span className="status-hidden">{hiddenCount} populations hidden</span>
+            )}
             {markedCount > 0 && (
               <button
-                className="badge-pill"
+                className="text-button"
                 onClick={() => dispatch({ type: "clearMarks" })}
                 title="Click to clear all marked sample borders"
               >
-                {markedCount} marked (clear)
-              </button>
-            )}
-            {hiddenCount > 0 && (
-              <button
-                className="badge-pill"
-                onClick={() =>
-                  dispatch({
-                    type: "allPopulations",
-                    names: dataset.populations.map((p) => p.name),
-                    patch: { hidden: false },
-                  })
-                }
-                title="Click to unhide all populations"
-              >
-                {hiddenCount} hidden populations (show all)
+                {markedCount} marked · clear
               </button>
             )}
           </div>
-          <div className="status-axes">
-            <span>
-              PC{state.x + 1} vs PC{state.y + 1}
-            </span>
-          </div>
+          <span className="status-hint">
+            Wheel to zoom · Drag to{" "}
+            {state.mode === "pan"
+              ? "pan"
+              : state.mode === "zoom"
+                ? "zoom"
+                : state.mode === "select"
+                  ? "select"
+                  : "lasso"}{" "}
+            · Click a point to mark
+          </span>
+          <span className="local-status">Local session</span>
         </footer>
       )}
 

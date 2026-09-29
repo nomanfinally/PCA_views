@@ -52,7 +52,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
     const [isReady, setIsReady] = useState(false);
     const [renderError, setRenderError] = useState<string | null>(null);
 
-    // Keep latest props in a ref for event handlers
+    // Keep latest props and spec in refs for event handlers
     const latestProps = useRef(props);
     latestProps.current = props;
 
@@ -69,8 +69,12 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         state.points,
         state.selected,
         state.spectrum,
+        state.mode,
       ],
     );
+
+    const latestSpec = useRef(spec);
+    latestSpec.current = spec;
 
     // Initialize PlotlyRenderer and gesture coordinators
     useEffect(() => {
@@ -116,6 +120,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           void rendererRef.current.relayout({
             "xaxis.range": newX as any,
             "yaxis.range": newY as any,
+            "xaxis.autorange": false,
+            "yaxis.autorange": false,
           });
         },
       });
@@ -137,6 +143,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           void rendererRef.current.relayout({
             "xaxis.range": newX as any,
             "yaxis.range": newY as any,
+            "xaxis.autorange": false,
+            "yaxis.autorange": false,
           });
         },
       });
@@ -163,6 +171,84 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       container.addEventListener("touchend", handleTouchEnd, { passive: true });
       container.addEventListener("touchcancel", handleTouchEnd, { passive: true });
 
+      // Hit testing helper
+      const hitTestPoint = (clientX: number, clientY: number): number | null => {
+        const chart = container as any;
+        const full = chart._fullLayout;
+        const rect = container.getBoundingClientRect();
+        const currentSpec = latestSpec.current;
+        const allPoints = currentSpec.traces.flatMap((t) => t.points);
+
+        if (full?.xaxis && full?.yaxis && typeof full.xaxis.l2p === "function") {
+          const px = clientX - rect.left - full.xaxis._offset;
+          const py = clientY - rect.top - full.yaxis._offset;
+          if (px < 0 || py < 0 || px > full.xaxis._length || py > full.yaxis._length) {
+            return null;
+          }
+
+          let bestKey: number | null = null;
+          let minDistance = 22;
+          for (const p of allPoints) {
+            const sx = full.xaxis.l2p(p.x);
+            const sy = full.yaxis.l2p(p.y);
+            const d = Math.hypot(sx - px, sy - py);
+            if (d <= minDistance) {
+              minDistance = d;
+              bestKey = p.key;
+            }
+          }
+          return bestKey;
+        }
+
+        const snapshot = renderer.getViewportSnapshot();
+        if (!snapshot) return null;
+        const margin = currentSpec.layout.margin;
+        const plotWidth = rect.width - margin.l - margin.r;
+        const plotHeight = rect.height - margin.t - margin.b;
+        if (plotWidth <= 0 || plotHeight <= 0) return null;
+
+        const px = clientX - rect.left - margin.l;
+        const py = clientY - rect.top - margin.t;
+        if (px < 0 || px > plotWidth || py < 0 || py > plotHeight) return null;
+
+        let bestKey: number | null = null;
+        let minDistance = 22;
+        for (const p of allPoints) {
+          const sx =
+            ((p.x - snapshot.xRange[0]) / (snapshot.xRange[1] - snapshot.xRange[0])) *
+            plotWidth;
+          const sy =
+            (1 - (p.y - snapshot.yRange[0]) / (snapshot.yRange[1] - snapshot.yRange[0])) *
+            plotHeight;
+          const d = Math.hypot(sx - px, sy - py);
+          if (d <= minDistance) {
+            minDistance = d;
+            bestKey = p.key;
+          }
+        }
+        return bestKey;
+      };
+
+      const handleCaptureClick = (e: MouseEvent) => {
+        if (e.button !== 0) return;
+        const hitKey = hitTestPoint(e.clientX, e.clientY);
+        if (hitKey !== null) {
+          latestProps.current.onMark(hitKey);
+        }
+      };
+
+      const handleCaptureContextMenu = (e: MouseEvent) => {
+        const hitKey = hitTestPoint(e.clientX, e.clientY);
+        if (hitKey !== null) {
+          e.preventDefault();
+          e.stopPropagation();
+          latestProps.current.onEdit(hitKey, { x: e.clientX + 8, y: e.clientY + 8 });
+        }
+      };
+
+      container.addEventListener("click", handleCaptureClick, true);
+      container.addEventListener("contextmenu", handleCaptureContextMenu, true);
+
       // Resize observer
       const resizeObserver = new ResizeObserver(() => {
         if (rendererRef.current) {
@@ -178,6 +264,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         container.removeEventListener("touchmove", handleTouchMove);
         container.removeEventListener("touchend", handleTouchEnd);
         container.removeEventListener("touchcancel", handleTouchEnd);
+        container.removeEventListener("click", handleCaptureClick, true);
+        container.removeEventListener("contextmenu", handleCaptureContextMenu, true);
         resizeObserver.disconnect();
         pinchCoordinator.destroy();
         wheelCoordinator.destroy();
@@ -191,88 +279,6 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       if (!isReady || !rendererRef.current) return;
       void rendererRef.current.update(spec);
     }, [spec, isReady]);
-
-    // Handle point click and context menu via spatial hit testing
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-      const container = containerRef.current;
-      const renderer = rendererRef.current;
-      if (!container || !renderer) return;
-
-      const snapshot = renderer.getViewportSnapshot();
-      if (!snapshot) return;
-
-      const rect = container.getBoundingClientRect();
-      const margin = spec.layout.margin;
-      const plotWidth = rect.width - margin.l - margin.r;
-      const plotHeight = rect.height - margin.t - margin.b;
-      if (plotWidth <= 0 || plotHeight <= 0) return;
-
-      const px = e.clientX - rect.left - margin.l;
-      const py = e.clientY - rect.top - margin.t;
-      if (px < 0 || px > plotWidth || py < 0 || py > plotHeight) return;
-
-      const allPoints = spec.traces.flatMap((t) => t.points);
-      const closest = findClosestPoint(
-        px,
-        py,
-        allPoints,
-        22,
-        (p, tx, ty) => {
-          const sx =
-            ((p.x - snapshot.xRange[0]) / (snapshot.xRange[1] - snapshot.xRange[0])) *
-            plotWidth;
-          const sy =
-            (1 - (p.y - snapshot.yRange[0]) / (snapshot.yRange[1] - snapshot.yRange[0])) *
-            plotHeight;
-          return Math.hypot(sx - tx, sy - ty);
-        },
-      );
-
-      if (closest) {
-        onMark(closest.point.key);
-      }
-    };
-
-    const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
-      const container = containerRef.current;
-      const renderer = rendererRef.current;
-      if (!container || !renderer) return;
-
-      const snapshot = renderer.getViewportSnapshot();
-      if (!snapshot) return;
-
-      const rect = container.getBoundingClientRect();
-      const margin = spec.layout.margin;
-      const plotWidth = rect.width - margin.l - margin.r;
-      const plotHeight = rect.height - margin.t - margin.b;
-      if (plotWidth <= 0 || plotHeight <= 0) return;
-
-      const px = e.clientX - rect.left - margin.l;
-      const py = e.clientY - rect.top - margin.t;
-      if (px < 0 || px > plotWidth || py < 0 || py > plotHeight) return;
-
-      const allPoints = spec.traces.flatMap((t) => t.points);
-      const closest = findClosestPoint(
-        px,
-        py,
-        allPoints,
-        22,
-        (p, tx, ty) => {
-          const sx =
-            ((p.x - snapshot.xRange[0]) / (snapshot.xRange[1] - snapshot.xRange[0])) *
-            plotWidth;
-          const sy =
-            (1 - (p.y - snapshot.yRange[0]) / (snapshot.yRange[1] - snapshot.yRange[0])) *
-            plotHeight;
-          return Math.hypot(sx - tx, sy - ty);
-        },
-      );
-
-      if (closest) {
-        e.preventDefault();
-        onEdit(closest.point.key, { x: e.clientX, y: e.clientY });
-      }
-    };
 
     // Imperative handle
     useImperativeHandle(
@@ -300,6 +306,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           void renderer.relayout({
             "xaxis.range": paddedRange(allX) as any,
             "yaxis.range": paddedRange(allY) as any,
+            "xaxis.autorange": false,
+            "yaxis.autorange": false,
           });
         },
 
@@ -312,6 +320,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           void renderer.relayout({
             "xaxis.range": paddedRange(activeX) as any,
             "yaxis.range": paddedRange(activeY) as any,
+            "xaxis.autorange": false,
+            "yaxis.autorange": false,
           });
         },
 
@@ -370,8 +380,6 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       <div
         className="pca-plot-container plot"
         ref={containerRef}
-        onClick={handleClick}
-        onContextMenu={handleContextMenu}
         style={{
           width: "100%",
           height: "100%",
@@ -382,6 +390,11 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         {renderError && (
           <div className="plot-error alert" role="alert">
             <span>Unable to render plot: {renderError}</span>
+          </div>
+        )}
+        {!samples.length && (
+          <div className="plot-message">
+            No visible samples. Show populations in the legend or clear your search.
           </div>
         )}
       </div>

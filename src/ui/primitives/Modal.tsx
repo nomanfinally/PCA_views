@@ -15,6 +15,7 @@ export interface ModalProps {
   maxWidth?: number | string;
   width?: number | string;
   className?: string;
+  closeLabel?: string;
 }
 
 export function Modal({
@@ -26,6 +27,7 @@ export function Modal({
   maxWidth = 540,
   width,
   className = "",
+  closeLabel = "Close dialog",
 }: ModalProps) {
   const titleId = useId();
   const containerRef = useKeyboardTrap<HTMLDivElement>({
@@ -99,7 +101,7 @@ export function Modal({
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close dialog"
+            aria-label={closeLabel}
             className="btn btn-ghost"
             style={{
               padding: "4px",

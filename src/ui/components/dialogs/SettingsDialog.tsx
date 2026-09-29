@@ -84,6 +84,7 @@ export function SettingsDialog({
       onClose={() => onClose(tab)}
       className="settings-modal"
       width={720}
+      closeLabel="Close settings"
     >
       <div className="settings-container">
         {/* Tab Navigation List */}
@@ -477,7 +478,7 @@ export function SettingsDialog({
             <section>
               <h3>Geometry overlays</h3>
               <label className="control-row">
-                Convex hulls (all populations)
+                All convex hulls
                 <input
                   type="checkbox"
                   checked={anyHulls}
@@ -502,7 +503,7 @@ export function SettingsDialog({
               />
 
               <label className="control-row">
-                Regression lines (all populations)
+                All regression lines
                 <input
                   type="checkbox"
                   checked={anyRegression}
@@ -589,13 +590,16 @@ export function SettingsDialog({
       <div className="modal-footer">
         <button
           className="text-button"
-          onClick={() => {
-            if (window.confirm("Reset all appearance settings to defaults?")) {
-              onReset();
-            }
-          }}
+          onClick={() => dispatch({ type: "resetAppearance" })}
         >
-          <RotateCcw size={13} /> Reset appearance
+          <RotateCcw size={13} /> Reset styles
+        </button>
+        <button
+          className="text-button"
+          title="Restore default styles, visibility, axes, zoom and label positions"
+          onClick={onReset}
+        >
+          Reset to defaults
         </button>
         <button
           className="btn-done btn-primary"

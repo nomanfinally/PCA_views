@@ -2,7 +2,13 @@
  * Viewport-Clamped Floating Popover Primitive
  */
 
-import React, { useEffect, useState, type ReactNode } from "react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { useKeyboardTrap } from "../hooks/useKeyboardTrap";
 
@@ -27,7 +33,7 @@ export function Popover({
   title,
   onClose,
   children,
-  width = 280,
+  width,
   className = "",
 }: PopoverProps) {
   const active = isOpen !== undefined ? isOpen : Boolean(anchor);
@@ -37,28 +43,50 @@ export function Popover({
     onEscape: onClose,
   });
 
-  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [position, setPosition] = useState({
+    x: anchor?.x ?? 0,
+    y: anchor?.y ?? 0,
+  });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!active || !anchor) return;
+    const element = containerRef.current;
+    if (!element) return;
 
-    // Viewport boundary clamping
-    const padding = 12;
-    const estHeight = 320;
-    const maxLeft = typeof window !== "undefined" ? window.innerWidth - width - padding : 800;
-    const maxTop = typeof window !== "undefined" ? window.innerHeight - estHeight - padding : 600;
+    const reposition = () => {
+      const box = element.getBoundingClientRect();
+      const x = Math.max(
+        8,
+        Math.min(anchor.x, window.innerWidth - box.width - 8),
+      );
+      const y = Math.max(
+        8,
+        Math.min(anchor.y, window.innerHeight - box.height - 8),
+      );
+      setPosition((previous) =>
+        previous.x === x && previous.y === y ? previous : { x, y },
+      );
+    };
 
-    const left = Math.max(padding, Math.min(anchor.x + 8, maxLeft));
-    const top = Math.max(padding, Math.min(anchor.y + 8, maxTop));
+    reposition();
+    const observer = new ResizeObserver(reposition);
+    observer.observe(element);
+    window.addEventListener("resize", reposition);
 
-    setPosition({ left, top });
-  }, [active, anchor, width]);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", reposition);
+    };
+  }, [active, anchor]);
 
   useEffect(() => {
     if (!active) return;
 
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         onClose();
       }
     };
@@ -78,26 +106,18 @@ export function Popover({
 
   if (!active || !anchor) return null;
 
-  return (
+  const content = (
     <div
       ref={containerRef}
       role="dialog"
       aria-modal="true"
+      aria-label={title}
       tabIndex={-1}
-      className={`ui-popover popover ${className}`.trim()}
+      className={`popover ${className}`.trim()}
       style={{
-        position: "fixed",
-        top: `${position.top}px`,
-        left: `${position.left}px`,
-        width: `${width}px`,
-        backgroundColor: "var(--color-surface-0)",
-        color: "var(--color-text-primary)",
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-md)",
-        boxShadow: "var(--shadow-popover)",
-        zIndex: "var(--z-popover)",
-        padding: "16px",
-        outline: "none",
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        ...(width ? { width: `${width}px` } : {}),
       }}
     >
       {title && (
@@ -115,4 +135,8 @@ export function Popover({
       {children}
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(content, document.body)
+    : content;
 }

@@ -63,7 +63,7 @@ export function PointInspector({
   const close = onClose ?? (() => dispatch({ type: "inspect", key: null }));
 
   const contents = (
-    <div className="point-inspector popover-body">
+    <>
       {!anchor && (
         <div className="popover-header">
           <div>
@@ -134,24 +134,26 @@ export function PointInspector({
       </label>
 
       <ShapePicker
-        label="Marker shape"
+        label="Sample shape"
+        title="Sample shape"
+        allowInherit={true}
         symbols={markerSymbols.filter((s: MarkerSymbol) => !s.endsWith("-open"))}
         value={
           custom.symbol
             ? (custom.symbol.replace(/-open$/, "") as MarkerSymbol)
-            : (resolved.symbol.replace(/-open$/, "") as MarkerSymbol)
+            : undefined
         }
         onChange={(symbol) => patch({ symbol })}
       />
 
       <ColorPicker
-        label="Point color"
+        label="Sample color"
         color={custom.color ?? resolved.color}
         onChange={(color) => patch({ color })}
       />
 
       <Slider
-        label="Point size"
+        label="Sample size"
         value={custom.size ?? resolved.size}
         min={3}
         max={24}
@@ -199,23 +201,27 @@ export function PointInspector({
           className="text-button"
           onClick={() => dispatch({ type: "resetPoint", key: sample.key })}
         >
-          <RotateCcw size={12} /> Reset to defaults
+          <RotateCcw size={12} /> Reset this sample
         </button>
       </div>
-    </div>
+    </>
   );
 
   if (anchor) {
     return (
       <Popover
-        title={sample.id}
+        title={`Edit sample: ${sample.id}`}
         anchor={anchor}
         onClose={close}
       >
-        {contents}
+        <div className="popover-body sample-editor">{contents}</div>
       </Popover>
     );
   }
 
-  return contents;
+  return (
+    <section className="point-inspector" aria-label="Sample details">
+      {contents}
+    </section>
+  );
 }

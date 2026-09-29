@@ -175,6 +175,8 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
     dragmode: spec.layout.dragMode,
     hovermode: spec.layout.hoverMode === "off" ? false : "closest",
     xaxis: {
+      range: spec.layout.xaxis.range ? [...spec.layout.xaxis.range] : undefined,
+      autorange: false,
       title: {
         text: spec.layout.xaxis.title,
         font: {
@@ -200,6 +202,8 @@ export function mapSpecToPlotly(spec: PlotSpec): PlotlyBundle {
       spikemode: "across",
     },
     yaxis: {
+      range: spec.layout.yaxis.range ? [...spec.layout.yaxis.range] : undefined,
+      autorange: false,
       title: {
         text: spec.layout.yaxis.title,
         font: {

@@ -29,6 +29,7 @@ export class PlotlyRenderer {
   private events: PlotlyRendererEvents;
   private isDisposed = false;
   private isReady = false;
+  private currentAxesKey = "";
 
   constructor(events: PlotlyRendererEvents = {}) {
     this.events = events;
@@ -46,6 +47,7 @@ export class PlotlyRenderer {
       if (this.isDisposed || !this.container) return;
 
       const { data, layout, config } = mapSpecToPlotly(spec);
+      this.currentAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
       await this.api.newPlot(this.container, data, layout, config);
 
       if (this.isDisposed) {
@@ -71,6 +73,29 @@ export class PlotlyRenderer {
 
     try {
       const { data, layout, config } = mapSpecToPlotly(spec);
+      const chart = this.container as unknown as PlotlyHTMLElement;
+      const previous = chart?.layout;
+
+      const newAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
+      const sameAxes =
+        this.currentAxesKey === newAxesKey &&
+        Boolean(previous?.xaxis?.range) &&
+        Boolean(previous?.yaxis?.range);
+      this.currentAxesKey = newAxesKey;
+
+      if (sameAxes && previous?.xaxis?.range && previous?.yaxis?.range) {
+        layout.xaxis = {
+          ...layout.xaxis,
+          range: [...previous.xaxis.range],
+          autorange: false,
+        };
+        layout.yaxis = {
+          ...layout.yaxis,
+          range: [...previous.yaxis.range],
+          autorange: false,
+        };
+      }
+
       await this.api.react(this.container, data, layout, config);
     } catch (err) {
       if (!this.isDisposed) {

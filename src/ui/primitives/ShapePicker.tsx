@@ -30,23 +30,17 @@ export function ShapePicker({
 
   return (
     <fieldset
-      className={`ui-shape-picker ${className}`.trim()}
+      className={`marker-shape-picker ui-shape-picker ${className}`.trim()}
       aria-label={label}
-      style={{
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-sm)",
-        padding: "8px 12px",
-        margin: 0,
-      }}
     >
       {title && (
-        <legend style={{ fontSize: "var(--font-size-xs)", fontWeight: 600, color: "var(--color-text-secondary)", padding: "0 4px" }}>
+        <legend>
           {title}
         </legend>
       )}
 
       {allowInherit && (
-        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--font-size-sm)", marginBottom: "8px", cursor: "pointer" }}>
+        <label className="marker-shape-default" style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "var(--font-size-sm)", marginBottom: "8px", cursor: "pointer" }}>
           <input
             type="radio"
             name={name}
@@ -59,14 +53,8 @@ export function ShapePicker({
         </label>
       )}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(28px, 1fr))",
-          gap: "4px",
-        }}
-      >
-        {symbols.map((symbol) => {
+      <div className="marker-shape-grid">
+        {symbols.map((symbol, index) => {
           const readableTitle = symbol.replaceAll("-", " ");
           const isSelected = value === symbol;
 
@@ -74,17 +62,7 @@ export function ShapePicker({
             <label
               key={symbol}
               title={readableTitle}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: "28px",
-                height: "28px",
-                borderRadius: "var(--radius-sm)",
-                border: isSelected ? "2px solid var(--color-surface-900)" : "1px solid var(--color-border)",
-                backgroundColor: isSelected ? "var(--color-surface-100)" : "var(--color-surface-0)",
-                cursor: "pointer",
-              }}
+              className={`marker-shape-option ${isSelected ? "selected" : ""}`}
             >
               <input
                 type="radio"
@@ -92,7 +70,35 @@ export function ShapePicker({
                 aria-label={readableTitle}
                 checked={isSelected}
                 onChange={() => onChange(symbol)}
-                style={{ position: "absolute", opacity: 0, width: 0, height: 0 }}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                    e.preventDefault();
+                    const nextIdx = (index + 1) % symbols.length;
+                    onChange(symbols[nextIdx]);
+                    const parent = e.currentTarget.closest("fieldset");
+                    const radios = parent?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+                    const targetRadio = radios?.[allowInherit ? nextIdx + 1 : nextIdx];
+                    targetRadio?.focus();
+                  } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                    e.preventDefault();
+                    const prevIdx = (index - 1 + symbols.length) % symbols.length;
+                    onChange(symbols[prevIdx]);
+                    const parent = e.currentTarget.closest("fieldset");
+                    const radios = parent?.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+                    const targetRadio = radios?.[allowInherit ? prevIdx + 1 : prevIdx];
+                    targetRadio?.focus();
+                  }
+                }}
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  opacity: 0.001,
+                  width: "100%",
+                  height: "100%",
+                  cursor: "pointer",
+                  margin: 0,
+                  zIndex: 1,
+                }}
               />
               <VectorSwatch symbol={symbol} color="#6b7280" lineColor="#111827" size={14} />
             </label>

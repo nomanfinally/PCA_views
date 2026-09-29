@@ -35,15 +35,18 @@ export function ColorPicker({
 }: ColorPickerProps) {
   const activeColor = value ?? color ?? "#000000";
 
+  const generatedId = React.useId();
+  const inputId = id ?? generatedId;
+
   return (
-    <div className={`ui-color-picker ${className}`.trim()} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+    <div className={`ui-color-picker color-control ${className}`.trim()} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
       {label && (
-        <label htmlFor={id} style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)", fontWeight: 500 }}>
+        <label htmlFor={inputId} style={{ fontSize: "var(--font-size-sm)", color: "var(--color-text-secondary)", fontWeight: 500 }}>
           {label}
         </label>
       )}
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <label
+        <span
           style={{
             position: "relative",
             width: "30px",
@@ -54,21 +57,26 @@ export function ColorPicker({
             cursor: "pointer",
             flexShrink: 0,
             boxShadow: "var(--shadow-sm)",
+            display: "inline-block",
+            overflow: "hidden",
           }}
         >
           <input
-            id={id}
+            id={inputId}
+            aria-label={label}
             type="color"
             value={activeColor.startsWith("#") ? activeColor : "#000000"}
             onChange={(e) => onChange(e.target.value)}
             style={{
               position: "absolute",
+              inset: 0,
               opacity: 0,
-              width: 0,
-              height: 0,
+              width: "100%",
+              height: "100%",
+              cursor: "pointer",
             }}
           />
-        </label>
+        </span>
         <span style={{ fontSize: "var(--font-size-xs)", fontFamily: "var(--font-family-mono)", color: "var(--color-text-secondary)" }}>
           {activeColor.toUpperCase()}
         </span>
