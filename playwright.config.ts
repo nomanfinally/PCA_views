@@ -5,6 +5,7 @@ export default defineConfig({
   expect: {
     timeout: 15000,
   },
+  timeout: 60000,
   use: {
     baseURL: "http://127.0.0.1:4173",
     viewport: { width: 1440, height: 1000 },

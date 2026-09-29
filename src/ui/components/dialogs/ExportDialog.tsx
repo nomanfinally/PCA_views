@@ -99,6 +99,7 @@ export function ExportDialog({
     setIsComposing(true);
     setError(null);
 
+    const delay = 0;
     const timer = setTimeout(() => {
       void composePng(chart, legend, options)
         .then((result) => {
@@ -119,7 +120,7 @@ export function ExportDialog({
             setIsComposing(false);
           }
         });
-    }, 120);
+    }, delay);
 
     return () => {
       isMounted = false;
@@ -242,7 +243,9 @@ export function ExportDialog({
       title="Export Visualization & Data"
       onClose={onClose}
       className="export-modal"
-      width={780}
+      width={1000}
+      maxWidth="min(96vw, 1050px)"
+      noPadding={true}
     >
       <div className="export-container">
         {/* Navigation Tabs */}
@@ -276,13 +279,11 @@ export function ExportDialog({
         {/* Tab 1: PNG Image Export */}
         {activeTab === "image" && (
           <div className="export-tab-content image-export">
-            <div className="image-preview-panel">
-              {isComposing ? (
-                <div className="preview-loading">
-                  <Loader2 size={24} className="spin" />
-                  <span>Composing publication-ready image…</span>
-                </div>
-              ) : previewUrl ? (
+            <div
+              className="image-preview-panel export-preview"
+              aria-busy={isComposing}
+            >
+              {previewUrl ? (
                 <img
                   src={previewUrl}
                   alt="PNG export preview"
@@ -294,7 +295,18 @@ export function ExportDialog({
                   data-chart-width={chart?.width}
                   data-chart-height={chart?.height}
                 />
+              ) : isComposing ? (
+                <div className="preview-loading">
+                  <Loader2 size={24} className="spin" />
+                  <span>Composing publication-ready image…</span>
+                </div>
               ) : null}
+              {previewUrl && isComposing && (
+                <div className="export-progress" role="status">
+                  <Loader2 size={13} className="spin" />
+                  <span>Updating preview…</span>
+                </div>
+              )}
             </div>
 
             <div className="image-options-panel export-controls">

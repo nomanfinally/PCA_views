@@ -372,13 +372,22 @@ export interface ChartImage {
   axisBounds: ImageBox;
 }
 
-const loadImage = (url: string) =>
-  new Promise<HTMLImageElement>((resolve, reject) => {
+const imageCache = new Map<string, Promise<HTMLImageElement>>();
+const loadImage = (url: string) => {
+  const cached = imageCache.get(url);
+  if (cached) return cached;
+  const p = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
-    image.onerror = () => reject(new Error("Unable to render image."));
+    image.onerror = () => {
+      imageCache.delete(url);
+      reject(new Error("Unable to render image."));
+    };
     image.src = url;
   });
+  imageCache.set(url, p);
+  return p;
+};
 
 export interface ComposedPngResult {
   blob: Blob;
@@ -484,6 +493,15 @@ export async function composePng(
   }
 
   try {
+    if (typeof canvas.toBlob === "function") {
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((b) => {
+          if (b) resolve(b);
+          else reject(new Error("Unable to create PNG export blob."));
+        }, "image/png");
+      });
+      return { blob, placement };
+    }
     const dataUrl = canvas.toDataURL("image/png");
     const parts = dataUrl.split(",");
     const mime = parts[0].match(/:(.*?);/)?.[1] || "image/png";
