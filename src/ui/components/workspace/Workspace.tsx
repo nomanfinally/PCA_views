@@ -375,6 +375,104 @@ export function Workspace({
               isTablet={isTablet}
             />
           </div>
+
+          {isCompact && maximizedPlot && (
+            <div
+              className="mobile-floating-controls"
+              role="toolbar"
+              aria-label="Quick plot controls"
+            >
+              <div className="compact-axes">
+                <label className="axis-select-label">
+                  <span className="axis-badge">X</span>
+                  <select
+                    aria-label="Horizontal axis"
+                    value={state.x}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "axes",
+                        x: Number(e.target.value),
+                        y: state.y,
+                      })
+                    }
+                  >
+                    {Array.from({ length: dataset.pcCount }, (_, i) => {
+                      const variance = selectAxisVariance(dataset, state, i);
+                      return (
+                        <option key={i} value={i} disabled={i === state.y}>
+                          PC{i + 1}
+                          {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+                <button
+                  className="icon-button swap-axes-btn"
+                  aria-label="Swap axes"
+                  title="Swap horizontal and vertical axes"
+                  onClick={() =>
+                    dispatch({ type: "axes", x: state.y, y: state.x })
+                  }
+                >
+                  <ArrowLeftRight size={13} />
+                </button>
+                <label className="axis-select-label">
+                  <span className="axis-badge">Y</span>
+                  <select
+                    aria-label="Vertical axis"
+                    value={state.y}
+                    onChange={(e) =>
+                      dispatch({
+                        type: "axes",
+                        x: state.x,
+                        y: Number(e.target.value),
+                      })
+                    }
+                  >
+                    {Array.from({ length: dataset.pcCount }, (_, i) => {
+                      const variance = selectAxisVariance(dataset, state, i);
+                      return (
+                        <option key={i} value={i} disabled={i === state.x}>
+                          PC{i + 1}
+                          {variance != null ? ` (${variance.toFixed(1)}%)` : ""}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </label>
+              </div>
+
+              <button
+                className={`icon-button ${state.legend ? "active" : ""}`}
+                aria-label="Toggle legend"
+                title="Toggle legend"
+                onClick={() => dispatch({ type: "legend" })}
+              >
+                <PanelRight size={15} />
+              </button>
+              <button
+                className="icon-button active"
+                aria-label="Restore normal view"
+                title="Restore normal view"
+                onClick={() => setMaximizedPlot(false)}
+              >
+                <Minimize2 size={15} />
+              </button>
+            </div>
+          )}
+
+          {isCompact && !state.legend && (
+            <button
+              className="mobile-legend-pill"
+              aria-label="Show legend"
+              title="Show legend dock"
+              onClick={() => dispatch({ type: "legend" })}
+            >
+              <PanelRight size={14} />
+              <span>Legend ({effectiveDataset.populations.length})</span>
+            </button>
+          )}
         </main>
 
         {state.legend && (

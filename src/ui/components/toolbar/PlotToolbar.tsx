@@ -252,6 +252,14 @@ export function PlotToolbar({
 
       {/* 3. Marker & appearance cyclers */}
       <div className="tool-group" role="group" aria-label="Markers">
+        <button
+          className="icon-button"
+          aria-label={`Cycle point size: ${s.size}px`}
+          title={`Cycle point size: ${s.size}px`}
+          onClick={() => patch({ size: cycleSize(s.size) })}
+        >
+          <CircleDot size={16} />
+        </button>
         {isHollow ? (
           <>
             <button

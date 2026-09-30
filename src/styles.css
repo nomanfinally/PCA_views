@@ -295,6 +295,9 @@ button.btn-done:active:not(:disabled) {
 .mobile-floating-controls {
   display: none;
 }
+.mobile-legend-pill {
+  display: none;
+}
 .workspace-toolbar {
   min-height: 38px;
   flex-shrink: 0;
@@ -1712,6 +1715,187 @@ td .swatch {
     column-gap: 6px;
   }
 }
+@media (max-width: 1024px) {
+  /* 1. Maximized Plot Mode (Focus Mode): 100% Full Screen Area on mobile & tablet */
+  .workspace-root.maximized-plot .topbar,
+  .workspace-root.maximized-plot .workspace-toolbar,
+  .workspace-root.maximized-plot .statusbar {
+    display: none !important;
+  }
+  .mobile-maximize-btn {
+    display: inline-flex !important;
+  }
+  .mobile-legend-pill {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    z-index: 6;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16);
+    font-size: 11px;
+    font-weight: 550;
+    color: #222;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .mobile-legend-pill:hover,
+  .mobile-legend-pill:active {
+    background: #f0f0f0;
+    color: #000;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  }
+  .mobile-floating-controls {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 7px;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  }
+  .mobile-floating-controls .compact-axes {
+    order: 1 !important;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .mobile-floating-controls .compact-axes label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .mobile-floating-controls .compact-axes .axis-badge {
+    width: 16px;
+    height: 16px;
+    font-size: 9px;
+  }
+  .mobile-floating-controls .compact-axes select {
+    height: 22px;
+    min-width: 50px;
+    font-size: 10px;
+    padding: 0 2px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: white;
+  }
+  .mobile-floating-controls .compact-axes label > span {
+    font-size: 8.5px;
+    font-weight: 600;
+  }
+  .mobile-floating-controls > .icon-button {
+    order: 2 !important;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* 2. Responsive 2-Row Workspace Toolbar for Tablet & Mobile */
+  .workspace-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    padding: 3px 6px !important;
+    gap: 4px !important;
+    row-gap: 3px !important;
+    min-height: auto !important;
+    height: auto !important;
+    background: #fafafa !important;
+    overflow-x: hidden !important;
+  }
+  .axis-toolbar-divider {
+    display: none !important;
+  }
+  .axis-pickers,
+  .axes-bar {
+    order: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    height: 26px !important;
+    flex-shrink: 0 !important;
+  }
+  .axis-pickers label > span,
+  .axes-bar label > span {
+    font-size: 9px !important;
+    font-weight: 600 !important;
+    color: #666 !important;
+  }
+  .axis-pickers select,
+  .axes-bar select {
+    height: 24px !important;
+    min-width: 54px !important;
+    max-width: 90px !important;
+    font-size: 10.5px !important;
+    padding: 0 4px !important;
+  }
+  .axis-pickers .icon-button,
+  .axes-bar .icon-button {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  .search-tools {
+    order: 1 !important;
+    margin-left: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 3px !important;
+    height: 26px !important;
+    flex-shrink: 0 !important;
+  }
+  .search-tools .search-field {
+    height: 24px !important;
+    padding: 0 5px !important;
+  }
+  .search-tools .search-field input {
+    font-size: 10px !important;
+  }
+  .search-tools > .icon-button {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .chart-tools {
+    order: 2 !important;
+    flex-basis: 100% !important;
+    width: 100% !important;
+    height: 30px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 2px !important;
+    overflow-x: auto !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .chart-tools::-webkit-scrollbar {
+    display: none !important;
+  }
+  .chart-tools .icon-button {
+    width: 24px !important;
+    height: 24px !important;
+    flex-shrink: 0 !important;
+  }
+  .chart-tools .tool-group {
+    padding-right: 3px !important;
+    gap: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+
 @media (max-width: 1024px) and (min-width: 641px) {
   .topbar {
     height: auto;
@@ -1746,10 +1930,6 @@ td .swatch {
   .local-status {
     display: none;
   }
-  .mobile-maximize-btn {
-    display: inline-flex;
-    margin-left: 2px;
-  }
   .legend-dock {
     width: 210px;
     max-width: 45%;
@@ -1776,8 +1956,9 @@ td .swatch {
     gap: 8px;
   }
 }
+
 @media (max-width: 640px) {
-  /* 1. Ultra-compact single-row header */
+  /* Ultra-compact single-row header */
   .topbar {
     height: 38px;
     min-height: 38px;
@@ -1849,82 +2030,23 @@ td .swatch {
     width: 20px;
   }
 
-  /* 2. Workspace Toolbar: tight, max-area rows */
-  .workspace-toolbar {
-    min-height: auto;
-    padding: 3px 6px;
-    gap: 4px;
-    row-gap: 3px;
-    background: #fafafa;
-  }
-  .chart-tools {
-    order: 2;
-    flex-basis: 100%;
-    height: 30px;
-    padding: 0;
-    margin: 0;
-    gap: 2px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .chart-tools::-webkit-scrollbar {
-    display: none;
-  }
-  .chart-tools .icon-button {
-    width: 24px;
-    height: 24px;
-  }
-  .chart-tools .tool-group {
-    padding-right: 3px;
-    gap: 0;
-  }
-  .axes-bar {
-    order: 1;
-    height: 26px;
-    gap: 3px;
-  }
-  .axes-bar label > span {
-    font-size: 9px;
-    font-weight: 600;
-    color: #666;
-  }
-  .axes-bar select {
-    height: 24px;
-    min-width: 56px;
-    font-size: 10.5px;
-    padding: 0 3px;
-  }
-  .axes-bar .icon-button {
-    width: 22px;
-    height: 22px;
-  }
-  .search-tools {
-    order: 1;
-    margin-left: auto;
-    gap: 3px;
-    height: 26px;
-  }
-  .search-tools .search-field {
-    height: 24px;
-    padding: 0 5px;
-  }
-  .search-tools .search-field input {
-    font-size: 10px;
-  }
   .sample-search {
-    width: 105px;
-    max-width: 105px;
+    width: 80px;
+    max-width: 80px;
+    transition: width 0.2s ease, max-width 0.2s ease;
   }
-  .search-tools > .icon-button {
-    width: 24px;
-    height: 24px;
+  .sample-search:focus-within {
+    width: 115px;
+    max-width: 115px;
   }
-  .mobile-maximize-btn {
-    display: inline-flex;
+  .axis-pickers select,
+  .axes-bar select {
+    min-width: 50px !important;
+    max-width: 75px !important;
+    font-size: 10px !important;
   }
 
-  /* 3. Statusbar: ultra-compact 19px */
+  /* Statusbar: ultra-compact 19px */
   .statusbar {
     height: 19px;
     min-height: 19px;
@@ -1940,78 +2062,29 @@ td .swatch {
     height: 5px;
   }
 
-  /* 4. Legend Dock on mobile: smart bottom-sheet with close button */
+  /* Legend Dock on mobile: smart bottom-sheet with close button */
   .legend-dock {
-    width: 240px;
-    max-width: calc(100% - 16px);
-    max-height: 48vh;
+    width: 250px !important;
+    max-width: calc(100% - 16px) !important;
+    max-height: 48vh !important;
     top: auto !important;
-    bottom: 24px !important;
+    bottom: 12px !important;
     right: 8px !important;
     left: auto !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22);
-    border: 1px solid #aaa;
-    border-radius: 4px;
-    background: rgba(252, 252, 252, 0.98);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.22) !important;
+    border: 1px solid #aaa !important;
+    border-radius: 4px !important;
+    background: rgba(252, 252, 252, 0.98) !important;
+    z-index: 12 !important;
   }
   .legend-close-btn {
-    display: inline-flex;
+    display: inline-flex !important;
   }
   .legend-item {
     font-size: 11px;
   }
-}
-@media (max-width: 1024px) {
-  /* 5. Maximized Plot Mode (Focus Mode): 100% Full Screen Area on mobile & tablet */
-  .workspace-root.maximized-plot .topbar,
-  .workspace-root.maximized-plot .workspace-toolbar,
-  .workspace-root.maximized-plot .statusbar {
-    display: none !important;
-  }
-  .mobile-floating-controls {
-    position: absolute;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 2px 7px;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(0, 0, 0, 0.18);
-    border-radius: 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-  }
-  .mobile-floating-controls .compact-axes {
-    order: 1 !important;
-    display: flex;
-    align-items: center;
-    gap: 2px;
-  }
-  .mobile-floating-controls .compact-axes select {
-    height: 22px;
-    min-width: 50px;
-    font-size: 10px;
-    padding: 0 2px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    background: white;
-  }
-  .mobile-floating-controls .compact-axes label > span {
-    font-size: 8.5px;
-    font-weight: 600;
-  }
-  .mobile-floating-controls > .icon-button {
-    order: 2 !important;
-    width: 24px;
-    height: 24px;
-  }
-}
-@media (max-width: 640px) {
-  /* 6. Modals & Dialogs on mobile */
+
+  /* Modals & Dialogs on mobile */
   .selection-bar {
     gap: 6px;
     padding: 5px 6px;
@@ -2034,6 +2107,17 @@ td .swatch {
   .modal-backdrop {
     padding: 10px;
   }
+  .table-modal {
+    width: 98vw !important;
+    max-width: 98vw !important;
+    height: 94dvh !important;
+    max-height: 94dvh !important;
+  }
+  .table-dialog-container {
+    padding: 8px 10px !important;
+    height: 100% !important;
+    max-height: none !important;
+  }
   .table-scroll table {
     min-width: 450px;
   }
@@ -2041,7 +2125,8 @@ td .swatch {
     left: 8px;
     bottom: 30px;
     width: 220px;
-    z-index: 8;
+    max-width: calc(100% - 16px);
+    z-index: 15;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2566,30 +2651,58 @@ body[data-plot-drag="lasso"] .dragcover {
 .primary-export {
   font-weight: 600;
 }
-@media (max-width: 700px) {
+@media (max-width: 768px) {
+  .export-modal,
   .export-dialog {
-    height: 96dvh;
+    width: 96vw !important;
+    max-width: 96vw !important;
+    height: 94dvh !important;
+    max-height: 94dvh !important;
   }
+  .export-container {
+    height: 100% !important;
+    max-height: none !important;
+    flex: 1 !important;
+  }
+  .export-tabs {
+    padding: 6px 10px !important;
+    gap: 4px !important;
+    overflow-x: auto !important;
+  }
+  .export-tab-btn {
+    padding: 5px 8px !important;
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+  .image-export,
   .export-layout {
-    flex-direction: column-reverse;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
   }
-  .export-controls {
-    width: auto;
-    flex: 1;
-    min-height: 0;
-    border-right: 0;
-    border-top: 1px solid var(--line);
-  }
+  .image-preview-panel,
   .export-preview {
-    flex: 0 0 32%;
-    padding: 8px;
+    flex: 0 0 35% !important;
+    min-height: 160px !important;
+    max-height: 38vh !important;
+    padding: 10px !important;
+  }
+  .image-options-panel,
+  .export-controls {
+    flex: 1 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: 1px solid var(--line) !important;
+    padding: 12px 14px !important;
   }
   .export-footer {
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 8px;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
   }
   .export-archive {
-    width: 100%;
+    width: 100% !important;
   }
 }

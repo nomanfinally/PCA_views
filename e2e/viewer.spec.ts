@@ -1058,9 +1058,13 @@ test("simplified label and hover tools, and chart typography", async ({
   await load(page);
   await expect(
     page.getByRole("button", {
-      name: /Cycle palette:|Cycle marker preset:|Cycle hover content:|Cycle point size:/,
+      name: /Cycle palette:|Cycle marker preset:|Cycle hover content:/,
     }),
   ).toHaveCount(0);
+  await page.getByRole("button", { name: /^Cycle point size:/ }).click();
+  await expect(
+    page.getByRole("button", { name: "Cycle point size: 9px", exact: true }),
+  ).toBeVisible();
   await page
     .getByRole("button", { name: "Toggle hover information", exact: true })
     .click();
