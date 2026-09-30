@@ -1343,7 +1343,9 @@ test("defaults, unified hull cycle, and two-sample fallback", async ({
     .poll(() =>
       page
         .locator(".plot")
-        .evaluate((e: any) => e.data.map((t: any) => t.marker.symbol[0])),
+        .evaluate((e: any) =>
+          e.data?.map((t: any) => t.marker?.symbol?.[0]) ?? [],
+        ),
     )
     .toEqual([
       "circle",
@@ -1477,4 +1479,76 @@ test("individual label, background and complete HTML state survive reopen and re
   );
   await offline.close();
   await context.setOffline(false);
+});
+
+test("export dialog retains continuous typing focus and places legend without overlapping chart or axis titles", async ({
+  page,
+}) => {
+  test.setTimeout(90000);
+  await load(page);
+  await page.getByLabel("Export", { exact: true }).click();
+  const preview = page.getByAltText("PNG export preview");
+  await expect(preview).toBeVisible();
+
+  // Test continuous typing focus in title input
+  const titleInput = page.getByLabel("Export title", { exact: true });
+  await titleInput.click();
+  await expect(titleInput).toBeFocused();
+  await page.keyboard.type("PCA Study", { delay: 20 });
+  await expect(titleInput).toBeFocused();
+  expect(await titleInput.inputValue()).toBe("PCA Study");
+
+  // Test continuous typing focus in subtitle input
+  const subtitleInput = page.getByLabel("Export subtitle", { exact: true });
+  await subtitleInput.click();
+  await expect(subtitleInput).toBeFocused();
+  await page.keyboard.type("Cohort A", { delay: 20 });
+  await expect(subtitleInput).toBeFocused();
+  expect(await subtitleInput.inputValue()).toBe("Cohort A");
+
+  const ready = () =>
+    expect(
+      page.getByRole("button", { name: "Download PNG", exact: true }),
+    ).toBeEnabled({ timeout: 30000 });
+
+  await ready();
+
+  // Test legend placement at bottom: MUST clear chart and bottom axis
+  const positionSelect = page.getByLabel("Export legend position", {
+    exact: true,
+  });
+  await positionSelect.selectOption("bottom");
+  await ready();
+
+  let boxes = await preview.evaluate((e: HTMLImageElement) => ({
+    plot: JSON.parse(e.dataset.plotBox!),
+    legend: JSON.parse(e.dataset.legendBox!),
+    chartY: Number(e.dataset.chartY),
+    chartHeight: Number(e.dataset.chartHeight),
+    chartX: Number(e.dataset.chartX),
+    chartWidth: Number(e.dataset.chartWidth),
+  }));
+
+  // Legend box Y must be strictly below the full chart height
+  expect(boxes.legend.y).toBeGreaterThanOrEqual(
+    boxes.chartY + boxes.chartHeight + 16,
+  );
+
+  // Test legend placement at right: MUST clear chart and right edge
+  await positionSelect.selectOption("right");
+  await ready();
+
+  boxes = await preview.evaluate((e: HTMLImageElement) => ({
+    plot: JSON.parse(e.dataset.plotBox!),
+    legend: JSON.parse(e.dataset.legendBox!),
+    chartY: Number(e.dataset.chartY),
+    chartHeight: Number(e.dataset.chartHeight),
+    chartX: Number(e.dataset.chartX),
+    chartWidth: Number(e.dataset.chartWidth),
+  }));
+
+  // Legend box X must be strictly to the right of the full chart width
+  expect(boxes.legend.x).toBeGreaterThanOrEqual(
+    boxes.chartX + boxes.chartWidth + 16,
+  );
 });

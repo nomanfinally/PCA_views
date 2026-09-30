@@ -127,16 +127,27 @@ it("anchors legends to the plot frame, with clearance for axis text", () => {
       if (position === "right" || position === "left") {
         expect(l.y).toBe(p.y);
         if (position === "right")
-          expect(l.x).toBeCloseTo(c.x + axes.x + axes.width + 16);
-        else expect(l.x + l.width).toBeCloseTo(c.x + axes.x - 16);
+          expect(l.x).toBeCloseTo(
+            c.x + Math.max(800, axes.x + axes.width) + 16,
+          );
+        else expect(l.x + l.width).toBeCloseTo(c.x + Math.min(0, axes.x) - 16);
       } else {
         expect(l.x + l.width / 2).toBeCloseTo(p.x + p.width / 2);
         if (position === "top")
-          expect(l.y + l.height).toBeCloseTo(c.y + axes.y - 16);
-        else expect(l.y).toBeCloseTo(c.y + axes.y + axes.height + 16);
+          expect(l.y + l.height).toBeCloseTo(c.y + Math.min(0, axes.y) - 16);
+        else
+          expect(l.y).toBeCloseTo(
+            c.y + Math.max(600, axes.y + axes.height) + 16,
+          );
       }
       expect(c.width).toBe(800);
       expect(c.height).toBe(600);
+      expect(
+        c.x + c.width <= l.x ||
+          l.x + l.width <= c.x ||
+          c.y + c.height <= l.y ||
+          l.y + l.height <= c.y,
+      ).toBe(true);
       expect(c.x * 2).toBe(Math.round(c.x * 2));
       expect(c.y * 2).toBe(Math.round(c.y * 2));
       expect(l.x).toBeGreaterThanOrEqual(0);

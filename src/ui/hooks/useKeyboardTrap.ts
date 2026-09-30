@@ -14,11 +14,17 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
 ) {
   const containerRef = useRef<T | null>(null);
   const previousActiveElement = useRef<HTMLElement | null>(null);
+  const onEscapeRef = useRef(options.onEscape);
+  onEscapeRef.current = options.onEscape;
 
   useEffect(() => {
     if (!options.active) return;
 
-    if (typeof document !== "undefined") {
+    if (
+      typeof document !== "undefined" &&
+      (!containerRef.current ||
+        !containerRef.current.contains(document.activeElement))
+    ) {
       previousActiveElement.current =
         document.activeElement as HTMLElement | null;
     }
@@ -26,7 +32,7 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
     const container = containerRef.current;
     if (!container) return;
 
-    // Focus the active tab, first focusable element, or container
+    // Focus active tab, first focusable, or container ONLY if focus is currently outside
     if (!container.contains(document.activeElement)) {
       const activeTab = container.querySelector<HTMLElement>(
         '[role="tab"][aria-selected="true"]',
@@ -45,7 +51,7 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        options.onEscape?.();
+        onEscapeRef.current?.();
         return;
       }
 
@@ -91,7 +97,7 @@ export function useKeyboardTrap<T extends HTMLElement = HTMLDivElement>(
       window.removeEventListener("keydown", handleKeyDown);
       previousActiveElement.current?.focus?.();
     };
-  }, [options.active, options.onEscape]);
+  }, [options.active]);
 
   return containerRef;
 }

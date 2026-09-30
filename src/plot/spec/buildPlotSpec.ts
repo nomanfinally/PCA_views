@@ -326,7 +326,7 @@ export function buildPlotSpec(
       Math.round(settings.tickFontSize * 2.2 + settings.axisTitleSize + 14),
     ),
     r: 18,
-    t: hasHeading ? 50 : 12,
+    t: 12,
     b: Math.max(
       34,
       Math.round(settings.tickFontSize + settings.axisTitleSize + 10),

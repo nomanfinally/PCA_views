@@ -99,7 +99,7 @@ export function ExportDialog({
     setIsComposing(true);
     setError(null);
 
-    const delay = 0;
+    const delay = 100;
     const timer = setTimeout(() => {
       void composePng(chart, legend, options)
         .then((result) => {

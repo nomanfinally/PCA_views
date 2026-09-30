@@ -68,7 +68,7 @@ export function SettingsDialog({
     } else {
       document.getElementById(`settings-tab-${tab}`)?.focus();
     }
-  }, [focusTitle]);
+  }, [tab, focusTitle]);
 
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;

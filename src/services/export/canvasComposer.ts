@@ -157,13 +157,15 @@ export function arrangeImage(
   let legendY = plotBox.y;
 
   if (options.legendPosition === "right") {
-    legendX = axisBounds.x + axisBounds.width + gap;
+    legendX = Math.max(chartWidth, axisBounds.x + axisBounds.width) + gap;
+    legendY = plotBox.y;
   } else if (options.legendPosition === "left") {
-    legendX = axisBounds.x - gap - legendWidth;
+    legendX = Math.min(0, axisBounds.x) - gap - legendWidth;
+    legendY = plotBox.y;
   } else if (options.legendPosition === "top") {
-    legendY = axisBounds.y - gap - legendHeight;
+    legendY = Math.min(0, axisBounds.y) - gap - legendHeight;
   } else {
-    legendY = axisBounds.y + axisBounds.height + gap;
+    legendY = Math.max(chartHeight, axisBounds.y + axisBounds.height) + gap;
   }
 
   if (!count) {
@@ -180,13 +182,35 @@ export function arrangeImage(
     Math.max(chartHeight, legendY + legendHeight) - minY,
   );
 
-  const titleHeight = options.title ? options.titleSize * 1.3 + 8 : 0;
-  const subtitleHeight = options.subtitle ? options.subtitleSize * 1.3 + 8 : 0;
-  const headingHeight = Math.ceil(titleHeight + subtitleHeight);
+  const hasTitle = Boolean(options.title?.trim());
+  const hasSubtitle = Boolean(options.subtitle?.trim());
+  const titleLineHeight = hasTitle ? Math.round(options.titleSize * 1.3) : 0;
+  const subtitleLineHeight = hasSubtitle
+    ? Math.round(options.subtitleSize * 1.3)
+    : 0;
+  const titlePadTop = hasTitle || hasSubtitle ? 14 : 0;
+  const titleSubGap = hasTitle && hasSubtitle ? 6 : 0;
+  const headingBottomMargin = hasTitle || hasSubtitle ? 14 : 0;
+
+  const headingContentHeight =
+    titleLineHeight + titleSubGap + subtitleLineHeight;
+  const headingHeight =
+    headingContentHeight > 0
+      ? titlePadTop + headingContentHeight + headingBottomMargin
+      : 0;
+
   const headingWidth =
     Math.max(
-      measure(options.title, options.titleSize, options.titleWeight),
-      measure(options.subtitle, options.subtitleSize, options.subtitleWeight),
+      hasTitle
+        ? measure(options.title, options.titleSize, options.titleWeight)
+        : 0,
+      hasSubtitle
+        ? measure(
+            options.subtitle,
+            options.subtitleSize,
+            options.subtitleWeight,
+          )
+        : 0,
     ) + 32;
 
   const width = Math.ceil(Math.max(bodyWidth, headingWidth));
@@ -384,6 +408,9 @@ const loadImage = (url: string) => {
       reject(new Error("Unable to render image."));
     };
     image.src = url;
+    if (image.complete && image.naturalWidth > 0) {
+      resolve(image);
+    }
   });
   imageCache.set(url, p);
   return p;
@@ -441,19 +468,24 @@ export async function composePng(
   );
 
   // Draw Title & Subtitle
-  ctx.fillStyle = "#222222";
-  ctx.textBaseline = "top";
-  ctx.textAlign = "center";
-  let headingY = 4;
+  if (options.title?.trim() || options.subtitle?.trim()) {
+    ctx.fillStyle = "#222222";
+    ctx.textBaseline = "top";
+    ctx.textAlign = "center";
+    let curHeadingY = 14;
 
-  for (const [text, size, weight] of [
-    [options.title, options.titleSize, options.titleWeight],
-    [options.subtitle, options.subtitleSize, options.subtitleWeight],
-  ] as const) {
-    if (!text) continue;
-    ctx.font = `${weight} ${size}px Arial`;
-    ctx.fillText(text, placement.width / 2, headingY);
-    headingY += size * 1.3 + 8;
+    if (options.title?.trim()) {
+      ctx.font = `${options.titleWeight} ${options.titleSize}px Arial`;
+      ctx.fillText(options.title.trim(), placement.width / 2, curHeadingY);
+      curHeadingY +=
+        Math.round(options.titleSize * 1.3) +
+        (options.subtitle?.trim() ? 6 : 0);
+    }
+
+    if (options.subtitle?.trim()) {
+      ctx.font = `${options.subtitleWeight} ${options.subtitleSize}px Arial`;
+      ctx.fillText(options.subtitle.trim(), placement.width / 2, curHeadingY);
+    }
   }
 
   // Draw Legend Grid

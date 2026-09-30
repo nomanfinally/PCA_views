@@ -521,10 +521,10 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
               height: height - margin.t - margin.b,
             },
             axisBounds: {
-              x: margin.l,
-              y: margin.t,
-              width: width - margin.l - margin.r,
-              height: height - margin.t - margin.b,
+              x: 0,
+              y: 0,
+              width,
+              height,
             },
           };
         },

@@ -148,17 +148,15 @@ export function arrangeImage(
     ? rows * rowHeight + (rows - 1) * options.legendRowGap + padding * 2
     : 0;
   const gap = 16;
-  // Locate the legend in plot-image coordinates, using the frame rather than
-  // the image margins. Axis text can extend beyond the frame and needs clearance.
   let legendX = plotBox.x + (plotBox.width - legendWidth) / 2;
   let legendY = plotBox.y;
   if (options.legendPosition === "right")
-    legendX = axisBounds.x + axisBounds.width + gap;
+    legendX = Math.max(chartWidth, axisBounds.x + axisBounds.width) + gap;
   else if (options.legendPosition === "left")
-    legendX = axisBounds.x - gap - legendWidth;
+    legendX = Math.min(0, axisBounds.x) - gap - legendWidth;
   else if (options.legendPosition === "top")
-    legendY = axisBounds.y - gap - legendHeight;
-  else legendY = axisBounds.y + axisBounds.height + gap;
+    legendY = Math.min(0, axisBounds.y) - gap - legendHeight;
+  else legendY = Math.max(chartHeight, axisBounds.y + axisBounds.height) + gap;
   if (!count) {
     legendX = 0;
     legendY = 0;
@@ -171,13 +169,33 @@ export function arrangeImage(
   const bodyHeight = Math.ceil(
     Math.max(chartHeight, legendY + legendHeight) - minY,
   );
-  const titleHeight = options.title ? options.titleSize * 1.3 + 8 : 0;
-  const subtitleHeight = options.subtitle ? options.subtitleSize * 1.3 + 8 : 0;
-  const headingHeight = Math.ceil(titleHeight + subtitleHeight);
+  const hasTitle = Boolean(options.title?.trim());
+  const hasSubtitle = Boolean(options.subtitle?.trim());
+  const titleLineHeight = hasTitle ? Math.round(options.titleSize * 1.3) : 0;
+  const subtitleLineHeight = hasSubtitle
+    ? Math.round(options.subtitleSize * 1.3)
+    : 0;
+  const titlePadTop = hasTitle || hasSubtitle ? 14 : 0;
+  const titleSubGap = hasTitle && hasSubtitle ? 6 : 0;
+  const headingBottomMargin = hasTitle || hasSubtitle ? 14 : 0;
+  const headingContentHeight =
+    titleLineHeight + titleSubGap + subtitleLineHeight;
+  const headingHeight =
+    headingContentHeight > 0
+      ? titlePadTop + headingContentHeight + headingBottomMargin
+      : 0;
   const headingWidth =
     Math.max(
-      measure(options.title, options.titleSize, options.titleWeight),
-      measure(options.subtitle, options.subtitleSize, options.subtitleWeight),
+      hasTitle
+        ? measure(options.title, options.titleSize, options.titleWeight)
+        : 0,
+      hasSubtitle
+        ? measure(
+            options.subtitle,
+            options.subtitleSize,
+            options.subtitleWeight,
+          )
+        : 0,
     ) + 32;
   const width = Math.ceil(Math.max(bodyWidth, headingWidth)),
     height = Math.ceil(bodyHeight + headingHeight + 16);
