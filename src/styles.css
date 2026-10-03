@@ -542,8 +542,8 @@ button.btn-done:active:not(:disabled) {
   overflow: hidden;
 }
 .plot-container.is-square .plot {
-  width: min(100cqw, 100cqh);
-  height: min(100cqw, 100cqh);
+  width: min(100cqw, 100cqh) !important;
+  height: min(100cqw, 100cqh) !important;
   margin: auto;
 }
 .plot-message {

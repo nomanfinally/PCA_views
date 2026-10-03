@@ -98,6 +98,11 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
     const latestSpec = useRef(spec);
     latestSpec.current = spec;
 
+    const activeZoomTargetRef = useRef<{
+      xRange: [number, number];
+      yRange: [number, number];
+    } | null>(null);
+
     const updateAnnotationsForRange = (
       xRange: [number, number],
       yRange: [number, number],
@@ -121,6 +126,14 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
     useEffect(() => {
       const container = containerRef.current;
       if (!container) return;
+
+      let press: { x: number; y: number; id: number; moved: boolean } | null =
+        null;
+      const clearPress = () => {
+        press = null;
+        delete container.dataset.dragging;
+        delete document.body.dataset.plotDrag;
+      };
 
       const renderer = new PlotlyRenderer({
         onSelect: (keys) => latestProps.current.onSelect(keys),
@@ -161,10 +174,19 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         },
         onZoom: ({ factor, anchorX, anchorY }) => {
           if (!rendererRef.current) return;
-          const snapshot = rendererRef.current.getViewportSnapshot();
-          if (!snapshot) return;
-          const newX = zoomRange(snapshot.xRange, factor, anchorX);
-          const newY = zoomRange(snapshot.yRange, factor, anchorY);
+          if (!activeZoomTargetRef.current) {
+            const snapshot = rendererRef.current.getViewportSnapshot();
+            if (!snapshot) return;
+            activeZoomTargetRef.current = {
+              xRange: [...snapshot.xRange],
+              yRange: [...snapshot.yRange],
+            };
+          }
+          const current = activeZoomTargetRef.current;
+          const newX = zoomRange(current.xRange, factor, anchorX);
+          const newY = zoomRange(current.yRange, factor, anchorY);
+          activeZoomTargetRef.current = { xRange: newX, yRange: newY };
+
           void rendererRef.current
             .relayout({
               "xaxis.range": newX as any,
@@ -173,14 +195,15 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
               "yaxis.autorange": false,
             })
             .then(() => {
-              updateAnnotationsForRange(
-                newX as [number, number],
-                newY as [number, number],
-              );
+              updateAnnotationsForRange(newX, newY);
             });
+        },
+        onPinchEnd: () => {
+          activeZoomTargetRef.current = null;
         },
       });
 
+      let wheelSettleTimer = 0;
       const wheelCoordinator = new WheelZoomCoordinator({
         element: container,
         margin: {
@@ -193,8 +216,11 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
           if (!rendererRef.current) return;
           const snapshot = rendererRef.current.getViewportSnapshot();
           if (!snapshot) return;
-          const newX = zoomRange(snapshot.xRange, factor, anchorX);
-          const newY = zoomRange(snapshot.yRange, factor, anchorY);
+          const base = activeZoomTargetRef.current ?? snapshot;
+          const newX = zoomRange(base.xRange, factor, anchorX);
+          const newY = zoomRange(base.yRange, factor, anchorY);
+          activeZoomTargetRef.current = { xRange: newX, yRange: newY };
+
           void rendererRef.current
             .relayout({
               "xaxis.range": newX as any,
@@ -203,10 +229,11 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
               "yaxis.autorange": false,
             })
             .then(() => {
-              updateAnnotationsForRange(
-                newX as [number, number],
-                newY as [number, number],
-              );
+              updateAnnotationsForRange(newX, newY);
+              window.clearTimeout(wheelSettleTimer);
+              wheelSettleTimer = window.setTimeout(() => {
+                activeZoomTargetRef.current = null;
+              }, 120);
             });
         },
       });
@@ -216,27 +243,44 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       };
 
       const handleTouchStart = (e: TouchEvent) => {
+        if (e.touches.length >= 2) {
+          clearPress();
+          container.dispatchEvent(
+            new PointerEvent("pointercancel", { bubbles: true }),
+          );
+          if (e.cancelable) e.preventDefault();
+          e.stopPropagation();
+        }
         pinchCoordinator.handleTouchStart(e);
       };
 
       const handleTouchMove = (e: TouchEvent) => {
+        if (e.touches.length >= 2) {
+          if (e.cancelable) e.preventDefault();
+          e.stopPropagation();
+        }
         pinchCoordinator.handleTouchMove(e);
       };
 
       const handleTouchEnd = (e: TouchEvent) => {
+        if (e.touches.length < 2) {
+          activeZoomTargetRef.current = null;
+        }
         pinchCoordinator.handleTouchEnd(e);
       };
 
       container.addEventListener("wheel", handleWheel, { passive: false });
       container.addEventListener("touchstart", handleTouchStart, {
-        passive: true,
+        passive: false,
       });
       container.addEventListener("touchmove", handleTouchMove, {
         passive: false,
       });
-      container.addEventListener("touchend", handleTouchEnd, { passive: true });
+      container.addEventListener("touchend", handleTouchEnd, {
+        passive: false,
+      });
       container.addEventListener("touchcancel", handleTouchEnd, {
-        passive: true,
+        passive: false,
       });
 
       // Hit testing helper
@@ -335,8 +379,6 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         return bestKey;
       };
 
-      let press: { x: number; y: number; id: number; moved: boolean } | null =
-        null;
       const isAnnotation = (target: EventTarget | null) =>
         target instanceof Element && Boolean(target.closest(".annotation"));
 
@@ -355,9 +397,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
 
       const onPointerUp = (e: PointerEvent) => {
         const start = press;
-        press = null;
-        delete container.dataset.dragging;
-        delete document.body.dataset.plotDrag;
+        clearPress();
 
         if (
           !start ||
@@ -392,6 +432,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       container.addEventListener("contextmenu", onContextMenu, true);
       window.addEventListener("pointermove", onPointerMove, true);
       window.addEventListener("pointerup", onPointerUp, true);
+      window.addEventListener("pointercancel", clearPress);
+      window.addEventListener("blur", clearPress);
 
       // Resize observer
       let resizeFrame = 0;
@@ -408,6 +450,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       return () => {
         isMounted = false;
         cancelAnimationFrame(resizeFrame);
+        window.clearTimeout(wheelSettleTimer);
         container.removeEventListener("wheel", handleWheel);
         container.removeEventListener("touchstart", handleTouchStart);
         container.removeEventListener("touchmove", handleTouchMove);
@@ -417,6 +460,8 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         container.removeEventListener("contextmenu", onContextMenu, true);
         window.removeEventListener("pointermove", onPointerMove, true);
         window.removeEventListener("pointerup", onPointerUp, true);
+        window.removeEventListener("pointercancel", clearPress);
+        window.removeEventListener("blur", clearPress);
         resizeObserver.disconnect();
         pinchCoordinator.destroy();
         wheelCoordinator.destroy();

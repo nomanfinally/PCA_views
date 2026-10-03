@@ -98,4 +98,70 @@ describe("plot/gestures/pinchZoom and wheelZoom coordinators", () => {
     expect(wheelAnchor.x).toBeCloseTo(0.5);
     expect(wheelAnchor.y).toBeCloseTo(0.5);
   });
+
+  it("computes anchor accurately using _fullLayout dynamic plot box when available", () => {
+    const mockElement = {
+      getBoundingClientRect: () => ({
+        left: 0,
+        top: 0,
+        width: 800,
+        height: 600,
+        right: 800,
+        bottom: 600,
+      }),
+      _fullLayout: {
+        xaxis: { _offset: 80, _length: 640 },
+        yaxis: { _offset: 40, _length: 480 },
+      },
+    } as unknown as HTMLElement;
+
+    const pinch = new PinchZoomCoordinator({
+      element: mockElement,
+      onZoom: () => {},
+    });
+
+    // Center of plot box: x = 80 + 320 = 400. y = 40 + 240 = 280.
+    const center = pinch.computeAnchor(400, 280);
+    expect(center.x).toBeCloseTo(0.5);
+    expect(center.y).toBeCloseTo(0.5);
+
+    // Top-left of plot box: x = 80, y = 40. In Cartesian space, top is y=1, left is x=0.
+    const topLeft = pinch.computeAnchor(80, 40);
+    expect(topLeft.x).toBeCloseTo(0.0);
+    expect(topLeft.y).toBeCloseTo(1.0);
+
+    // Bottom-right of plot box: x = 720, y = 520. In Cartesian space, bottom is y=0, right is x=1.
+    const bottomRight = pinch.computeAnchor(720, 520);
+    expect(bottomRight.x).toBeCloseTo(1.0);
+    expect(bottomRight.y).toBeCloseTo(0.0);
+  });
+
+  it("calls onPinchEnd callback when touches drop below 2", () => {
+    let pinchEnded = false;
+    const mockElement = {
+      getBoundingClientRect: () => ({ left: 0, top: 0, width: 400, height: 400 }),
+    } as unknown as HTMLElement;
+
+    const pinch = new PinchZoomCoordinator({
+      element: mockElement,
+      onZoom: () => {},
+      onPinchEnd: () => {
+        pinchEnded = true;
+      },
+    });
+
+    // Simulate 2 fingers start
+    pinch.handleTouchStart({
+      touches: [{ clientX: 100, clientY: 100 }, { clientX: 200, clientY: 200 }],
+      cancelable: true,
+      preventDefault: () => {},
+    } as unknown as TouchEvent);
+
+    // Simulate 1 finger left (touch end)
+    pinch.handleTouchEnd({
+      touches: [{ clientX: 100, clientY: 100 }],
+    } as unknown as TouchEvent);
+
+    expect(pinchEnded).toBe(true);
+  });
 });

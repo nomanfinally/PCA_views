@@ -14,12 +14,14 @@ export interface PinchZoomEvent {
 export interface PinchZoomOptions {
   element: HTMLElement;
   onZoom: (event: PinchZoomEvent) => void;
+  onPinchEnd?: () => void;
   margin?: { left: number; right: number; top: number; bottom: number };
 }
 
 export class PinchZoomCoordinator {
   private element: HTMLElement;
   private onZoom: (event: PinchZoomEvent) => void;
+  private onPinchEnd?: () => void;
   private margin: { left: number; right: number; top: number; bottom: number };
 
   private initialDistance = 0;
@@ -30,6 +32,7 @@ export class PinchZoomCoordinator {
   constructor(options: PinchZoomOptions) {
     this.element = options.element;
     this.onZoom = options.onZoom;
+    this.onPinchEnd = options.onPinchEnd;
     this.margin = options.margin ?? {
       left: 60,
       right: 24,
@@ -42,10 +45,11 @@ export class PinchZoomCoordinator {
     if (event.touches.length === 2) {
       const t0 = event.touches[0];
       const t1 = event.touches[1];
-      this.initialDistance = Math.hypot(
+      const dist = Math.hypot(
         t1.clientX - t0.clientX,
         t1.clientY - t0.clientY,
       );
+      this.initialDistance = Math.max(10, dist);
       this.currentFactor = 1;
       this.activeAnchor = this.computeAnchor(
         (t0.clientX + t1.clientX) / 2,
@@ -102,16 +106,38 @@ export class PinchZoomCoordinator {
         cancelAnimationFrame(this.animationFrameId);
         this.animationFrameId = 0;
       }
+      this.onPinchEnd?.();
     }
   };
 
   /**
    * Computes the normalized [0..1] plot domain anchor coordinate for screen client coordinates.
+   * Utilizes Plotly's dynamic plot box if available, otherwise falls back to static margins.
    */
   public computeAnchor(
     clientX: number,
     clientY: number,
   ): { x: number; y: number } {
+    const chart = this.element as any;
+    const full = chart?._fullLayout;
+    if (
+      full?.xaxis &&
+      full?.yaxis &&
+      typeof full.xaxis._offset === "number" &&
+      typeof full.xaxis._length === "number" &&
+      typeof full.yaxis._offset === "number" &&
+      typeof full.yaxis._length === "number" &&
+      full.xaxis._length > 0 &&
+      full.yaxis._length > 0
+    ) {
+      const rect = this.element.getBoundingClientRect();
+      const relX = clientX - rect.left - full.xaxis._offset;
+      const relY = clientY - rect.top - full.yaxis._offset;
+      const x = Math.max(0, Math.min(1, relX / full.xaxis._length));
+      const y = Math.max(0, Math.min(1, 1 - relY / full.yaxis._length));
+      return { x, y };
+    }
+
     const rect = this.element.getBoundingClientRect();
     const plotWidth = Math.max(
       1,

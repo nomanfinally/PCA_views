@@ -34,6 +34,8 @@ export class PlotlyRenderer {
   private isDisposed = false;
   private isReady = false;
   private currentAxesKey = "";
+  private currentAspectRatio?: string;
+  private currentEqualScale?: boolean;
 
   private queue: Promise<void> = Promise.resolve();
 
@@ -72,6 +74,8 @@ export class PlotlyRenderer {
 
       const { data, layout, config } = mapSpecToPlotly(spec);
       this.currentAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
+      this.currentAspectRatio = spec.layout.aspectRatio;
+      this.currentEqualScale = spec.layout.yaxis.scaleAnchor === "x";
       await this.api.newPlot(this.container, data, layout, config);
 
       if (this.isDisposed) {
@@ -99,23 +103,35 @@ export class PlotlyRenderer {
         const previous = chart?.layout;
 
         const newAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
-        const sameAxes =
-          this.currentAxesKey === newAxesKey &&
+        const sameAxes = this.currentAxesKey === newAxesKey;
+        const sameRatio = this.currentAspectRatio === spec.layout.aspectRatio;
+        const sameEqualScale =
+          this.currentEqualScale === (spec.layout.yaxis.scaleAnchor === "x");
+
+        this.currentAxesKey = newAxesKey;
+        this.currentAspectRatio = spec.layout.aspectRatio;
+        this.currentEqualScale = spec.layout.yaxis.scaleAnchor === "x";
+
+        // Viewport ranges can only be reused if axes, aspect ratio, and equalScale constraints are unchanged.
+        // Changing aspect ratio or scale constraints necessitates re-fitting from base domain bounds to prevent
+        // cumulative range compounding and plot implosion.
+        const canReuseRanges =
+          sameAxes &&
+          sameRatio &&
+          sameEqualScale &&
           Boolean(previous?.xaxis?.range) &&
           Boolean(previous?.yaxis?.range);
-        this.currentAxesKey = newAxesKey;
 
-        const previousRanges =
-          sameAxes && previous?.xaxis?.range && previous?.yaxis?.range
-            ? {
-                xRange: previous.xaxis.range as [number, number],
-                yRange: previous.yaxis.range as [number, number],
-              }
-            : undefined;
+        const previousRanges = canReuseRanges
+          ? {
+              xRange: previous.xaxis.range as [number, number],
+              yRange: previous.yaxis.range as [number, number],
+            }
+          : undefined;
 
         const { data, layout, config } = mapSpecToPlotly(spec, previousRanges);
 
-        if (sameAxes && previous?.xaxis?.range && previous?.yaxis?.range) {
+        if (canReuseRanges && previous?.xaxis?.range && previous?.yaxis?.range) {
           layout.xaxis = {
             ...layout.xaxis,
             range: [...previous.xaxis.range],
