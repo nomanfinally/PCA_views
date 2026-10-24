@@ -8,3 +8,5 @@ playwright-report/
 test-results/
 *.evec
 .DS_Store
+
+docs/PROJECT_AUDIT.md
