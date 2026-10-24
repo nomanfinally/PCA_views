@@ -1,0 +1,785 @@
+.app-shell,
+.workspace-root {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.workspace-root {
+  position: relative;
+}
+.topbar {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px;
+  background: #153f30;
+  color: #f6fcf8;
+  flex-shrink: 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+.brand h1 {
+  font-size: 17px;
+  font-weight: 650;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  color: #d8efdf;
+}
+.dataset-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  color: #d6e8df;
+}
+.dataset-name {
+  max-width: 210px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: white;
+  font-weight: 550;
+}
+.header-divider {
+  height: 22px;
+  width: 1px;
+  background: #638372;
+}
+.example-badge {
+  font-size: 10px;
+  font-weight: 650;
+  padding: 3px 6px;
+  color: #e0f3e7;
+  border: 1px solid #719780;
+  border-radius: 3px;
+}
+.header-eigenvalues,
+.meta-secondary {
+  display: none;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.topbar .button,
+.topbar .icon-button {
+  background: transparent;
+  color: #f6fcf8;
+  border-color: #577966;
+}
+.topbar .button:hover,
+.topbar .icon-button:hover {
+  background: #2b5943;
+}
+.topbar .primary-export {
+  background: #d9eb9d;
+  border-color: #d9eb9d;
+  color: #1c3b2d;
+}
+.topbar .primary-export:hover {
+  background: #e6f3be;
+}
+.open-label-short {
+  display: none;
+}
+.empty-header-label {
+  color: #d6e8df;
+  font-size: 13px;
+}
+.workspace-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 20px;
+  background: #f0f5f1;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+.axis-pickers,
+.search-tools,
+.axis-select-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.axis-badge {
+  color: #52695b;
+  font-size: 12px;
+  font-weight: 650;
+}
+.axis-select-label select {
+  min-width: 135px;
+  font-size: 13px;
+}
+.search-tools {
+  margin-left: auto;
+  flex: 0 1 400px;
+}
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: white;
+  border-radius: 6px;
+  padding: 0 10px;
+  min-width: 0;
+}
+.search-field input {
+  border: 0;
+  background: transparent;
+  width: 100%;
+  min-width: 0;
+  outline-offset: -2px;
+}
+.sample-search {
+  flex: 1;
+}
+.search-field > .icon-button {
+  border: 0;
+  width: 28px;
+  flex-basis: 28px;
+}
+.plot-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 20px;
+  border-bottom: 1px solid var(--color-border);
+  background: white;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 12;
+}
+.tool-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.tool-group + .tool-group {
+  border-left: 1px solid var(--color-border);
+  padding-left: 12px;
+}
+.plot-toolbar .button {
+  border-color: transparent;
+}
+.plot-toolbar .active {
+  border-color: #b9d1c2;
+}
+.plot-toolbar-hint {
+  margin-left: auto;
+  color: #5d6d64;
+  font-size: 12px;
+}
+.advanced-tools {
+  position: relative;
+}
+.advanced-tools summary {
+  list-style: none;
+  padding: 7px 10px;
+  min-height: 36px;
+  border-radius: 5px;
+}
+.advanced-tools summary::-webkit-details-marker {
+  display: none;
+}
+.advanced-tools[open] summary {
+  background: #e0eee6;
+  color: #19563a;
+}
+.advanced-tool-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 340px;
+  padding: 14px;
+  border: 1px solid #b9c8be;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 12px 28px #173b3024;
+  max-height: 65dvh;
+  overflow-y: auto;
+}
+.advanced-tool-panel .tool-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 0;
+  padding: 8px 0;
+  gap: 3px;
+  border-bottom: 1px solid #e1e9e3;
+}
+.advanced-tool-panel .icon-button {
+  width: 100%;
+  height: auto;
+  justify-content: flex-start;
+  gap: 10px;
+  border-color: transparent;
+}
+.advanced-tool-panel .icon-button span {
+  text-align: left;
+}
+.plot-workspace {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #e8efe9;
+}
+.chart-surface {
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: white;
+}
+.plot-container {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  container-type: size;
+}
+.plot {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+.plot-container.has-ratio .plot {
+  width: min(100cqw, calc(100cqh * var(--plot-ratio)));
+  height: min(100cqh, calc(100cqw / var(--plot-ratio)));
+  margin: auto;
+}
+.plot-message,
+.plot-error {
+  position: absolute;
+  inset: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.plot-error {
+  inset: auto 16px 16px;
+  background: #fff1ee;
+}
+.legend-dock {
+  position: relative;
+  width: 280px;
+  flex: 0 0 280px;
+  border-left: 1px solid var(--color-border);
+  background: #f4f7f3;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  color: #233e2e;
+}
+.legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 14px 8px;
+}
+.legend-header h2 {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 650;
+}
+.legend-header h2 > span {
+  margin-left: 5px;
+  color: #566c5d;
+  font-size: 12px;
+  font-weight: 400;
+}
+.legend-header-tools {
+  display: flex;
+  gap: 2px;
+}
+.legend-header-tools .icon-button {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  flex-basis: 30px;
+  border: 0;
+  background: transparent;
+}
+.legend-search {
+  margin: 5px 14px;
+}
+.legend-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  padding: 0 10px 8px;
+  border-bottom: 1px solid #dae4d9;
+}
+.legend-actions button {
+  font-size: 12px;
+  min-height: 30px;
+  padding: 4px 6px;
+}
+.hidden-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.legend-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px;
+  display: grid;
+  align-content: start;
+  grid-template-columns: repeat(var(--legend-cols, 1), minmax(0, 1fr));
+}
+.legend-row {
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  min-width: 0;
+}
+.legend-row:hover {
+  background: #e4eee2;
+}
+.legend-item {
+  background: transparent;
+  border: 0;
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+  padding: 8px;
+  min-height: 38px;
+  font-size: 13px;
+}
+.legend-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+.legend-count {
+  color: #5c6f62;
+  font-size: 12px;
+}
+.legend-more {
+  border: 0;
+  background: transparent;
+  min-height: 30px;
+  height: 30px;
+  width: 30px;
+  flex-basis: 30px;
+}
+.hidden-label {
+  display: inline-flex;
+  gap: 4px;
+  color: #5d6d63;
+  font-size: 10px;
+}
+.legend-row.is-hidden .legend-name {
+  text-decoration: line-through;
+  color: #5d6d63;
+}
+.legend-empty {
+  color: #53665a;
+  padding: 12px;
+  font-size: 13px;
+}
+.legend-dock[data-position*="left"] {
+  order: -1;
+  border-left: 0;
+  border-right: 1px solid var(--color-border);
+}
+.plot-workspace:has(.legend-dock[data-position="top"]),
+.plot-workspace:has(.legend-dock[data-position="bottom"]) {
+  flex-direction: column;
+}
+.legend-dock[data-position="top"],
+.legend-dock[data-position="bottom"] {
+  width: 100%;
+  flex: 0 0 auto;
+  max-height: 200px;
+  border-left: 0;
+  border-top: 1px solid var(--color-border);
+}
+.legend-dock[data-position="top"] {
+  order: -1;
+}
+.legend-dock[data-position="top"] .legend-list,
+.legend-dock[data-position="bottom"] .legend-list {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 20px;
+  min-height: 34px;
+  border-top: 1px solid var(--color-border);
+  background: #f4f7f3;
+  font-size: 12px;
+  color: #53665a;
+  flex-shrink: 0;
+}
+.statusbar > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #39805a;
+}
+.statusbar .text-button {
+  min-height: 24px;
+  padding: 0;
+  font-size: 12px;
+}
+.selection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: #e3eedb;
+  color: #25462d;
+  border-bottom: 1px solid #bdcfb2;
+  flex-shrink: 0;
+}
+.selection-bar strong {
+  margin-right: 10px;
+}
+.selection-bar button {
+  background: white;
+  font-size: 12px;
+}
+.file-notice {
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff8df;
+  color: #604817;
+  border: 1px solid #cfb96d;
+  border-radius: 6px;
+  max-width: calc(100vw - 24px);
+  z-index: 200;
+}
+.file-notice.alert {
+  background: #fff1ee;
+  color: #8c2922;
+  border-color: #d7a297;
+}
+.drop-overlay {
+  position: fixed;
+  inset: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  background: #e6f2e9f5;
+  border: 2px dashed #4d795c;
+  z-index: 250;
+  pointer-events: none;
+}
+.mobile-legend-pill,
+.mobile-floating-controls,
+.mobile-maximize-btn {
+  display: none;
+}
+.workspace-root.maximized-plot .topbar,
+.workspace-root.maximized-plot .statusbar {
+  display: none;
+}
+.plot[data-tool="pan"] .nsewdrag {
+  cursor: grab !important;
+}
+.plot[data-tool="pan"][data-dragging="true"] .nsewdrag {
+  cursor: grabbing !important;
+}
+.plot[data-tool="zoom"] .nsewdrag {
+  cursor: zoom-in !important;
+}
+.plot[data-tool="select"] .nsewdrag,
+.plot[data-tool="lasso"] .nsewdrag {
+  cursor: crosshair !important;
+}
+.plot[data-editing="true"] .hoverlayer {
+  visibility: hidden;
+}
+@media (max-width: 1100px) {
+  .plot-toolbar-hint,
+  .meta-samples {
+    display: none;
+  }
+  .topbar {
+    gap: 12px;
+    padding-inline: 12px;
+  }
+  .header-actions {
+    gap: 5px;
+  }
+  .dataset-name {
+    max-width: 150px;
+  }
+  .legend-dock {
+    width: 250px;
+    flex-basis: 250px;
+  }
+}
+@media (max-width: 1024px) {
+  .mobile-maximize-btn {
+    display: inline-flex;
+  }
+  .status-hint {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  .topbar {
+    min-height: 56px;
+    padding: 8px;
+    gap: 4px;
+  }
+  .brand h1 {
+    display: none;
+  }
+  .brand-icon {
+    width: 24px;
+  }
+  .dataset-meta {
+    gap: 4px;
+  }
+  .dataset-name {
+    max-width: 72px;
+    font-size: 11px;
+  }
+  .dataset-meta .icon-button {
+    display: none;
+  }
+  .header-divider,
+  .example-badge {
+    display: none;
+  }
+  .header-actions {
+    gap: 3px;
+  }
+  .header-actions .button,
+  .header-actions .icon-button {
+    min-height: 38px;
+    height: 38px;
+    width: 36px;
+    padding: 8px;
+  }
+  .header-actions span {
+    display: none;
+  }
+  .header-actions .open-file span {
+    display: none;
+  }
+  .header-actions .icon-button[aria-label="Remove dataset"] {
+    display: none;
+  }
+  .workspace-controls {
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 8px;
+  }
+  .axis-pickers {
+    flex: 1;
+    gap: 6px;
+  }
+  .axis-select-label {
+    flex: 1;
+    gap: 5px;
+  }
+  .axis-select-label select {
+    min-width: 0;
+    width: 100%;
+  }
+  .search-tools {
+    flex: 1 0 100%;
+    gap: 6px;
+  }
+  .sample-search {
+    min-width: 0;
+  }
+  .search-field input {
+    min-height: 38px;
+  }
+  .search-tools .icon-button {
+    min-height: 38px;
+    height: 38px;
+  }
+  .plot-toolbar {
+    padding: 5px 8px;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+  .plot-toolbar .button > span {
+    display: none;
+  }
+  .plot-toolbar .tool-group {
+    gap: 1px;
+  }
+  .tool-group + .tool-group {
+    padding-left: 5px;
+  }
+  .plot-toolbar .button,
+  .plot-toolbar .icon-button,
+  .plot-toolbar summary {
+    width: 36px;
+    min-height: 38px;
+    height: 38px;
+    padding: 8px;
+  }
+  .plot-toolbar .fullscreen-control {
+    display: none;
+  }
+  .advanced-tool-panel {
+    position: fixed;
+    top: 220px;
+    left: 8px;
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 260px);
+  }
+  .advanced-tool-panel .icon-button {
+    width: 100%;
+    height: auto;
+  }
+  .advanced-tool-panel .button > span,
+  .advanced-tool-panel .icon-button span {
+    display: inline;
+  }
+  .legend-dock,
+  .legend-dock[data-position] {
+    position: fixed;
+    width: calc(100% - 16px);
+    max-height: 60dvh;
+    left: 8px;
+    right: 8px;
+    top: auto;
+    bottom: 42px;
+    border: 1px solid #aabb9e;
+    border-radius: 8px;
+    z-index: 30;
+    box-shadow: 0 12px 32px #173b3033;
+  }
+  .legend-item {
+    min-height: 44px;
+  }
+  .legend-more {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+  .statusbar {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+  }
+  .local-status,
+  .status-hidden {
+    display: none;
+  }
+  .statusbar > div {
+    gap: 6px;
+  }
+  .selection-bar {
+    flex-wrap: wrap;
+    padding: 6px;
+    gap: 5px;
+    font-size: 12px;
+  }
+  .selection-bar strong {
+    margin-right: 0;
+  }
+  .selection-bar button {
+    min-height: 32px;
+    padding: 5px;
+  }
+}
+.topbar .primary-export:hover:not(:disabled),
+.topbar .primary-export:focus-visible {
+  color: #1c3b2d;
+  background: #e6f3be;
+  border-color: #e6f3be;
+}
+.mobile-control {
+  display: none;
+}
+@media (max-width: 640px) {
+  .plot-toolbar > button[aria-label="Clear marks"],
+  .plot-toolbar > .tool-group button[aria-label="Reset axes"] {
+    display: none;
+  }
+  .plot-toolbar .advanced-tools summary {
+    width: auto;
+  }
+  .plot-toolbar .advanced-tools summary > span {
+    display: inline;
+    font-size: 12px;
+  }
+  .advanced-tool-panel .mobile-control {
+    display: inline-flex;
+    width: 100%;
+    margin-top: 6px;
+  }
+}
+.selection-bar {
+  position: absolute;
+  bottom: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  border: 1px solid #bdcfb2;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px #173b3024;
+}
+@media (max-width: 640px) {
+  .selection-bar {
+    bottom: 42px;
+    max-width: calc(100% - 16px);
+    width: calc(100% - 16px);
+  }
+}

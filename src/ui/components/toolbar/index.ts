@@ -1,2 +1,2 @@
-export * from "./ToolbarIcons";
-export * from "./PlotToolbar";
+export * from "../../features/workspace/PlotToolbar";
+export * from "../../features/workspace/ToolbarIcons";

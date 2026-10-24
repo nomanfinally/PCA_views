@@ -10,11 +10,9 @@
 import { chartContrast } from "../../core/color/contrast";
 import { centroid, convexHull, type Point } from "../../core/geometry/hull";
 import { regressionLine } from "../../core/geometry/regression";
-import { paddedRange } from "../../core/geometry/viewport";
 import type { Dataset, Sample } from "../../core/models/dataset";
 import type {
   DragMode,
-  GroupLabelStyle,
   PlotSettings,
   PopulationStyle,
   SampleStyle,
@@ -24,6 +22,7 @@ import {
   resolveMarkerStyle,
   toRenderedMarker,
 } from "../../core/style/styleResolver";
+import { getAxisRange, getDatasetIndex } from "../../state/datasetIndex";
 import type {
   LabelOffset,
   PlotAnnotation,
@@ -73,15 +72,7 @@ export function buildPlotSpec(
 ): PlotSpec {
   const { x, y, settings } = state;
   const groups = new Map<string, Sample[]>();
-  const ordinals = new Map<number, number>();
-  const counts = new Map<string, number>();
-
-  // Count ordinals within populations across the entire dataset
-  dataset.samples.forEach((s) => {
-    const currentCount = counts.get(s.population) ?? 0;
-    ordinals.set(s.key, currentCount);
-    counts.set(s.population, currentCount + 1);
-  });
+  const ordinals = getDatasetIndex(dataset).ordinals;
 
   // Group active samples by population
   samples.forEach((sample) => {
@@ -295,7 +286,7 @@ export function buildPlotSpec(
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
     standoff: 4,
-    range: paddedRange(dataset.samples.map((s) => s.pcs[x] ?? 0)),
+    range: getAxisRange(dataset, x),
     grid: settings.grid,
     gridColor: theme.grid,
     zeroLine: true,
@@ -312,7 +303,7 @@ export function buildPlotSpec(
     titleSize: settings.axisTitleSize,
     titleWeight: settings.axisTitleWeight,
     standoff: 8,
-    range: paddedRange(dataset.samples.map((s) => s.pcs[y] ?? 0)),
+    range: getAxisRange(dataset, y),
     grid: settings.grid,
     gridColor: theme.grid,
     zeroLine: true,

@@ -2,14 +2,9 @@
  * Viewport-Clamped Floating Popover Primitive
  */
 
-import React, {
-  useEffect,
-  useLayoutEffect,
-  useState,
-  type ReactNode,
-} from "react";
-import { createPortal } from "react-dom";
 import { X } from "lucide-react";
+import { useEffect, useLayoutEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useKeyboardTrap } from "../hooks/useKeyboardTrap";
 
 export interface Anchor {
@@ -85,10 +80,7 @@ export function Popover({
     const handleClickOutside = (e: MouseEvent | TouchEvent) => {
       const target = e.target as Element | null;
       if (!target) return;
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(target)
-      ) {
+      if (containerRef.current && !containerRef.current.contains(target)) {
         // Do not close when interacting with portaled child elements like color picker palettes
         if (
           target.closest(".organized-color-palette-popover") ||
@@ -121,7 +113,6 @@ export function Popover({
     <div
       ref={containerRef}
       role="dialog"
-      aria-modal="true"
       aria-label={title}
       tabIndex={-1}
       className={`popover ${className}`.trim()}

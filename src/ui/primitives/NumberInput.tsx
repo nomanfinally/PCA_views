@@ -5,7 +5,7 @@
  * on the right, matching scientific desktop software standards.
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 export interface NumberInputProps {
   id?: string;
@@ -36,15 +36,11 @@ export function NumberInput({
   const effectiveMin = min ?? 0;
   const effectiveMax = max ?? (percent ? 1 : 100);
   const effectiveStep = step ?? (percent ? 0.05 : 1);
-  const effectiveUnit = percent ? (unit || "%") : unit;
+  const effectiveUnit = percent ? unit || "%" : unit;
 
-  // Display raw value (e.g. 0.25 for opacity or 16 for size)
-  const displayNum =
-    percent && effectiveMax === 1
-      ? Number.isInteger(value)
-        ? value
-        : Number(value.toFixed(2))
-      : value;
+  // Percent controls display 25 for a stored fraction of 0.25.
+  const multiplier = percent ? 100 : 1;
+  const displayNum = Number((value * multiplier).toFixed(6));
 
   const [localText, setLocalText] = useState<string>(String(displayNum));
 
@@ -57,30 +53,22 @@ export function NumberInput({
     setLocalText(raw);
     if (raw === "" || raw === "-") return;
 
-    const parsed = parseFloat(raw);
-    if (!isNaN(parsed)) {
-      // If percent with max 1 and user entered an integer > 1 (e.g. 25 instead of 0.25), interpret as percentage
-      let val = parsed;
-      if (percent && effectiveMax === 1 && parsed > 1) {
-        val = parsed / 100;
-      }
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      const val = parsed / multiplier;
       const clamped = Math.max(effectiveMin, Math.min(effectiveMax, val));
       onChange(clamped);
     }
   };
 
   const handleBlur = () => {
-    if (localText === "" || isNaN(parseFloat(localText))) {
+    if (localText === "" || !Number.isFinite(Number(localText))) {
       setLocalText(String(displayNum));
       return;
     }
-    const parsed = parseFloat(localText);
-    let val = parsed;
-    if (percent && effectiveMax === 1 && parsed > 1) {
-      val = parsed / 100;
-    }
+    const val = Number(localText) / multiplier;
     const clamped = Math.max(effectiveMin, Math.min(effectiveMax, val));
-    setLocalText(String(clamped));
+    setLocalText(String(Number((clamped * multiplier).toFixed(6))));
     onChange(clamped);
   };
 
@@ -97,15 +85,17 @@ export function NumberInput({
           id={inputId}
           aria-label={label}
           type="number"
-          min={effectiveMin}
-          max={effectiveMax}
-          step={effectiveStep}
+          min={effectiveMin * multiplier}
+          max={effectiveMax * multiplier}
+          step={effectiveStep * multiplier}
           value={localText}
           onChange={handleChange}
           onBlur={handleBlur}
           className="ui-number-input"
         />
-        {effectiveUnit && <span className="ui-number-unit">{effectiveUnit}</span>}
+        {effectiveUnit && (
+          <span className="ui-number-unit">{effectiveUnit}</span>
+        )}
       </div>
     </div>
   );

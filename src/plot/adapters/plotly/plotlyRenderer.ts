@@ -6,6 +6,7 @@
  */
 
 import type { Data, Layout, PlotlyHTMLElement } from "plotly.js";
+import type { PlotBox } from "../../gestures/plotBox";
 import type { PlotSpec } from "../../spec/plotSpec";
 import { loadPlotly, type PlotlyApi } from "./plotlyLoader";
 import { mapSpecToPlotly } from "./plotlyMapper";
@@ -38,6 +39,8 @@ export class PlotlyRenderer {
   private currentEqualScale?: boolean;
 
   private queue: Promise<void> = Promise.resolve();
+  private pendingUpdate: { spec: PlotSpec; promise: Promise<void> } | null =
+    null;
 
   constructor(events: PlotlyRendererEvents = {}) {
     this.events = events;
@@ -97,8 +100,16 @@ export class PlotlyRenderer {
   /**
    * Efficiently reconciles and redraws changes using Plotly.react.
    */
-  public async update(spec: PlotSpec): Promise<void> {
-    await this.enqueue(async () => {
+  public update(spec: PlotSpec): Promise<void> {
+    if (this.pendingUpdate) {
+      this.pendingUpdate.spec = spec;
+      return this.pendingUpdate.promise;
+    }
+    const slot = { spec, promise: Promise.resolve() };
+    this.pendingUpdate = slot;
+    slot.promise = this.enqueue(async () => {
+      if (this.pendingUpdate === slot) this.pendingUpdate = null;
+      const spec = slot.spec;
       try {
         const chart = this.container as unknown as PlotlyHTMLElement;
         const previous = chart?.layout;
@@ -156,13 +167,15 @@ export class PlotlyRenderer {
           this.events.onError?.(error);
         }
       }
-    });
+    }).then(() => {});
+    return slot.promise;
   }
 
   /**
    * Directly updates layout properties without redrawing traces.
    */
   public async relayout(layoutUpdate: Partial<Layout>): Promise<void> {
+    this.pendingUpdate = null;
     await this.enqueue(async () => {
       try {
         await this.api!.relayout(this.container!, layoutUpdate);
@@ -179,6 +192,7 @@ export class PlotlyRenderer {
    * Forces a resize recalculation when the container dimensions change.
    */
   public async resize(): Promise<void> {
+    this.pendingUpdate = null;
     await this.enqueue(async () => {
       try {
         await this.api!.Plots.resize(this.container!);
@@ -217,7 +231,41 @@ export class PlotlyRenderer {
     return chart.layout || null;
   }
 
+  /** Vendor-private projection stays behind this adapter boundary. */
+  public getPlotBox(): PlotBox | null {
+    if (!this.container) return null;
+    const full = (this.container as unknown as { _fullLayout?: any })
+      ._fullLayout;
+    if (!full?.xaxis || !full?.yaxis) return null;
+    const rect = this.container.getBoundingClientRect();
+    return {
+      left: rect.left + full.xaxis._offset,
+      top: rect.top + full.yaxis._offset,
+      width: full.xaxis._length,
+      height: full.yaxis._length,
+    };
+  }
+
+  public projectPoint(
+    x: number,
+    y: number,
+    box = this.getPlotBox(),
+  ): { x: number; y: number } | null {
+    const full = (this.container as unknown as { _fullLayout?: any })
+      ?._fullLayout;
+    if (!box || !full?.xaxis?.l2p || !full?.yaxis?.l2p) return null;
+    const px = full.xaxis.l2p(x),
+      py = full.yaxis.l2p(y);
+    if (px < 0 || py < 0 || px > box.width || py > box.height) return null;
+    return { x: box.left + px, y: box.top + py };
+  }
+
+  public matchesAxes(x: number, y: number) {
+    return this.currentAxesKey === `${x}:${y}`;
+  }
+
   public async flush(): Promise<void> {
+    this.pendingUpdate = null;
     await this.queue;
   }
 
@@ -233,6 +281,7 @@ export class PlotlyRenderer {
     } = {},
     figure?: { data: Data[]; layout: Partial<Layout> },
   ): Promise<string> {
+    this.pendingUpdate = null;
     if (!this.container || !this.api || !this.isReady) {
       throw new Error("PlotlyRenderer is not ready for image capture.");
     }
@@ -248,25 +297,23 @@ export class PlotlyRenderer {
       // A separate static SVG capture preserves the live viewport and avoids
       // allocating more WebGL contexts when exporting an archived GL plot.
       const captureApi = await loadPlotly(0);
-      const target = document.createElement("div");
-      target.dataset.exportChart = "true";
-      target.style.cssText = `position:fixed;left:-20000px;top:0;width:${imageOptions.width}px;height:${imageOptions.height}px`;
-      document.body.appendChild(target);
-      try {
-        const data = figure.data.map(
-          (trace) => ({ ...trace, type: "scatter" }) as Data,
-        );
-        await captureApi.newPlot(target, data, figure.layout, {
-          staticPlot: true,
-        });
-        return await captureApi.toImage(target, imageOptions);
-      } finally {
-        try {
-          captureApi.purge(target);
-        } finally {
-          target.remove();
-        }
-      }
+      const data = figure.data.map(
+        (trace) => ({ ...trace, type: "scatter" }) as Data,
+      );
+      // Plotly's public toImage API accepts a figure and owns its temporary
+      // render. Avoid newPlot + toImage, which renders the same figure twice.
+      const capture = captureApi.toImage as unknown as (
+        figure: {
+          data: Data[];
+          layout: Partial<Layout>;
+          config: { staticPlot: boolean };
+        },
+        options: typeof imageOptions,
+      ) => Promise<string>;
+      return capture(
+        { data, layout: figure.layout, config: { staticPlot: true } },
+        imageOptions,
+      );
     });
     if (!image)
       throw new Error("Plot was closed before image capture completed.");

@@ -1,3 +1,4 @@
+import { appearanceAction, showAppearance } from "./helpers/appearance";
 import { test, expect } from "@playwright/test";
 
 test.describe("Toolbar cleanup & group label edge clamping", () => {
@@ -21,7 +22,7 @@ test.describe("Toolbar cleanup & group label edge clamping", () => {
     ).toHaveCount(0);
     // Grid icon button is absent from visible toolbar (only hidden test helper exists)
     const visibleGridIcon = page.locator(
-      ".plot-toolbar .icon-button svg.lucide-grid-2x2",
+      ".plot-toolbar > .tool-group .icon-button svg.lucide-grid-2x2",
     );
     await expect(visibleGridIcon).toHaveCount(0);
 

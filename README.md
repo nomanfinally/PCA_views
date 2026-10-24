@@ -1,6 +1,6 @@
 # PCA Views
 
-A compact, browser-only viewer for smartPCA / EIGENSOFT `.evec` files, with a classic monochrome interface. Upload a file, choose any two PCs, and explore samples with zoom, pan, population filters, and sample search.
+A compact, browser-only viewer for smartPCA / EIGENSOFT `.evec` files, with a plot-first research workspace. Upload a file, choose any two PCs, and explore samples with zoom, pan, population filters, and sample search.
 
 ## Run locally
 
@@ -17,17 +17,17 @@ Open the local URL printed by Vite. No server, database, accounts, or API keys a
 
 The plot fills the workspace. File name, sample/population/PC counts, and selected eigenvalues are in the top bar; its information button shows every eigenvalue and any parsing warnings.
 
-- **Navigate:** mouse-wheel zoom at the cursor, pan, box zoom, zoom buttons, fit visible samples, reset all axes, crosshairs, and fullscreen. Cursors follow the active tool: grab/grabbing for pan, magnifier for box zoom, crosshair for box selection, and a lasso for freehand selection.
+- **Navigate:** mouse-wheel zoom at the cursor, pan, box zoom, zoom buttons, fit visible samples, reset all axes, crosshairs, and fullscreen. Cursors follow the active tool: grab/grabbing for pan, magnifier for box zoom, crosshair for box selection, and crosshair for freehand selection.
 - **Select:** box/lasso select samples, mark selected rows with red boundaries, export selected coordinates, and clear selection.
 - **Legend:** click a population to show/hide it. Right-click or use its three-dot button to edit color, shape, filled/hollow/mixed treatment, varied-shape presets, and population label style. Size, separate fill/boundary opacity, outline color/width, label size/color/opacity, point labels, and hull opacity are in collapsible More sections. Hulls, regression, isolation, and resetting are available. Hidden populations remain listed with a strikethrough and Hidden indicator.
 - **Individual samples:** left-click a dot to toggle its red mark. Right-click to edit its shape, size, fill color, and outline (plot default, darker fill, black, or custom color). The editor also supports independent filled/hollow treatment, boundary width and opacity, and a draggable IID label with its own style, connector, color, size, and opacity. Editing does not mark the sample automatically. Overrides survive population edits, filtering, axis changes, and PNG export. Reset this sample restores its inherited appearance and clears its mark. These interactions work in every tool mode, even with hover disabled.
 - **Plot settings:** six palettes adapted from the older viewer, lighter classic fills, filled/hollow circles or shapes, darker or black outlines with adjustable width, point size/opacity, grayscale, grid, standard chart ratios, equal axis units, on/off hover with checkbox-selected values, sample/population/full labels, draggable plain, background, or boxed group labels with independent centroid connectors, hull opacity, global hulls/regression, title/subtitle, and reset styles.
-- **Data:** search samples/populations and open the paginated sample table from the upper-left toolbar.
+- **Data:** search samples/populations and open the paginated sample table from the Samples header action.
 - **Export:** a dedicated dialog shows an automatic PNG preview. Add a title and subtitle with independent font size/weight, place the legend around the plot frame in 1–6 columns (left/right aligned to its top edge; top/bottom centered on the frame), adjust its font/row/column spacing, and add a box boundary. The captured plot keeps its exact pixel proportions, zoom, and marker/label styles; headings and legend add space outside it. Download the preview as PNG, filtered coordinates as CSV, or the complete interactive session as a single HTML file.
 
 Repeated clicks cycle marker fill/boundary opacity, point label content, chart ratios, and population labels (off → plain → background → boxed). Population label connectors have a separate toggle. One hull icon cycles off → 5% → 10% → 15% → 30% → 50% → 75% → off; two-point groups get a connecting line instead of a hull. Palette, marker shapes, and sizes live in settings. Hover has one on/off toolbar button; its IID, FID, and coordinate values are chosen with checkboxes in settings and displayed without field prefixes.
 
-Tools are grouped by interaction, zoom, markers, labels/geometry, view/hover, settings, and data/export. Plot settings opens with **Chart**, followed by Markers, Labels, Legend, Hover, Geometry, and Variance. Chart controls include tick text size, axis line thickness presets (0.5, 1, 1.25, 1.5, 1.75, 2), axis title size/weight, background colors with adaptive grid contrast, and ratio thumbnails. Ratios include Full span, 1:1, 16:9, 4:3, 3:2, 4:5, and 9:16. All group label styles are draggable and retain positions for each PC pair. Context editors support Tab/Shift+Tab and Escape. The compact legend floats over the full-width plot; its search field opens from its search icon. Its gear opens Legend settings; visibility is toggled beside sample search in the second bar.
+The primary toolbar names navigation and selection tools. Appearance opens advanced display commands; Samples, Settings, and Export remain in the header. Plot settings opens with **Chart**, followed by Markers, Labels, Legend, Hover, Geometry, and Variance. Chart controls include tick text size, axis line thickness presets (0.5, 1, 1.25, 1.5, 1.75, 2), axis title size/weight, background colors with adaptive grid contrast, and ratio thumbnails. Ratios include Full span, 1:1, 16:9, 4:3, 3:2, 4:5, and 9:16. All group label styles are draggable and retain positions for each PC pair. Context editors support Tab/Shift+Tab and Escape. The desktop population panel occupies a collapsible margin beside the plot. On mobile it starts closed and opens as a sheet. Its search icon finds populations; its gear opens Legend settings; visibility is toggled beside sample search in the second bar.
 
 Defaults are IID-only hover, 12 px tick text, 1.25 px axis lines, 14 px axis titles, Full span, and the Solid palette. Datasets with up to eight populations start with filled circles; larger datasets start with filled shapes. **Plot settings → Reset to defaults** restores default styles, visibility, axes, zoom, and label positions for the loaded dataset. **Reset styles** changes appearance while keeping the current view and hidden populations.
 
@@ -70,17 +70,21 @@ Deployment follows [Vite's static deployment guidance](https://vite.dev/guide/st
 ## Architecture
 
 ```text
-src/domain/       Parser, view reducer, geometry, plot model, palettes, CSV export
+src/app/          Application shell and dataset lifecycle
+src/core/         Pure models, parsers, geometry, palettes, style resolution
+src/state/        Reducer, selectors, immutable dataset indexes
+src/plot/         Figure specification, Plotly adapter, gesture coordination
+src/services/     Coordinate/image/archive exports and browser file transport
 src/workers/      Background file-reading and parsing entry point
-src/hooks/        Dataset loading lifecycle, errors, worker cleanup
-src/components/   Plot adapter, toolbar, interactive legend, point editor, table
-src/App.tsx       Application shell and upload flow
-src/styles.css    Shared visual tokens and responsive component styles
-src/test/         Parser, geometry, reducer, plot model, and export tests
-e2e/              Browser interaction tests
+src/ui/features/  Workspace, populations, samples, settings, export, upload
+src/ui/primitives/ Accessible reusable controls and overlays
+src/ui/styles/    Foundations, workspace, editor and surface styles
+src/ui/tokens/    Shared visual tokens and responsive thresholds
+src/test/         Active implementation unit tests
+e2e/              Browser workflows, export/archive and responsive regressions
 ```
 
-The plot and table receive the same filtered samples and selection state. Row identity is independent of sample names. Plotly is isolated behind `PcaPlot` and a small imperative interface for zoom/fit/reset/export. Its SVG renderer is lazy-loaded for datasets up to 5,000 samples; larger datasets use a separately loaded WebGL renderer. Both are bundled locally, not fetched from a CDN. Wheel, toolbar zoom, resize, and chart updates share a serialized queue to preserve the viewport during edits. New import formats should produce the same `Dataset` shape rather than mixing parsing into UI components. See [NOTES.md](NOTES.md) for extension points and limits.
+Row identity is independent of sample names; original data remains separate from edited groups. Plotly projection and private layout access stay inside its adapter. SVG is lazy-loaded for up to 5,000 samples; larger datasets use a separate local WebGL bundle. Renderer commands retain order while obsolete pending redraws can be replaced. New import formats should produce the same `Dataset` contract. See [ARCHITECTURE.md](ARCHITECTURE.md), the [audit and plan](docs/REFACTOR_PLAN.md), and the [refactor changelog](docs/REFACTOR_CHANGELOG.md) for current ownership, validation, and remaining limits.
 
 ## Validate
 

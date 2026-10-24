@@ -1,8 +1,10 @@
 import { expect, it } from "vitest";
-import { parseEvec } from "../domain/parseEvec";
-import { axisTitle, parseSpectrum } from "../domain/metadata";
-import { initialView, viewReducer, filteredSamples } from "../domain/viewState";
-import { buildPlotModel } from "../domain/plotModel";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { axisTitle, parseSpectrum } from "../core/parsers/parseSpectrum";
+import { viewReducer } from "../state/viewReducer";
+import { filteredSamples } from "../state/viewSelectors";
+import { initialView } from "../state/viewState";
+import { buildPlotModel } from "./plotModelFixture";
 const dataset = parseEvec(
   "#eigvals: 10 5\na 0 0 A\nb 1 0 A\nc 0 1 A\nd 2 2 B",
   "test.evec",

@@ -1,3 +1,4 @@
+import { anchorInPlot, type PlotBox } from "./plotBox";
 /**
  * Coalesced Mouse Wheel Zoom Handler
  *
@@ -14,12 +15,14 @@ export interface WheelZoomEvent {
 
 export interface WheelZoomOptions {
   element: HTMLElement;
+  getPlotBox?: () => PlotBox | null;
   onZoom: (event: WheelZoomEvent) => void;
   margin?: { left: number; right: number; top: number; bottom: number };
 }
 
 export class WheelZoomCoordinator {
   private element: HTMLElement;
+  private getPlotBox?: () => PlotBox | null;
   private onZoom: (event: WheelZoomEvent) => void;
   private margin: { left: number; right: number; top: number; bottom: number };
 
@@ -29,6 +32,7 @@ export class WheelZoomCoordinator {
 
   constructor(options: WheelZoomOptions) {
     this.element = options.element;
+    this.getPlotBox = options.getPlotBox;
     this.onZoom = options.onZoom;
     this.margin = options.margin ?? {
       left: 60,
@@ -78,22 +82,13 @@ export class WheelZoomCoordinator {
     clientY: number,
   ): { x: number; y: number } {
     const rect = this.element.getBoundingClientRect();
-    const plotWidth = Math.max(
-      1,
-      rect.width - this.margin.left - this.margin.right,
-    );
-    const plotHeight = Math.max(
-      1,
-      rect.height - this.margin.top - this.margin.bottom,
-    );
-
-    const relX = clientX - rect.left - this.margin.left;
-    const relY = clientY - rect.top - this.margin.top;
-
-    const x = Math.max(0, Math.min(1, relX / plotWidth));
-    const y = Math.max(0, Math.min(1, 1 - relY / plotHeight));
-
-    return { x, y };
+    const box = this.getPlotBox?.() ?? {
+      left: rect.left + this.margin.left,
+      top: rect.top + this.margin.top,
+      width: rect.width - this.margin.left - this.margin.right,
+      height: rect.height - this.margin.top - this.margin.bottom,
+    };
+    return anchorInPlot(box, clientX, clientY);
   }
 
   public destroy(): void {

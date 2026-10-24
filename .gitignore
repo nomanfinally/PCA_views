@@ -10,3 +10,6 @@ test-results/
 .DS_Store
 
 docs/PROJECT_AUDIT.md
+
+.impeccable/config.local.json
+.impeccable/hook.cache.json

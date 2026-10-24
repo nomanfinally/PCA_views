@@ -1,1 +1,1 @@
-export * from "./UploadDropzone";
+export * from "../../features/upload/UploadDropzone";

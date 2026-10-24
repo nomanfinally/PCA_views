@@ -2,9 +2,11 @@
  * Accessible Modal Dialog Primitive with Backdrop
  */
 
-import React, { useId, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useEffect, useId, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useKeyboardTrap } from "../hooks/useKeyboardTrap";
+let openModalCount = 0;
 
 export interface ModalProps {
   isOpen: boolean;
@@ -32,6 +34,16 @@ export function Modal({
   noPadding = false,
 }: ModalProps) {
   const titleId = useId();
+  useEffect(() => {
+    if (!isOpen) return;
+    const root = document.getElementById("root");
+    openModalCount++;
+    if (root) root.inert = true;
+    return () => {
+      openModalCount--;
+      if (root) root.inert = openModalCount > 0;
+    };
+  }, [isOpen]);
   const containerRef = useKeyboardTrap<HTMLDivElement>({
     active: isOpen,
     onEscape: onClose,
@@ -50,14 +62,13 @@ export function Modal({
           : width
         : "min(94vw, 540px)";
 
-  return (
+  return createPortal(
     <div
       className="ui-modal-backdrop"
       style={{
         position: "fixed",
         inset: 0,
         backgroundColor: "rgba(17, 24, 39, 0.45)",
-        backdropFilter: "blur(2px)",
         zIndex: "var(--z-modal)",
         display: "flex",
         alignItems: "center",
@@ -159,6 +170,7 @@ export function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

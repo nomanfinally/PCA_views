@@ -8,15 +8,10 @@
  * - CUSTOM section with plus button to pick arbitrary colors, plus recent custom colors.
  */
 
-import React, {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from "react";
-import { createPortal } from "react-dom";
 import { ChevronDown, Plus } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useKeyboardTrap } from "../hooks/useKeyboardTrap";
 
 export const ORGANIZED_PALETTE_ROWS: string[][] = [
   // 1. Grayscale
@@ -191,7 +186,10 @@ export function ColorPicker({
   );
 
   const triggerRef = useRef<HTMLDivElement>(null);
-  const popoverRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useKeyboardTrap<HTMLDivElement>({
+    active: isOpen,
+    onEscape: () => setIsOpen(false),
+  });
   const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
 
   // Update floating popover position relative to trigger
@@ -201,8 +199,11 @@ export function ColorPicker({
     const updatePosition = () => {
       if (!triggerRef.current) return;
       const rect = triggerRef.current.getBoundingClientRect();
-      const popoverWidth = 252;
-      const popoverHeight = 310;
+      const popoverWidth = Math.min(344, window.innerWidth - 16);
+      const popoverHeight = Math.min(
+        popoverRef.current?.scrollHeight || 390,
+        window.innerHeight - 16,
+      );
 
       let top = rect.bottom + 6;
       if (top + popoverHeight > window.innerHeight - 8) {
@@ -247,6 +248,8 @@ export function ColorPicker({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
         setIsOpen(false);
       }
     };
@@ -306,6 +309,7 @@ export function ColorPicker({
         <button
           type="button"
           className="color-picker-trigger-btn"
+          aria-label={`Open ${label ?? "color"} palette`}
           onClick={() => setIsOpen((prev) => !prev)}
           aria-expanded={isOpen}
           aria-haspopup="dialog"
@@ -403,7 +407,9 @@ export function ColorPicker({
               borderRadius: "8px",
               boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
               padding: "12px",
-              width: "244px",
+              width: "min(344px, calc(100vw - 16px))",
+              maxHeight: "calc(100dvh - 16px)",
+              overflowY: "auto",
               userSelect: "none",
             }}
           >
@@ -411,7 +417,7 @@ export function ColorPicker({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(10, 18px)",
+                gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
                 gap: "4px",
                 marginBottom: "6px",
               }}
@@ -424,12 +430,17 @@ export function ColorPicker({
                   <button
                     key={hex}
                     type="button"
+                    className="color-swatch"
+                    aria-pressed={isSelected}
                     aria-label={`Color ${hex}`}
                     title={hex}
                     onClick={() => handleSelectColor(hex)}
                     style={{
-                      width: "18px",
-                      height: "18px",
+                      width: "100%",
+                      height: "auto",
+                      aspectRatio: "1",
+                      minHeight: 24,
+                      minWidth: 24,
                       borderRadius: "50%",
                       backgroundColor: hex,
                       border: light
@@ -437,11 +448,9 @@ export function ColorPicker({
                         : "1px solid rgba(0,0,0,0.12)",
                       padding: 0,
                       cursor: "pointer",
-                      outline: isSelected
-                        ? `2px solid ${light ? "#0f172a" : "#0f172a"}`
+                      boxShadow: isSelected
+                        ? "inset 0 0 0 2px #163a2b"
                         : "none",
-                      outlineOffset: isSelected ? "2px" : "0",
-                      boxShadow: isSelected ? "0 0 0 1px #ffffff" : "none",
                       position: "relative",
                       transition: "transform 0.1s ease",
                     }}
@@ -454,7 +463,7 @@ export function ColorPicker({
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(10, 18px)",
+                gridTemplateColumns: "repeat(10, minmax(0, 1fr))",
                 gap: "4px",
               }}
             >
@@ -468,20 +477,25 @@ export function ColorPicker({
                     <button
                       key={`${hex}-${i}`}
                       type="button"
+                      className="color-swatch"
+                      aria-pressed={isSelected}
                       aria-label={`Color ${hex}`}
                       title={hex}
                       onClick={() => handleSelectColor(hex)}
                       style={{
-                        width: "18px",
-                        height: "18px",
+                        width: "100%",
+                        height: "auto",
+                        aspectRatio: "1",
+                        minHeight: 24,
+                        minWidth: 24,
                         borderRadius: "50%",
                         backgroundColor: hex,
                         border: light ? "1px solid rgba(0,0,0,0.12)" : "none",
                         padding: 0,
                         cursor: "pointer",
-                        outline: isSelected ? "2px solid #0f172a" : "none",
-                        outlineOffset: isSelected ? "2px" : "0",
-                        boxShadow: isSelected ? "0 0 0 1px #ffffff" : "none",
+                        boxShadow: isSelected
+                          ? "inset 0 0 0 2px #163a2b"
+                          : "none",
                         position: "relative",
                         transition: "transform 0.1s ease",
                       }}
@@ -525,11 +539,12 @@ export function ColorPicker({
               >
                 {/* Plus Button to open native color wheel */}
                 <div
+                  className="custom-color-add"
                   title="Add custom color"
                   style={{
                     position: "relative",
-                    width: "20px",
-                    height: "20px",
+                    width: "28px",
+                    height: "28px",
                     borderRadius: "50%",
                     border: "1.5px solid #64748b",
                     display: "flex",
@@ -568,12 +583,17 @@ export function ColorPicker({
                     <button
                       key={hex}
                       type="button"
+                      className="color-swatch"
+                      aria-pressed={isSelected}
                       aria-label={`Custom color ${hex}`}
                       title={hex}
                       onClick={() => handleSelectColor(hex)}
                       style={{
-                        width: "18px",
-                        height: "18px",
+                        width: "28px",
+                        height: "28px",
+                        aspectRatio: "1",
+                        minHeight: 24,
+                        minWidth: 24,
                         borderRadius: "50%",
                         backgroundColor: hex,
                         border: light
@@ -581,9 +601,9 @@ export function ColorPicker({
                           : "1px solid rgba(0,0,0,0.12)",
                         padding: 0,
                         cursor: "pointer",
-                        outline: isSelected ? "2px solid #0f172a" : "none",
-                        outlineOffset: isSelected ? "2px" : "0",
-                        boxShadow: isSelected ? "0 0 0 1px #ffffff" : "none",
+                        boxShadow: isSelected
+                          ? "inset 0 0 0 2px #163a2b"
+                          : "none",
                         flexShrink: 0,
                       }}
                     />

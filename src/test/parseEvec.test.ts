@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { parseEvec } from "../domain/parseEvec";
-import { samplesToCsv } from "../domain/export";
-import { createExample } from "../domain/example";
+import { createExample } from "../core/parsers/example";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { samplesToCsv } from "../services/export/csvExport";
 describe("smartPCA parsing", () => {
   it("reads whitespace, CRLF, BOM, comments, and eigenvalues", () => {
     const data = parseEvec(

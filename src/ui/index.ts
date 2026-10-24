@@ -2,8 +2,8 @@
  * UI Design System & Presentation Layer
  */
 
-export * from "./tokens/breakpoints";
-export * from "./hooks/useResponsive";
+export * from "./components/index";
 export * from "./hooks/useKeyboardTrap";
-export * from "./primitives";
-export * from "./components";
+export * from "./hooks/useResponsive";
+export * from "./primitives/index";
+export * from "./tokens/breakpoints";

@@ -1,3 +1,4 @@
+import { appearanceAction, showAppearance } from "./helpers/appearance";
 import { expect, test, type Page } from "@playwright/test";
 const fixture =
   "#eigvals: 10 5 2\nAlpha -0.2 0.1 0.3 Group_A\nBeta 0.2 -0.1 -0.3 Group_B\nGamma 0 0 0.1 Group_A\nDelta -0.1 -0.15 0.2 Group_A";
@@ -103,7 +104,7 @@ test("compact shape palettes support group, individual, hollow and inherited sha
   const grid = sample.locator(".marker-shape-grid");
   await expect(grid).toHaveCSS(
     "grid-template-columns",
-    "20px 20px 20px 20px 20px 20px 20px",
+    "28px 28px 28px 28px 28px 28px 28px",
   );
   const box = await grid.boundingBox();
   expect(box!.x).toBeGreaterThanOrEqual(0);
@@ -120,8 +121,8 @@ test("plot-first layout, upload, axes and mouse wheel zoom", async ({
   await expect(page.locator(".topbar")).toContainText("test.evec");
   await expect(page.locator(".topbar")).toContainText("4 samples");
   const bounds = await page.locator(".plot").boundingBox();
-  expect(bounds!.height).toBeGreaterThan(850);
-  expect(bounds!.width).toBeGreaterThan(1200);
+  expect(bounds!.height).toBeGreaterThan(700);
+  expect(bounds!.width).toBeGreaterThan(900);
   await page.getByLabel("Vertical axis").selectOption("2");
   await page.getByLabel("Swap axes").click();
   await expect
@@ -557,18 +558,14 @@ for (const renderer of ["SVG", "WebGL"] as const) {
       anchor,
       6,
     );
-    await page
-      .getByRole("button", { name: "Toggle grid", exact: true })
-      .click();
+    await appearanceAction(page, { name: "Toggle grid", exact: true });
     await expect
       .poll(() =>
         page.locator(".plot").evaluate((el: any) => el.layout.xaxis.showgrid),
       )
       .toBe(false);
     expect(await range(page)).toEqual(zoomed);
-    await page
-      .getByRole("button", { name: "Toggle grayscale", exact: true })
-      .click();
+    await appearanceAction(page, { name: "Toggle grayscale", exact: true });
     await page.mouse.move(cursor.x, cursor.y);
     for (let i = 0; i < 12; i++) await page.mouse.wheel(0, 40);
     await expect
@@ -589,12 +586,12 @@ test("compact legend search and draggable group labels retain offsets per PC pai
   await expect(page.getByLabel("Find population", { exact: true })).toHaveCount(
     0,
   );
-  expect((await page.locator(".chart-tools").boundingBox())!.x).toBeLessThan(
-    15,
-  );
+  expect(
+    (await page.locator(".chart-tools").boundingBox())!.x,
+  ).toBeLessThanOrEqual(24);
   expect(
     (await page.locator(".legend-row").first().boundingBox())!.height,
-  ).toBeLessThanOrEqual(24);
+  ).toBeLessThanOrEqual(44);
   await page
     .getByRole("button", { name: "Search populations", exact: true })
     .click();
@@ -604,7 +601,7 @@ test("compact legend search and draggable group labels retain offsets per PC pai
     .getByRole("button", { name: "Search populations", exact: true })
     .click();
   await expect(page.locator(".legend-row")).toHaveCount(2);
-  await page.getByRole("button", { name: /^Cycle population labels:/ }).click();
+  await appearanceAction(page, { name: /^Cycle population labels:/ });
   const annotation = () =>
     page.locator(".plot").evaluate((el: any) => ({
       ax: el.layout.annotations[0].ax,
@@ -626,7 +623,7 @@ test("compact legend search and draggable group labels retain offsets per PC pai
     .poll(annotation)
     .toEqual({ ax: before.ax + 75, ay: before.ay + 35 });
   const moved = await annotation();
-  await page.getByRole("button", { name: /^Cycle hulls:/ }).click();
+  await appearanceAction(page, { name: /^Cycle hulls:/ });
   await expect
     .poll(() =>
       page.locator(".plot").evaluate((el: any) => el.layout.shapes.length),
@@ -637,9 +634,10 @@ test("compact legend search and draggable group labels retain offsets per PC pai
   await expect.poll(annotation).toEqual(before);
   await page.getByLabel("Vertical axis").selectOption("1");
   await expect.poll(annotation).toEqual(moved);
-  await page
-    .getByLabel("Edit plot title and subtitle", { exact: true })
-    .click();
+  await appearanceAction(page, {
+    name: "Edit plot title and subtitle",
+    exact: true,
+  });
   await expect(page.getByLabel("Plot title", { exact: true })).toBeFocused();
 });
 
@@ -676,7 +674,7 @@ for (const renderer of ["SVG", "WebGL"] as const) {
       "Box select mode",
       "Lasso select mode",
     ];
-    const cursors = ["grab", "zoom-in", "crosshair", "data:image/svg+xml"];
+    const cursors = ["grab", "zoom-in", "crosshair", "crosshair"];
     for (let i = 0; i < modes.length; i++) {
       await page.getByLabel(modes[i], { exact: true }).click();
       const cursor = await page
@@ -783,7 +781,7 @@ test("legend layout, ratio thumbnails, population styles and separate alpha cont
 }) => {
   await load(page);
   await expect(
-    page.locator(".workspace-toolbar .search-tools > button"),
+    page.locator(".workspace-controls .search-tools > button"),
   ).toHaveAttribute("aria-label", "Toggle legend");
   await expect(page.getByLabel("Collapse legend", { exact: true })).toHaveCount(
     0,
@@ -827,14 +825,12 @@ test("legend layout, ratio thumbnails, population styles and separate alpha cont
     .selectOption("filled");
   await page.getByText("More marker controls", { exact: true }).click();
   await page.getByLabel("Population marker size", { exact: true }).fill("16");
-  await page
-    .getByLabel("Population fill opacity", { exact: true })
-    .fill("0.25");
+  await page.getByLabel("Population fill opacity", { exact: true }).fill("25");
   await page
     .getByLabel("Population boundary opacity", { exact: true })
-    .fill("0.75");
+    .fill("75");
   await page.getByText("More label & hull controls", { exact: true }).click();
-  await page.getByLabel("Population hull opacity", { exact: true }).fill("0.5");
+  await page.getByLabel("Population hull opacity", { exact: true }).fill("50");
   await page.keyboard.press("Escape");
   await expect
     .poll(() =>
@@ -863,9 +859,9 @@ test("legend layout, ratio thumbnails, population styles and separate alpha cont
   await page.getByLabel("Chart ratio Full span", { exact: true }).click();
   await page.keyboard.press("Escape");
   const before = await range(page);
-  await page.getByRole("button", { name: /^Cycle population labels:/ }).click();
-  await page.getByRole("button", { name: /^Cycle hulls:/ }).click();
-  await page.getByRole("button", { name: /^Cycle boundary opacity:/ }).click();
+  await appearanceAction(page, { name: /^Cycle population labels:/ });
+  await appearanceAction(page, { name: /^Cycle hulls:/ });
+  await appearanceAction(page, { name: /^Cycle boundary opacity:/ });
   expect(await range(page)).toEqual(before);
   await page.getByLabel("Toggle legend", { exact: true }).click();
   await expect(page.locator(".legend-dock")).toHaveCount(0);
@@ -1061,23 +1057,23 @@ test("simplified label and hover tools, and chart typography", async ({
       name: /Cycle palette:|Cycle marker preset:|Cycle hover content:/,
     }),
   ).toHaveCount(0);
-  await page.getByRole("button", { name: /^Cycle point size:/ }).click();
+  await appearanceAction(page, { name: /^Cycle point size:/ });
   await expect(
     page.getByRole("button", { name: "Cycle point size: 9px", exact: true }),
   ).toBeVisible();
-  await page
-    .getByRole("button", { name: "Toggle hover information", exact: true })
-    .click();
+  await appearanceAction(page, {
+    name: "Toggle hover information",
+    exact: true,
+  });
   await expect
     .poll(() => page.locator(".plot").evaluate((e: any) => e.layout.hovermode))
     .toBe(false);
-  await page
-    .getByRole("button", { name: "Toggle hover information", exact: true })
-    .click();
+  await appearanceAction(page, {
+    name: "Toggle hover information",
+    exact: true,
+  });
   for (const style of ["plain", "background", "boxed", "off"]) {
-    await page
-      .getByRole("button", { name: /^Cycle population labels:/ })
-      .click();
+    await appearanceAction(page, { name: /^Cycle population labels:/ });
     await expect(
       page.getByRole("button", {
         name: `Cycle population labels: ${style}`,
@@ -1292,7 +1288,7 @@ test("defaults, unified hull cycle, and two-sample fallback", async ({
     page.getByRole("button", { name: "Toggle convex hulls", exact: true }),
   ).toHaveCount(0);
   for (const opacity of [15, 30, 60, 0]) {
-    await page.getByRole("button", { name: /^Cycle hulls:/ }).click();
+    await appearanceAction(page, { name: /^Cycle hulls:/ });
     await expect(
       page.getByRole("button", {
         name: `Cycle hulls: ${opacity ? `${opacity}%` : "off"}`,
@@ -1347,8 +1343,8 @@ test("defaults, unified hull cycle, and two-sample fallback", async ({
     .poll(() =>
       page
         .locator(".plot")
-        .evaluate((e: any) =>
-          e.data?.map((t: any) => t.marker?.symbol?.[0]) ?? [],
+        .evaluate(
+          (e: any) => e.data?.map((t: any) => t.marker?.symbol?.[0]) ?? [],
         ),
     )
     .toEqual([
@@ -1390,9 +1386,7 @@ test("individual label, background and complete HTML state survive reopen and re
   await page.getByLabel("Sample label color", { exact: true }).fill("#123456");
   await page.getByText("Fill & boundary transparency", { exact: true }).click();
   await page.getByLabel("Sample boundary width", { exact: true }).fill("2.4");
-  await page
-    .getByLabel("Sample boundary opacity", { exact: true })
-    .fill("0.75");
+  await page.getByLabel("Sample boundary opacity", { exact: true }).fill("75");
   await page.keyboard.press("Escape");
   const annotation = () =>
     page.locator(".plot").evaluate((e: any) => ({

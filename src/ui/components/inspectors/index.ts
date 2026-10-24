@@ -1,2 +1,2 @@
-export * from "./PointInspector";
-export * from "./PopulationEditor";
+export * from "../../features/populations/PopulationEditor";
+export * from "../../features/samples/PointInspector";

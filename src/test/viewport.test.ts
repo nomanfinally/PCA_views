@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { wheelPixels, zoomRange } from "../domain/viewport";
+import { wheelPixels, zoomRange } from "../core/geometry/viewport";
 
 describe("cursor anchored zoom", () => {
   it("keeps the coordinate under the pointer fixed", () => {

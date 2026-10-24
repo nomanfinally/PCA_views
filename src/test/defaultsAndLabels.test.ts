@@ -1,17 +1,15 @@
 import { expect, it } from "vitest";
+import { chartBackgroundPresets, chartContrast } from "../core/color/contrast";
+import { paletteColor } from "../core/color/palettes";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { markerAppearance } from "../core/style/styleResolver";
 import {
-  initialView,
-  viewReducer,
-  markerAppearance,
-} from "../domain/viewState";
-import { parseEvec } from "../domain/parseEvec";
-import {
-  paletteColor,
-  chartBackgroundPresets,
-  chartContrast,
-} from "../domain/colors";
-import { annotationName, buildPlotModel } from "../domain/plotModel";
-import { serializeArchive, restoreArchiveState } from "../domain/archive";
+  restoreArchiveState,
+  serializeArchive,
+} from "../services/export/archiveService";
+import { viewReducer } from "../state/viewReducer";
+import { initialView } from "../state/viewState";
+import { annotationName, buildPlotModel } from "./plotModelFixture";
 it("sets dataset-aware defaults and restores them after customization", () => {
   for (const count of [2, 7, 8, 9, 14]) {
     const data = parseEvec(
@@ -228,8 +226,8 @@ it("supports global, per-group, and per-point label size controls", () => {
 
   let model = buildPlotModel(data, data.samples, state);
   // Traces textfont size for point labels
-  expect((model.traces[0] as any).textfont.size).toBe(14);
-  expect((model.traces[1] as any).textfont.size).toBe(14);
+  expect((model.traces[0] as any).textfont.size).toEqual([14, 14]);
+  expect((model.traces[1] as any).textfont.size).toEqual([14]);
 
   // Centroid annotations size
   const centroidA = model.annotations.find(
@@ -254,8 +252,8 @@ it("supports global, per-group, and per-point label size controls", () => {
   expect(updatedCentroidA?.font?.size).toBe(20);
 
   // Population A points now have size 12, while population B points have global 14
-  expect((model.traces[0] as any).textfont.size).toBe(12);
-  expect((model.traces[1] as any).textfont.size).toBe(14);
+  expect((model.traces[0] as any).textfont.size).toEqual([12, 12]);
+  expect((model.traces[1] as any).textfont.size).toEqual([14]);
 
   // Point-level override: point 0 in pop A has pointLabelSize 18, and point 1 has labelSize 22
   state = viewReducer(state, {

@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-24",
+  "method": "Same Node process; bundled production parseEvec, initialView, buildPlotSpec and mapSpecToPlotly. Synthetic sin/cos coordinates, 10000 samples, 50 populations. Four warmups then 20 interleaved measured runs per implementation. Geometry disabled by defaults. Excludes DOM, parsing time, Plotly rendering, gestures and image capture.",
+  "baseline": "41086e6cd1511600369a00a4d70f122112f4514b",
+  "runtime": "v24.15.0",
+  "results": [
+    {
+      "implementation": "before",
+      "samples": 10000,
+      "populations": 50,
+      "runs": 20,
+      "medianMs": 30.3,
+      "minMs": 25.05,
+      "maxMs": 46.82
+    },
+    {
+      "implementation": "after",
+      "samples": 10000,
+      "populations": 50,
+      "runs": 20,
+      "medianMs": 29.23,
+      "minMs": 22.78,
+      "maxMs": 47.32
+    }
+  ],
+  "interpretation": "Median 30.30ms before and 29.23ms after; overlapping ranges and JIT/GC variability mean this is not evidence of a substantial end-to-end speedup. Index/bounds reuse, stable visible-row identity and obsolete-redraw replacement remove specific repeated work."
+}

@@ -9,18 +9,12 @@
 import { toRgbaString } from "../../core/color/colorUtils";
 import type { Dataset, Sample } from "../../core/models/dataset";
 import type { PlotSettings } from "../../core/models/settings";
-import { isHollowSymbol, toSolidSymbol } from "../../core/style/symbols";
 import {
   resolveMarkerStyle,
   type ResolvedMarkerStyle,
 } from "../../core/style/styleResolver";
-import {
-  buildPlotSpec,
-  type PlotViewState,
-} from "../../plot/spec/buildPlotSpec";
-import { mapSpecToPlotly } from "../../plot/adapters/plotly/plotlyMapper";
-import type { LabelOffset } from "../../plot/spec/plotSpec";
-import type { Layout } from "plotly.js";
+import { isHollowSymbol, toSolidSymbol } from "../../core/style/symbols";
+import { type PlotViewState } from "../../plot/spec/buildPlotSpec";
 
 export interface ImageOptions {
   scale?: number;
@@ -215,11 +209,12 @@ export function arrangeImage(
 
   const width = Math.ceil(Math.max(bodyWidth, headingWidth));
   const height = Math.ceil(bodyHeight + headingHeight + 16);
+  const scale = Math.max(1, Math.min(6, options.scale ?? 2));
 
   if (
-    width * 2 > 16000 ||
-    height * 2 > 16000 ||
-    width * height * 4 > 64000000
+    width * scale > 16000 ||
+    height * scale > 16000 ||
+    width * height * scale ** 2 > 64000000
   ) {
     throw new Error(
       "This image is too large. Use more legend columns, smaller text, or fewer visible populations.",
@@ -396,23 +391,23 @@ export interface ChartImage {
   axisBounds: ImageBox;
 }
 
-const imageCache = new Map<string, Promise<HTMLImageElement>>();
-const loadImage = (url: string) => {
-  const cached = imageCache.get(url);
+const imageCache = new WeakMap<ChartImage, Promise<HTMLImageElement>>();
+const loadImage = (chart: ChartImage) => {
+  const cached = imageCache.get(chart);
   if (cached) return cached;
   const p = new Promise<HTMLImageElement>((resolve, reject) => {
     const image = new Image();
     image.onload = () => resolve(image);
     image.onerror = () => {
-      imageCache.delete(url);
+      imageCache.delete(chart);
       reject(new Error("Unable to render image."));
     };
-    image.src = url;
+    image.src = chart.url;
     if (image.complete && image.naturalWidth > 0) {
       resolve(image);
     }
   });
-  imageCache.set(url, p);
+  imageCache.set(chart, p);
   return p;
 };
 
@@ -458,7 +453,7 @@ export async function composePng(
   ctx.fillRect(0, 0, placement.width, placement.height);
 
   // Draw plot chart image
-  const chartImg = await loadImage(chart.url);
+  const chartImg = await loadImage(chart);
   ctx.drawImage(
     chartImg,
     placement.chart.x,
@@ -547,43 +542,4 @@ export async function composePng(
   } catch (err) {
     throw new Error("Unable to create PNG export: " + String(err));
   }
-}
-
-/**
- * Builds the layout and figure for image capture without live application headings.
- */
-export function buildImageFigure(
-  dataset: Dataset,
-  samples: Sample[],
-  state: PlotViewState,
-  currentLayout: Partial<Layout>,
-  offsets: Map<string, LabelOffset>,
-) {
-  const spec = buildPlotSpec(dataset, samples, state, offsets);
-  const bundle = mapSpecToPlotly(spec);
-
-  const layout = structuredClone(currentLayout);
-  const oldMargin = { t: 12, r: 24, b: 50, l: 70, ...layout.margin };
-  const removedHeading = Math.max(0, oldMargin.t - 12);
-
-  layout.width = currentLayout.width ?? 1200;
-  layout.height = (currentLayout.height ?? 800) - removedHeading;
-  layout.margin = { ...oldMargin, t: oldMargin.t - removedHeading };
-  layout.autosize = false;
-  layout.title = { text: "" };
-  layout.showlegend = false;
-  layout.hovermode = false;
-  layout.annotations = bundle.layout.annotations;
-  layout.shapes = bundle.layout.shapes;
-
-  for (const axis of ["xaxis", "yaxis"] as const) {
-    layout[axis] = {
-      ...layout[axis],
-      autorange: false,
-      scaleanchor: false,
-      automargin: false,
-    };
-  }
-
-  return { data: bundle.data, layout };
 }

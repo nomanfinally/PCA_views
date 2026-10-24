@@ -1,3 +1,4 @@
+import { appearanceAction, showAppearance } from "./helpers/appearance";
 import { expect, test, type Page } from "@playwright/test";
 import { readFile } from "node:fs/promises";
 
@@ -100,14 +101,12 @@ test("filtered CSV respects visibility and selection export uses edited groups",
   await upload(page);
   await changeGroup(page);
   // Select Alpha using the same public event sent by Plotly after a box selection.
-  await page
-    .locator(".plot")
-    .evaluate((el: any) =>
-      el.emit("plotly_selected", {
-        points: [{ customdata: 0 }],
-        range: { x: [-1, 1], y: [-1, 1] },
-      }),
-    );
+  await page.locator(".plot").evaluate((el: any) =>
+    el.emit("plotly_selected", {
+      points: [{ customdata: 0 }],
+      range: { x: [-1, 1], y: [-1, 1] },
+    }),
+  );
   const selectedPromise = page.waitForEvent("download");
   await page
     .getByRole("button", { name: "Export selection", exact: true })
@@ -135,7 +134,7 @@ test("dragged labels survive zoom, and reset to defaults clears label positions"
 }) => {
   await page.goto("/");
   await upload(page);
-  await page.getByRole("button", { name: /^Cycle population labels:/ }).click();
+  await appearanceAction(page, { name: /^Cycle population labels:/ });
   const label = page.locator(".annotation").filter({ hasText: "Group_A" });
   await expect(label).toBeVisible();
   const box = (await label.boundingBox())!;
@@ -159,7 +158,7 @@ test("dragged labels survive zoom, and reset to defaults clears label positions"
   await page
     .getByRole("button", { name: "Reset to defaults", exact: true })
     .click();
-  await page.getByRole("button", { name: /^Cycle population labels:/ }).click();
+  await appearanceAction(page, { name: /^Cycle population labels:/ });
   await expect.poll(offset).toEqual({ ax: 22, ay: -28 });
 });
 

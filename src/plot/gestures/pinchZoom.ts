@@ -1,3 +1,4 @@
+import { anchorInPlot, type PlotBox } from "./plotBox";
 /**
  * Two-Finger Pinch-to-Zoom Coordinator
  *
@@ -13,6 +14,7 @@ export interface PinchZoomEvent {
 
 export interface PinchZoomOptions {
   element: HTMLElement;
+  getPlotBox?: () => PlotBox | null;
   onZoom: (event: PinchZoomEvent) => void;
   onPinchEnd?: () => void;
   margin?: { left: number; right: number; top: number; bottom: number };
@@ -20,6 +22,7 @@ export interface PinchZoomOptions {
 
 export class PinchZoomCoordinator {
   private element: HTMLElement;
+  private getPlotBox?: () => PlotBox | null;
   private onZoom: (event: PinchZoomEvent) => void;
   private onPinchEnd?: () => void;
   private margin: { left: number; right: number; top: number; bottom: number };
@@ -31,6 +34,7 @@ export class PinchZoomCoordinator {
 
   constructor(options: PinchZoomOptions) {
     this.element = options.element;
+    this.getPlotBox = options.getPlotBox;
     this.onZoom = options.onZoom;
     this.onPinchEnd = options.onPinchEnd;
     this.margin = options.margin ?? {
@@ -45,10 +49,7 @@ export class PinchZoomCoordinator {
     if (event.touches.length === 2) {
       const t0 = event.touches[0];
       const t1 = event.touches[1];
-      const dist = Math.hypot(
-        t1.clientX - t0.clientX,
-        t1.clientY - t0.clientY,
-      );
+      const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
       this.initialDistance = Math.max(10, dist);
       this.currentFactor = 1;
       this.activeAnchor = this.computeAnchor(
@@ -118,43 +119,14 @@ export class PinchZoomCoordinator {
     clientX: number,
     clientY: number,
   ): { x: number; y: number } {
-    const chart = this.element as any;
-    const full = chart?._fullLayout;
-    if (
-      full?.xaxis &&
-      full?.yaxis &&
-      typeof full.xaxis._offset === "number" &&
-      typeof full.xaxis._length === "number" &&
-      typeof full.yaxis._offset === "number" &&
-      typeof full.yaxis._length === "number" &&
-      full.xaxis._length > 0 &&
-      full.yaxis._length > 0
-    ) {
-      const rect = this.element.getBoundingClientRect();
-      const relX = clientX - rect.left - full.xaxis._offset;
-      const relY = clientY - rect.top - full.yaxis._offset;
-      const x = Math.max(0, Math.min(1, relX / full.xaxis._length));
-      const y = Math.max(0, Math.min(1, 1 - relY / full.yaxis._length));
-      return { x, y };
-    }
-
     const rect = this.element.getBoundingClientRect();
-    const plotWidth = Math.max(
-      1,
-      rect.width - this.margin.left - this.margin.right,
-    );
-    const plotHeight = Math.max(
-      1,
-      rect.height - this.margin.top - this.margin.bottom,
-    );
-
-    const relX = clientX - rect.left - this.margin.left;
-    const relY = clientY - rect.top - this.margin.top;
-
-    const x = Math.max(0, Math.min(1, relX / plotWidth));
-    const y = Math.max(0, Math.min(1, 1 - relY / plotHeight)); // Y-axis inverts from screen to Cartesian space
-
-    return { x, y };
+    const box = this.getPlotBox?.() ?? {
+      left: rect.left + this.margin.left,
+      top: rect.top + this.margin.top,
+      width: rect.width - this.margin.left - this.margin.right,
+      height: rect.height - this.margin.top - this.margin.bottom,
+    };
+    return anchorInPlot(box, clientX, clientY);
   }
 
   public destroy(): void {

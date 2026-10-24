@@ -6,8 +6,9 @@
 
 import { paletteColor } from "../core/color/palettes";
 import type { Dataset, Population, Sample } from "../core/models/dataset";
-import type { ViewState } from "./viewState";
 import { explainedVariance } from "../core/parsers/parseSpectrum";
+import { getDatasetIndex } from "./datasetIndex";
+import type { ViewState } from "./viewState";
 
 /**
  * Derives an effective Dataset reflecting custom per-sample group ID (FID) reassignments.
@@ -22,7 +23,7 @@ export function getEffectiveDataset(
 
   let hasChanges = false;
   for (const [key, pop] of samplePopulations.entries()) {
-    const orig = dataset.samples[key];
+    const orig = getDatasetIndex(dataset).byKey.get(key);
     if (orig && orig.population !== pop) {
       hasChanges = true;
       break;

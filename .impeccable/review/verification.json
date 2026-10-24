@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-24",
+  "unit": {
+    "command": "npm test",
+    "files": 23,
+    "passed": 146
+  },
+  "build": {
+    "command": "npm run build",
+    "status": "passed",
+    "notes": "Local lazy Plotly chunks retain size warnings; standalone runtime generated."
+  },
+  "browser": {
+    "command": "npx playwright test --workers=2",
+    "passed": 37,
+    "failed": 0,
+    "browser": "Chromium with software WebGL"
+  },
+  "static": {
+    "circularImports": 0,
+    "unresolvedRelativeImports": 0,
+    "privatePlotlyLayoutReadsOutsideAdapter": 0,
+    "diffWhitespace": "passed"
+  },
+  "review": {
+    "disposition": "ship",
+    "scope": "F1\u2013F3 resolved; fix-list verdict",
+    "evidence": "finish-verdict.md"
+  }
+}

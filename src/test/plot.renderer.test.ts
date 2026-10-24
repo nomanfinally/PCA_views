@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Layout } from "plotly.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { parseEvec } from "../core/parsers/parseEvec";
-import { initialView } from "../state/viewState";
-import { buildPlotSpec } from "../plot/spec/buildPlotSpec";
 import { PlotlyRenderer } from "../plot/adapters/plotly/plotlyRenderer";
+import { buildPlotSpec } from "../plot/spec/buildPlotSpec";
+import { initialView } from "../state/viewState";
 
 const api = vi.hoisted(() => ({
   newPlot: vi.fn(),
@@ -30,6 +30,42 @@ beforeEach(() => {
 });
 
 describe("Plotly renderer lifecycle", () => {
+  it("replaces obsolete redraws while keeping viewport commands in order", async () => {
+    const renderer = new PlotlyRenderer();
+    const container = {
+      on: vi.fn(),
+      clientWidth: 800,
+      clientHeight: 600,
+      layout: {} as Layout,
+    };
+    const state = initialView(dataset);
+    const spec = () => buildPlotSpec(dataset, dataset.samples, state);
+    await renderer.mount(container as unknown as HTMLElement, spec());
+    state.settings.title = "obsolete";
+    const first = renderer.update(spec());
+    state.settings.title = "latest";
+    const second = renderer.update(spec());
+    await Promise.all([first, second]);
+    expect(api.react).toHaveBeenCalledTimes(1);
+    expect(api.react.mock.calls[0][2].title.text).toBe("latest");
+    const order: string[] = [];
+    api.react.mockImplementation(async (_el, _data, layout) => {
+      order.push(layout.title.text);
+    });
+    api.relayout.mockImplementation(async () => {
+      order.push("viewport");
+    });
+    state.settings.title = "before";
+    const before = renderer.update(spec());
+    const viewport = renderer.relayout({
+      "xaxis.range": [0, 1],
+    } as Partial<Layout>);
+    state.settings.title = "after";
+    const after = renderer.update(spec());
+    await Promise.all([before, viewport, after]);
+    expect(order).toEqual(["before", "viewport", "after"]);
+    renderer.purge();
+  });
   it("preserves zoom when variance titles change, and resets it for a different axis pair", async () => {
     const state = initialView(dataset);
     const renderer = new PlotlyRenderer();

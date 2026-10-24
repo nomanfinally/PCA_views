@@ -1,12 +1,11 @@
 import { expect, it } from "vitest";
-import { parseEvec } from "../domain/parseEvec";
-import { buildPlotModel } from "../domain/plotModel";
-import { buildImageFigure, imageLegend } from "../domain/imageExport";
-import {
-  initialView,
-  viewReducer,
-  markerAppearance,
-} from "../domain/viewState";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { markerAppearance } from "../core/style/styleResolver";
+import { buildImageFigure } from "../plot/adapters/plotly/imageFigure";
+import { imageLegend } from "../services/export/canvasComposer";
+import { viewReducer } from "../state/viewReducer";
+import { initialView } from "../state/viewState";
+import { buildPlotModel } from "./plotModelFixture";
 const dataset = parseEvec("a 0 0 A\nb 1 1 A", "test.evec");
 it("sample shape and fill style can inherit independently without changing color", () => {
   let state = viewReducer(initialView(dataset), {
@@ -56,10 +55,7 @@ it("individual fill, shape, size and outline survive population changes and expo
   });
   const model = buildPlotModel(dataset, dataset.samples, state);
   const marker = (model.traces[0] as any).marker;
-  expect(marker.color).toEqual([
-    "rgba(255,170,170,0.9)",
-    "rgba(171,205,239,0.9)",
-  ]);
+  expect(marker.color).toEqual(["#ffaaaa", "#abcdef"]);
   expect(marker.symbol).toEqual(["hexagon", "square"]);
   expect(marker.size).toEqual([18, 7]);
   expect(marker.line.color[0]).toBe("#000088");

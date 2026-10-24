@@ -1,13 +1,28 @@
 import { expect, it } from "vitest";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { buildImageFigure } from "../plot/adapters/plotly/imageFigure";
 import {
-  buildImageFigure,
-  imageLegend,
   arrangeImage,
   defaultImageOptions,
-} from "../domain/imageExport";
-import { initialView, viewReducer, filteredSamples } from "../domain/viewState";
-import { parseEvec } from "../domain/parseEvec";
+  imageLegend,
+} from "../services/export/canvasComposer";
+import { viewReducer } from "../state/viewReducer";
+import { filteredSamples } from "../state/viewSelectors";
+import { initialView } from "../state/viewState";
 const dataset = parseEvec("a 0 0 A\nb 1 1 A\nc 2 3 B", "test.evec");
+it("checks output pixel limits at the requested resolution", () => {
+  const options = {
+    ...defaultImageOptions(initialView().settings),
+    includeLegend: false,
+  };
+  const measure = () => 0;
+  expect(() =>
+    arrangeImage(3000, 2000, [], { ...options, scale: 1 }, measure),
+  ).not.toThrow();
+  expect(() =>
+    arrangeImage(3000, 2000, [], { ...options, scale: 6 }, measure),
+  ).toThrow(/too large/);
+});
 it("legend swatches inherit population style independently of point overrides and hidden rows", () => {
   let state = viewReducer(initialView(), {
     type: "population",
@@ -66,7 +81,7 @@ it("captures unchanged inner pixels, styles, ranges and label offsets without mu
   expect(layout.xaxis.range).toEqual([0.1, 0.9]);
 });
 it("headings and legends grow the canvas without resizing the chart in any arrangement", () => {
-  const options = defaultImageOptions(initialView());
+  const options = defaultImageOptions(initialView().settings);
   const measure = (text: string, size: number) => text.length * size * 0.5;
   for (const legendPosition of ["top", "bottom", "left", "right"] as const) {
     for (const legendColumns of [1, 2, 6]) {
@@ -115,7 +130,7 @@ it("anchors legends to the plot frame, with clearance for axis text", () => {
         600,
         ["A", "Long population", "C"],
         {
-          ...defaultImageOptions(initialView()),
+          ...defaultImageOptions(initialView().settings),
           legendPosition: position,
           title,
         },

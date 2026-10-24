@@ -1,1 +1,1 @@
-export * from "./AppHeader";
+export * from "../../features/workspace/AppHeader";

@@ -11,10 +11,10 @@ import type {
   PopulationStyle,
   SampleStyle,
 } from "../../core/models/settings";
-import { initialView, type ViewState } from "../../state/viewState";
 import type { LabelOffset } from "../../plot/spec/plotSpec";
+import { initialView, type ViewState } from "../../state/viewState";
+import { downloadBlob } from "../files/download";
 import type { ImageOptions } from "./canvasComposer";
-import { downloadBlob } from "./csvExport";
 
 export interface ViewportSnapshot {
   xRange: number[];

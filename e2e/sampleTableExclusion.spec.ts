@@ -1,3 +1,4 @@
+import { appearanceAction, showAppearance } from "./helpers/appearance";
 import { expect, test, type Page } from "@playwright/test";
 
 const fixture =
@@ -35,8 +36,10 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     // 1. Verify elevated toolbar button is present with correct label and initial count
     const tableBtn = page.getByLabel("Sample table", { exact: true });
     await expect(tableBtn).toBeVisible();
-    await expect(tableBtn).toContainText("Samples Table");
-    await expect(tableBtn).toContainText("4 plotted");
+    await expect(tableBtn).toContainText("Samples");
+    await expect(page.locator(".statusbar")).toContainText(
+      "4 / 4 samples visible",
+    );
 
     // 2. Open Samples Table dialog
     await tableBtn.click();
@@ -48,8 +51,8 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     const rows = tableModal.locator("tbody tr");
     await expect(rows).toHaveCount(4);
 
-    // Check columns: Plot Status, Sample ID (IID), Group ID (FID), PC1, PC2, Mark
-    await expect(tableModal.locator("th").nth(0)).toContainText("Plot Status");
+    // Check columns: Inclusion, Sample ID (IID), Group ID (FID), PC1, PC2, Mark
+    await expect(tableModal.locator("th").nth(0)).toContainText("Inclusion");
     await expect(tableModal.locator("th").nth(1)).toContainText(
       "Sample ID (IID)",
     );
@@ -71,8 +74,10 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     ).toBeVisible();
 
     // Verify elevated toolbar button now shows unplotted count
-    await expect(tableBtn).toContainText("3 plotted");
-    await expect(tableBtn).toContainText("1 unplotted");
+    await expect(page.locator(".statusbar")).toContainText(
+      "3 / 4 samples visible",
+    );
+    await expect(page.locator(".statusbar")).toContainText("1 excluded");
 
     // 4. Change group ID of Beta from Group_B to Group_B_outlier
     const editBetaBtn = page.getByRole("button", {
@@ -122,8 +127,8 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
       page.getByRole("button", { name: "Include sample in plot", exact: true }),
     ).toBeVisible();
 
-    // Toolbar count should now show 2 unplotted
-    await expect(tableBtn).toContainText("2 unplotted");
+    // Workspace status distinguishes explicit exclusions from visibility
+    await expect(page.locator(".statusbar")).toContainText("2 excluded");
 
     // 7. Test Export CSV from table dialog
     await page.keyboard.press("Escape"); // Close inspector
@@ -159,6 +164,7 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     await expect(tableModal).not.toBeVisible();
 
     // 9. Verify aspect ratio button cycles through exactly the four presets: full -> 1:1 -> 16:9 -> 4:5 -> full
+    await showAppearance(page);
     const ratioBtn = page.getByRole("button", {
       name: /^Cycle chart ratio:/,
     });
@@ -188,4 +194,3 @@ test.describe("Sample Table & Exclusion & Dynamic Group Creation", () => {
     );
   });
 });
-

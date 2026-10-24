@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { convexHull, regressionLine } from "../domain/geometry";
-import { initialView, viewReducer, filteredSamples } from "../domain/viewState";
-import { parseEvec } from "../domain/parseEvec";
-import { buildPlotModel } from "../domain/plotModel";
+import { convexHull } from "../core/geometry/hull";
+import { regressionLine } from "../core/geometry/regression";
+import { parseEvec } from "../core/parsers/parseEvec";
+import { viewReducer } from "../state/viewReducer";
+import { filteredSamples } from "../state/viewSelectors";
+import { initialView } from "../state/viewState";
+import { buildPlotModel } from "./plotModelFixture";
 const data = parseEvec(
   "a 0 0 1 A\nb 1 0 2 A\nc 0 1 3 A\na 3 4 5 B",
   "test.evec",
@@ -77,9 +80,9 @@ describe("population and point style independence", () => {
     });
     const model = buildPlotModel(data, data.samples, state);
     expect((model.traces[0] as any).marker.color).toEqual([
-      "rgba(18,52,86,0.9)",
-      "rgba(255,0,0,0.9)",
-      "rgba(255,0,0,0.9)",
+      "#123456",
+      "#ff0000",
+      "#ff0000",
     ]);
     expect(model.shapes[0].name).toBe("hull:A");
     expect((model.traces.at(-1) as any).customdata).toEqual([0]);

@@ -99,7 +99,7 @@ describe("plot/gestures/pinchZoom and wheelZoom coordinators", () => {
     expect(wheelAnchor.y).toBeCloseTo(0.5);
   });
 
-  it("computes anchor accurately using _fullLayout dynamic plot box when available", () => {
+  it("computes anchor from an adapter-supplied dynamic plot box", () => {
     const mockElement = {
       getBoundingClientRect: () => ({
         left: 0,
@@ -117,6 +117,7 @@ describe("plot/gestures/pinchZoom and wheelZoom coordinators", () => {
 
     const pinch = new PinchZoomCoordinator({
       element: mockElement,
+      getPlotBox: () => ({ left: 80, top: 40, width: 640, height: 480 }),
       onZoom: () => {},
     });
 
@@ -139,7 +140,12 @@ describe("plot/gestures/pinchZoom and wheelZoom coordinators", () => {
   it("calls onPinchEnd callback when touches drop below 2", () => {
     let pinchEnded = false;
     const mockElement = {
-      getBoundingClientRect: () => ({ left: 0, top: 0, width: 400, height: 400 }),
+      getBoundingClientRect: () => ({
+        left: 0,
+        top: 0,
+        width: 400,
+        height: 400,
+      }),
     } as unknown as HTMLElement;
 
     const pinch = new PinchZoomCoordinator({
@@ -152,7 +158,10 @@ describe("plot/gestures/pinchZoom and wheelZoom coordinators", () => {
 
     // Simulate 2 fingers start
     pinch.handleTouchStart({
-      touches: [{ clientX: 100, clientY: 100 }, { clientX: 200, clientY: 200 }],
+      touches: [
+        { clientX: 100, clientY: 100 },
+        { clientX: 200, clientY: 200 },
+      ],
       cancelable: true,
       preventDefault: () => {},
     } as unknown as TouchEvent);

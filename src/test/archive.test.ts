@@ -1,11 +1,12 @@
 import { expect, it } from "vitest";
+import { parseEvec } from "../core/parsers/parseEvec";
 import {
-  archiveHtml,
+  generateArchiveHtml as archiveHtml,
   restoreArchiveState,
   serializeArchive,
-} from "../domain/archive";
-import { initialView, viewReducer } from "../domain/viewState";
-import { parseEvec } from "../domain/parseEvec";
+} from "../services/export/archiveService";
+import { viewReducer } from "../state/viewReducer";
+import { initialView } from "../state/viewState";
 it("archives all rows, including hidden populations, overrides, selection and viewport", () => {
   const dataset = parseEvec("a 0 1 A\nb 1 2 B", "test.evec");
   let state = viewReducer(initialView(), {

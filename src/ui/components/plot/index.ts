@@ -1,1 +1,1 @@
-export * from "./PcaPlotCanvas";
+export * from "../../features/workspace/PcaPlotCanvas";
