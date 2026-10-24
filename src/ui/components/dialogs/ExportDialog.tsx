@@ -30,6 +30,7 @@ import type { PlotHandle } from "../plot/PcaPlotCanvas";
 
 export interface ExportDialogProps {
   dataset: Dataset;
+  originalDataset: Dataset;
   samples: Sample[];
   state: ViewState;
   plotRef: React.RefObject<PlotHandle | null>;
@@ -40,6 +41,7 @@ export interface ExportDialogProps {
 
 export function ExportDialog({
   dataset,
+  originalDataset,
   samples,
   state,
   plotRef,
@@ -144,10 +146,15 @@ export function ExportDialog({
       samplePopulations: state.samplePopulations,
     });
     const baseName = dataset.name.replace(/\.evec$/i, "");
+    downloadText(csvContent, `${baseName}_all.csv`, "text/csv;charset=utf-8");
+    onClose();
+  };
+
+  const handleDownloadFilteredCsv = () => {
+    const baseName = dataset.name.replace(/\.evec$/i, "");
     downloadText(
-      csvContent,
+      samplesToCsv(samples, dataset.pcCount),
       `${baseName}_filtered.csv`,
-      "text/csv;charset=utf-8",
     );
     onClose();
   };
@@ -176,7 +183,12 @@ export function ExportDialog({
         width: 800,
         height: 600,
       };
-      const archive = serializeArchive(dataset, state, viewport, options);
+      const archive = serializeArchive(
+        originalDataset,
+        state,
+        viewport,
+        options,
+      );
       await downloadArchive(archive);
     } catch (err: any) {
       setError(err.message ?? "Failed to compile HTML archive.");
@@ -393,10 +405,10 @@ export function ExportDialog({
                       patchOptions({ scale: Number(e.target.value) })
                     }
                   >
-                    <option value={1}>1× Screen (72 DPI)</option>
-                    <option value={2}>2× High-DPI (144 DPI)</option>
-                    <option value={3}>3× Print (300 DPI)</option>
-                    <option value={4}>4× Ultra (600 DPI)</option>
+                    <option value={1}>1× Screen size</option>
+                    <option value={2}>2× Pixel dimensions</option>
+                    <option value={3}>3× Pixel dimensions</option>
+                    <option value={4}>4× Pixel dimensions</option>
                   </select>
                 </label>
               </section>
@@ -420,7 +432,10 @@ export function ExportDialog({
             </p>
 
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
-              <button className="button button-dark" onClick={handleDownloadCsv}>
+              <button
+                className="button button-dark"
+                onClick={handleDownloadCsv}
+              >
                 <Download size={14} /> Download CSV ({dataset.samples.length}{" "}
                 rows)
               </button>
@@ -478,7 +493,7 @@ export function ExportDialog({
             One offline file · all loaded data, styles, zoom and tools
           </span>
         </div>
-        <button className="button" onClick={handleDownloadCsv}>
+        <button className="button" onClick={handleDownloadFilteredCsv}>
           Filtered samples · CSV
         </button>
         <button

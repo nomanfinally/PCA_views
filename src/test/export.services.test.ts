@@ -13,6 +13,7 @@ import {
 import { defaultSettings } from "../core/models/settings";
 import { parseEvec } from "../core/parsers/parseEvec";
 import type { ResolvedMarkerStyle } from "../core/style/styleResolver";
+import { initialView } from "../state/viewState";
 
 const dataset = parseEvec("a 0 0 POP_A\nb 1 1 POP_B", "test.evec");
 
@@ -44,6 +45,7 @@ describe("services/export/csvExport", () => {
 describe("services/export/archiveService", () => {
   it("serializes and restores view state faithfully", () => {
     const mockState = {
+      ...initialView(dataset),
       x: 0,
       y: 1,
       settings: defaultSettings,
@@ -77,7 +79,12 @@ describe("services/export/archiveService", () => {
     );
     const archive = serializeArchive(
       badDataset,
-      { populations: new Map(), points: new Map(), selected: new Set() },
+      {
+        ...initialView(badDataset),
+        populations: new Map(),
+        points: new Map(),
+        selected: new Set(),
+      },
       {
         xRange: [0, 1],
         yRange: [0, 1],

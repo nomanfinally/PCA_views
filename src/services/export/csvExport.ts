@@ -70,12 +70,15 @@ export function samplesToEvec(
 ): string {
   const lines: string[] = [];
   if (eigenvalues && eigenvalues.length > 0) {
-    lines.push(`#eigvals: ${eigenvalues.map((v) => v.toFixed(6)).join("  ")}`);
+    lines.push(`#eigvals: ${eigenvalues.map(String).join("  ")}`);
   }
 
   for (const sample of samples) {
     const customPop = options?.samplePopulations?.get(sample.key);
     const basePop = customPop ?? sample.population;
+    if (/\s/.test(basePop) || !basePop) {
+      throw new Error("Group IDs cannot contain whitespace in .evec files.");
+    }
     const isExcluded = Boolean(options?.excludedKeys?.has(sample.key));
     const pop =
       isExcluded && !basePop.endsWith("_excluded")
@@ -83,7 +86,7 @@ export function samplesToEvec(
         : basePop;
 
     const pcsStr = sample.pcs
-      .map((val) => val.toFixed(6).padStart(12, " "))
+      .map((val) => String(val).padStart(12, " "))
       .join(" ");
 
     lines.push(`${sample.id.padEnd(20, " ")} ${pcsStr}  ${pop}`);

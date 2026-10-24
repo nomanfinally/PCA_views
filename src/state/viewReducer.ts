@@ -289,7 +289,7 @@ export function viewReducer(state: ViewState, action: ViewAction): ViewState {
 
     case "setSamplePopulation": {
       const targetPop = action.population.trim();
-      if (!targetPop) return state;
+      if (!targetPop || /\s/.test(targetPop)) return state;
 
       const samplePopulations = new Map(state.samplePopulations);
       samplePopulations.set(action.key, targetPop);

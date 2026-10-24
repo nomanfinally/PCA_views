@@ -127,6 +127,7 @@ export function SampleTableDialog({
 
   const handleSavePop = (key: number) => {
     const trimmed = editPopValue.trim();
+    if (/\s/.test(trimmed)) return;
     const origPop =
       originalDataset?.samples[key]?.population ??
       sampleList.find((s) => s.key === key)?.population;
@@ -287,8 +288,7 @@ export function SampleTableDialog({
                 const origPop =
                   originalDataset?.samples[sample.key]?.population ??
                   sample.population;
-                const currentPop =
-                  samplePops.get(sample.key) ?? origPop;
+                const currentPop = samplePops.get(sample.key) ?? origPop;
                 const isCustomPop =
                   Boolean(samplePops.get(sample.key)) &&
                   samplePops.get(sample.key) !== origPop;
@@ -383,6 +383,7 @@ export function SampleTableDialog({
                             placeholder="Group ID..."
                             autoFocus
                             aria-label={`Edit Group ID for ${sample.id}`}
+                            aria-invalid={/\s/.test(editPopValue.trim())}
                             style={{
                               fontSize: 12,
                               padding: "2px 6px",
@@ -395,10 +396,16 @@ export function SampleTableDialog({
                                 e.preventDefault();
                                 handleSavePop(sample.key);
                               } else if (e.key === "Escape") {
+                                e.stopPropagation();
                                 setEditingKey(null);
                               }
                             }}
                           />
+                          {/\s/.test(editPopValue.trim()) && (
+                            <span role="alert" className="field-error">
+                              Group IDs cannot contain whitespace.
+                            </span>
+                          )}
                           <button
                             type="button"
                             className="btn-tiny"

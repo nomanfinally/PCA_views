@@ -563,8 +563,8 @@ export function buildImageFigure(
   const bundle = mapSpecToPlotly(spec);
 
   const layout = structuredClone(currentLayout);
-  const oldMargin = { t: 20, r: 24, b: 50, l: 70, ...layout.margin };
-  const removedHeading = Math.max(0, oldMargin.t - 20);
+  const oldMargin = { t: 12, r: 24, b: 50, l: 70, ...layout.margin };
+  const removedHeading = Math.max(0, oldMargin.t - 12);
 
   layout.width = currentLayout.width ?? 1200;
   layout.height = (currentLayout.height ?? 800) - removedHeading;

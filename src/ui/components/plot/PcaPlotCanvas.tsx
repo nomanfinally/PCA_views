@@ -19,7 +19,10 @@ import { mapAnnotationToPlotly } from "../../../plot/adapters/plotly/plotlyMappe
 import { PinchZoomCoordinator } from "../../../plot/gestures/pinchZoom";
 import { WheelZoomCoordinator } from "../../../plot/gestures/wheelZoom";
 import { findClosestPoint } from "../../../plot/gestures/hitTest";
-import type { ChartImage } from "../../../services/export/canvasComposer";
+import {
+  buildImageFigure,
+  type ChartImage,
+} from "../../../services/export/canvasComposer";
 
 export interface PlotHandle {
   zoom: (factor: number) => void;
@@ -113,11 +116,20 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
       if (!renderer || !currentSpec) return;
 
       const mapped = currentSpec.annotations.map((ann) =>
-        mapAnnotationToPlotly(ann, {
-          xRange,
-          yRange,
-          clampEdge: settings.clampGroupLabelsToEdge,
-        }),
+        mapAnnotationToPlotly(
+          {
+            ...ann,
+            offset:
+              offsetsRef.current.get(
+                `${latestProps.current.state.x}:${latestProps.current.state.y}:${ann.id}`,
+              ) ?? ann.offset,
+          },
+          {
+            xRange,
+            yRange,
+            clampEdge: settings.clampGroupLabelsToEdge,
+          },
+        ),
       );
       void renderer.relayout({ annotations: mapped as any });
     };
@@ -543,27 +555,48 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         async capturePng(): Promise<ChartImage> {
           const renderer = rendererRef.current;
           if (!renderer) throw new Error("Plot renderer is not ready.");
+          await renderer.flush();
 
           const container = containerRef.current!;
           const width = container.clientWidth || 800;
-          const height = container.clientHeight || 600;
-          const url = await renderer.toImage({
-            format: "png",
-            width,
-            height,
-            scale: 2,
-          });
+          const currentLayout = renderer.getLayout();
+          const viewport = renderer.getViewportSnapshot();
+          if (!currentLayout || !viewport)
+            throw new Error("Plot viewport is not ready.");
+          const figure = buildImageFigure(
+            dataset,
+            samples,
+            state,
+            {
+              ...currentLayout,
+              width,
+              height: container.clientHeight || 600,
+              xaxis: { ...currentLayout.xaxis, range: viewport.xRange },
+              yaxis: { ...currentLayout.yaxis, range: viewport.yRange },
+            },
+            offsetsRef.current,
+          );
+          const height = figure.layout.height!;
+          const url = await renderer.toImage(
+            {
+              format: "png",
+              width,
+              height,
+              scale: 2,
+            },
+            figure,
+          );
 
-          const margin = spec.layout.margin;
+          const margin = figure.layout.margin!;
           return {
             url,
             width,
             height,
             plotBox: {
-              x: margin.l,
-              y: margin.t,
-              width: width - margin.l - margin.r,
-              height: height - margin.t - margin.b,
+              x: margin.l!,
+              y: margin.t!,
+              width: width - margin.l! - margin.r!,
+              height: height - margin.t! - margin.b!,
             },
             axisBounds: {
               x: 0,
@@ -577,6 +610,7 @@ export const PcaPlotCanvas = forwardRef<PlotHandle, PcaPlotCanvasProps>(
         async snapshot(): Promise<any> {
           const renderer = rendererRef.current;
           if (!renderer) return null;
+          await renderer.flush();
           const snap = renderer.getViewportSnapshot();
           if (!snap) return null;
           return {

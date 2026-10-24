@@ -784,7 +784,7 @@ export function SettingsDialog({
                     patch({
                       varianceTotal: e.target.value
                         ? Number(e.target.value)
-                        : undefined,
+                        : null,
                     })
                   }
                 />

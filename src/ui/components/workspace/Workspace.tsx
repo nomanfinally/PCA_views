@@ -16,7 +16,6 @@ import {
   selectAxisVariance,
 } from "../../../state/viewSelectors";
 import {
-  readEmbeddedArchive,
   restoreArchiveState,
   type Archive,
 } from "../../../services/export/archiveService";
@@ -52,7 +51,7 @@ export function Workspace({
   onClear,
   onHelp,
 }: WorkspaceProps) {
-  const archive = propArchive ?? readEmbeddedArchive();
+  const archive = propArchive;
 
   const [state, dispatch] = useReducer(viewReducer, undefined, () => {
     if (archive) {
@@ -73,8 +72,8 @@ export function Workspace({
   const [settingsFocusTitle, setSettingsFocusTitle] = useState(false);
 
   const [exportOpen, setExportOpen] = useState(false);
-  const [imageOptions, setImageOptions] = useState<ImageOptions>(
-    () => archive?.imageOptions ?? defaultImageOptions(state.settings),
+  const [imageOptions, setImageOptions] = useState<ImageOptions | null>(
+    () => archive?.imageOptions ?? null,
   );
 
   const [tableOpen, setTableOpen] = useState(false);
@@ -82,6 +81,7 @@ export function Workspace({
   const [maximizedPlot, setMaximizedPlot] = useState(false);
   const [pointAnchor, setPointAnchor] = useState<Anchor | null>(null);
   const [fullscreen, setFullscreen] = useState(false);
+  const [plotRevision, setPlotRevision] = useState(0);
 
   const plotRef = useRef<PlotHandle | null>(null);
 
@@ -148,7 +148,7 @@ export function Workspace({
   };
 
   const handleExportSelection = () => {
-    const selectedSamples = dataset.samples.filter((s) =>
+    const selectedSamples = effectiveDataset.samples.filter((s) =>
       state.selected.has(s.key),
     );
     const csv = samplesToCsv(selectedSamples, dataset.pcCount);
@@ -256,9 +256,7 @@ export function Workspace({
             className="icon-button swap-axes-btn"
             aria-label="Swap axes"
             title="Swap horizontal and vertical axes"
-            onClick={() =>
-              dispatch({ type: "axes", x: state.y, y: state.x })
-            }
+            onClick={() => dispatch({ type: "axes", x: state.y, y: state.x })}
           >
             <ArrowLeftRight size={14} />
           </button>
@@ -294,9 +292,7 @@ export function Workspace({
             <Search size={13} aria-hidden="true" />
             <input
               aria-label="Search samples"
-              placeholder={
-                isMobile ? "Search…" : "Find sample or population…"
-              }
+              placeholder={isMobile ? "Search…" : "Find sample or population…"}
               value={state.search}
               onChange={(e) =>
                 dispatch({ type: "search", value: e.target.value })
@@ -360,8 +356,11 @@ export function Workspace({
             }
           >
             <PcaPlotCanvas
+              key={plotRevision}
               ref={plotRef}
-              initialViewport={archive?.viewport}
+              initialViewport={
+                plotRevision === 0 ? archive?.viewport : undefined
+              }
               dataset={effectiveDataset}
               samples={activeSamples}
               state={state}
@@ -554,7 +553,8 @@ export function Workspace({
           }}
           onReset={() => {
             dispatch({ type: "resetView", dataset });
-            plotRef.current?.reset();
+            // Remount to discard offsets and the old PC pair/archived viewport.
+            setPlotRevision((revision) => revision + 1);
             setSettingsOpen(false);
           }}
         />
@@ -564,11 +564,12 @@ export function Workspace({
       {exportOpen && (
         <ExportDialog
           dataset={effectiveDataset}
+          originalDataset={dataset}
           samples={activeSamples}
           state={state}
           plotRef={plotRef}
           onClose={() => setExportOpen(false)}
-          options={imageOptions}
+          options={imageOptions ?? defaultImageOptions(state.settings)}
           onOptions={(opts) => setImageOptions(opts)}
         />
       )}

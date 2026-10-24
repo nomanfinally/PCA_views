@@ -13,6 +13,7 @@ import type {
   PlotTrace,
 } from "../../spec/plotSpec";
 import { clampCentroidToViewport } from "../../../core/geometry/viewport";
+import { escapeHtml } from "../../spec/buildPlotSpec";
 
 export interface PlotlyBundle {
   data: Data[];
@@ -27,17 +28,17 @@ export function mapTraceToPlotly(trace: PlotTrace): Data {
   return {
     type: trace.type,
     mode: hasLabels ? "markers+text" : "markers",
-    name: trace.name,
+    name: escapeHtml(trace.name),
     legendgroup: trace.population,
     showlegend: trace.showLegend,
     x: trace.points.map((p) => p.x),
     y: trace.points.map((p) => p.y),
     customdata: trace.points.map((p) => p.key),
-    text: trace.points.map((p) => p.labelText ?? ""),
+    text: trace.points.map((p) => escapeHtml(p.labelText ?? "")),
     textposition: "top center",
     textfont: {
-      size: markers.length > 0 ? markers[0].size : 10,
-      color: markers.length > 0 ? markers[0].color : "#000000",
+      size: trace.points.map((p) => p.labelFontSize ?? 10),
+      color: trace.points.map((p) => p.labelColor ?? "#000000"),
     },
     marker: {
       color: markers.map((m) => m.color),
@@ -52,7 +53,8 @@ export function mapTraceToPlotly(trace: PlotTrace): Data {
     hovertext: trace.points.map((p) => p.hoverText),
     hoverinfo: trace.points.length > 0 ? undefined : "skip",
     hovertemplate: "%{hovertext}<extra></extra>",
-  } as Data;
+    // Plotly supports per-point font arrays; @types/plotly.js models Font as scalar.
+  } as unknown as Data;
 }
 
 export function mapShapeToPlotly(shape: PlotShape): Partial<Shape> {
@@ -148,7 +150,7 @@ export function mapAnnotationToPlotly(
     y: targetY,
     xref: "x",
     yref: "y",
-    text: ann.text,
+    text: escapeHtml(ann.text),
     showarrow: true,
     ax: offsetAx,
     ay: offsetAy,
@@ -244,6 +246,26 @@ export function mapSpecToPlotly(
   );
 
   const layout: Partial<Layout> = {
+    title:
+      spec.layout.title.trim() || spec.layout.subtitle.trim()
+        ? {
+            text: [
+              spec.layout.title.trim()
+                ? escapeHtml(spec.layout.title.trim())
+                : "",
+              spec.layout.subtitle.trim()
+                ? `<span style="font-size:12px">${escapeHtml(spec.layout.subtitle.trim())}</span>`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("<br>"),
+            x: 0.5,
+            xanchor: "center",
+            y: 0.99,
+            yanchor: "top",
+            font: { size: 18, color: spec.layout.xaxis.lineColor },
+          }
+        : { text: "" },
     autosize: true,
     paper_bgcolor: "transparent",
     plot_bgcolor: spec.layout.background,

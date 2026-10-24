@@ -15,7 +15,11 @@ export function parseSpectrum(text: string, dataset: Dataset): number[] {
   const values = text
     .trim()
     .split(/\s+/)
-    .map((s) => Number(s.replace(/[dD]/, "e")));
+    .map((s) =>
+      /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eEdD][+-]?\d+)?$/.test(s)
+        ? Number(s.replace(/[dD]/, "e"))
+        : NaN,
+    );
 
   if (
     values.length < dataset.pcCount ||
@@ -31,7 +35,9 @@ export function parseSpectrum(text: string, dataset: Dataset): number[] {
   // Ensure leading eigenvalues match any eigenvalues present in the .evec header within 0.5% tolerance
   if (
     dataset.eigenvalues.some(
-      (v, i) => Math.abs(v - values[i]) > Math.max(1, Math.abs(v)) * 0.005,
+      (v, i) =>
+        Math.abs(v - values[i]) >
+        Math.max(Number.EPSILON * 8, Math.abs(v) * 0.005),
     )
   ) {
     throw new Error(
@@ -45,6 +51,40 @@ export function parseSpectrum(text: string, dataset: Dataset): number[] {
 /**
  * Generates an axis label with formatted variance percentage (e.g. "PC1 (14.2%)" or "PC1 (14.25%)").
  */
+export function explainedVariance(
+  dataset: Dataset,
+  settings: Pick<PlotSettings, "showVariance" | "varianceTotal">,
+  spectrum: number[],
+  pc: number,
+): number | null {
+  const eigenvalues = spectrum.length > 0 ? spectrum : dataset.eigenvalues;
+
+  if (
+    !settings.showVariance ||
+    !eigenvalues.length ||
+    !Number.isInteger(pc) ||
+    pc < 0 ||
+    pc >= eigenvalues.length ||
+    eigenvalues.some((v) => !Number.isFinite(v) || v < 0)
+  ) {
+    return null;
+  }
+
+  const sum = eigenvalues.reduce((a, b) => a + b, 0);
+  const total = settings.varianceTotal ?? sum;
+
+  if (
+    !Number.isFinite(sum) ||
+    !(sum > 0) ||
+    !Number.isFinite(total) ||
+    total < sum
+  ) {
+    return null;
+  }
+
+  return (eigenvalues[pc] / total) * 100;
+}
+
 export function formatAxisTitle(
   dataset: Dataset,
   settings: Pick<PlotSettings, "showVariance" | "varianceTotal">,
@@ -52,24 +92,8 @@ export function formatAxisTitle(
   pc: number,
   compact = false,
 ): string {
-  const eigenvalues = spectrum.length > 0 ? spectrum : dataset.eigenvalues;
-
-  if (
-    !settings.showVariance ||
-    !eigenvalues.length ||
-    eigenvalues.some((v) => v < 0)
-  ) {
-    return `PC${pc + 1}`;
-  }
-
-  const sum = eigenvalues.reduce((a, b) => a + b, 0);
-  const total = settings.varianceTotal;
-
-  if (!(sum > 0) || (total !== null && total < sum)) {
-    return `PC${pc + 1}`;
-  }
-
-  const percentage = (100 * eigenvalues[pc]) / (total ?? sum);
+  const percentage = explainedVariance(dataset, settings, spectrum, pc);
+  if (percentage === null) return `PC${pc + 1}`;
   return compact
     ? `PC${pc + 1} (${percentage.toFixed(1)}%)`
     : `PC${pc + 1} (${percentage.toFixed(2)}%)`;

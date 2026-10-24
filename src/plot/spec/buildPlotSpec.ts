@@ -264,6 +264,11 @@ export function buildPlotSpec(
         population: sample.population,
         style: rendered,
         labelText,
+        labelFontSize:
+          sampleOverride?.pointLabelSize ??
+          popOverride?.pointLabelSize ??
+          settings.pointLabelSize,
+        labelColor: resolved.color,
         hoverText: hoverParts.join("<br>"),
       };
     });
@@ -326,7 +331,11 @@ export function buildPlotSpec(
       Math.round(settings.tickFontSize * 2.2 + settings.axisTitleSize + 14),
     ),
     r: 18,
-    t: 12,
+    t: hasHeading
+      ? settings.title.trim() && settings.subtitle.trim()
+        ? 64
+        : 44
+      : 12,
     b: Math.max(
       34,
       Math.round(settings.tickFontSize + settings.axisTitleSize + 10),
@@ -334,6 +343,7 @@ export function buildPlotSpec(
   };
 
   const layout: PlotLayoutSpec = {
+    axesKey: `${x}:${y}`,
     title: settings.title,
     subtitle: settings.subtitle,
     background: settings.chartBackground,

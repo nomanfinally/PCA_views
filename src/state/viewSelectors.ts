@@ -7,6 +7,7 @@
 import { paletteColor } from "../core/color/palettes";
 import type { Dataset, Population, Sample } from "../core/models/dataset";
 import type { ViewState } from "./viewState";
+import { explainedVariance } from "../core/parsers/parseSpectrum";
 
 /**
  * Derives an effective Dataset reflecting custom per-sample group ID (FID) reassignments.
@@ -137,19 +138,5 @@ export function selectAxisVariance(
   state: ViewState,
   pcIndex: number,
 ): number | null {
-  const eigenvalues =
-    state.spectrum.length > 0 ? state.spectrum : dataset.eigenvalues;
-  if (
-    !state.settings.showVariance ||
-    !eigenvalues.length ||
-    pcIndex >= eigenvalues.length
-  ) {
-    return null;
-  }
-
-  const sum = eigenvalues.reduce((a, b) => a + b, 0);
-  const total = state.settings.varianceTotal ?? sum;
-  if (total <= 0 || eigenvalues[pcIndex] < 0) return null;
-
-  return (100 * eigenvalues[pcIndex]) / total;
+  return explainedVariance(dataset, state.settings, state.spectrum, pcIndex);
 }

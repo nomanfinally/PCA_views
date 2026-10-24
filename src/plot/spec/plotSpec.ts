@@ -22,6 +22,8 @@ export interface PlotPoint {
   population: string;
   style: RenderedMarkerStyle;
   labelText?: string;
+  labelFontSize?: number;
+  labelColor?: string;
   hoverText: string;
 }
 
@@ -86,6 +88,7 @@ export interface PlotAxisSpec {
 }
 
 export interface PlotLayoutSpec {
+  axesKey: string;
   title: string;
   subtitle: string;
   background: string;

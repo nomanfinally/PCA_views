@@ -134,7 +134,7 @@ sample5 0.95 0.85 Han.DG`;
     });
 
     const lines = evec.trim().split("\n");
-    expect(lines[0]).toMatch(/^#eigvals:\s+10\.500000\s+5\.200000/);
+    expect(lines[0]).toMatch(/^#eigvals:\s+10\.5\s+5\.2/);
 
     // sample1: renamed to English_mod.DG
     expect(lines[1]).toContain("sample1");
@@ -163,4 +163,3 @@ sample5 0.95 0.85 Han.DG`;
     expect(state.samplePopulations.has(0)).toBe(false);
   });
 });
-

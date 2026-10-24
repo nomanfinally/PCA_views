@@ -15,6 +15,7 @@ import { ColorPicker } from "../../primitives/ColorPicker";
 import { ShapePicker } from "../../primitives/ShapePicker";
 import { Slider } from "../../primitives/Slider";
 import { Popover, type Anchor } from "../../primitives/Popover";
+import { useKeyboardTrap } from "../../hooks/useKeyboardTrap";
 
 export interface PointInspectorProps {
   dataset: Dataset;
@@ -35,6 +36,10 @@ export function PointInspector({
 }: PointInspectorProps) {
   const [editingPop, setEditingPop] = useState(false);
   const [popValue, setPopValue] = useState("");
+  const panelRef = useKeyboardTrap<HTMLElement>({
+    active: state.inspector !== null && !anchor,
+    onEscape: onClose ?? (() => dispatch({ type: "inspect", key: null })),
+  });
 
   if (state.inspector === null) return null;
 
@@ -43,8 +48,7 @@ export function PointInspector({
 
   const origPop =
     originalDataset?.samples[sample.key]?.population ?? sample.population;
-  const currentPopName =
-    state.samplePopulations?.get(sample.key) ?? origPop;
+  const currentPopName = state.samplePopulations?.get(sample.key) ?? origPop;
   const isCustomPop =
     Boolean(state.samplePopulations?.get(sample.key)) &&
     state.samplePopulations.get(sample.key) !== origPop;
@@ -81,6 +85,7 @@ export function PointInspector({
 
   const handleSavePop = () => {
     const trimmed = popValue.trim();
+    if (/\s/.test(trimmed)) return;
     if (!trimmed || trimmed === origPop) {
       dispatch({
         type: "resetSamplePopulation",
@@ -188,6 +193,7 @@ export function PointInspector({
                 type="text"
                 className="point-fid-input"
                 aria-label="Group ID (FID)"
+                aria-invalid={/\s/.test(popValue.trim())}
                 value={popValue}
                 onChange={(e) => setPopValue(e.target.value)}
                 list="inspector-population-datalist"
@@ -205,6 +211,7 @@ export function PointInspector({
                     e.preventDefault();
                     handleSavePop();
                   } else if (e.key === "Escape") {
+                    e.stopPropagation();
                     setPopValue(currentPopName);
                     setEditingPop(false);
                   }
@@ -230,6 +237,11 @@ export function PointInspector({
                 ✕
               </button>
             </div>
+            {/\s/.test(popValue.trim()) && (
+              <p role="alert" className="field-error">
+                Group IDs cannot contain whitespace.
+              </p>
+            )}
             <datalist id="inspector-population-datalist">
               {dataset.populations.map((p) => (
                 <option key={p.name} value={p.name} />
@@ -569,7 +581,12 @@ export function PointInspector({
   }
 
   return (
-    <section className="point-inspector" aria-label="Sample details">
+    <section
+      ref={panelRef}
+      tabIndex={-1}
+      className="point-inspector"
+      aria-label="Sample details"
+    >
       {contents}
     </section>
   );

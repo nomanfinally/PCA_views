@@ -6,7 +6,12 @@
  */
 
 import type { Dataset } from "../../core/models/dataset";
-import type { PopulationStyle, SampleStyle } from "../../core/models/settings";
+import type {
+  PlotSettings,
+  PopulationStyle,
+  SampleStyle,
+} from "../../core/models/settings";
+import { initialView, type ViewState } from "../../state/viewState";
 import type { LabelOffset } from "../../plot/spec/plotSpec";
 import type { ImageOptions } from "./canvasComposer";
 import { downloadBlob } from "./csvExport";
@@ -19,10 +24,29 @@ export interface ViewportSnapshot {
   height: number;
 }
 
+export type SerializedViewState = Partial<
+  Omit<
+    ViewState,
+    | "settings"
+    | "populations"
+    | "points"
+    | "selected"
+    | "excludedSamples"
+    | "samplePopulations"
+  >
+> & {
+  settings?: Partial<PlotSettings>;
+  populations?: [string, PopulationStyle][];
+  points?: [number, SampleStyle][];
+  selected?: number[];
+  excludedSamples?: number[];
+  samplePopulations?: [number, string][];
+};
+
 export interface Archive {
   version: 1;
   dataset: Dataset;
-  state: any;
+  state: SerializedViewState;
   viewport: ViewportSnapshot;
   imageOptions?: ImageOptions;
 }
@@ -32,7 +56,7 @@ export interface Archive {
  */
 export function serializeArchive(
   dataset: Dataset,
-  state: any,
+  state: ViewState,
   viewport: ViewportSnapshot,
   imageOptions?: ImageOptions,
 ): Archive {
@@ -66,10 +90,15 @@ export function serializeArchive(
 /**
  * Deserializes an Archive object back into live state with Maps and Sets.
  */
-export function restoreArchiveState(archive: Archive): any {
+export function restoreArchiveState(archive: Archive): ViewState {
+  const defaults = initialView(archive.dataset);
   return {
+    ...defaults,
     ...archive.state,
-    populations: new Map<string, PopulationStyle>(archive.state.populations),
+    settings: { ...defaults.settings, ...archive.state.settings },
+    populations: new Map<string, PopulationStyle>(
+      archive.state.populations ?? defaults.populations,
+    ),
     points: new Map<number, SampleStyle>(archive.state.points),
     selected: new Set<number>(archive.state.selected),
     excludedSamples: new Set<number>(archive.state.excludedSamples ?? []),

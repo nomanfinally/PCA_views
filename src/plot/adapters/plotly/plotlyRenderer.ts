@@ -5,7 +5,7 @@
  * and isolates external components from vendor-specific DOM operations.
  */
 
-import type { Layout, PlotlyHTMLElement } from "plotly.js";
+import type { Data, Layout, PlotlyHTMLElement } from "plotly.js";
 import type { PlotSpec } from "../../spec/plotSpec";
 import { loadPlotly, type PlotlyApi } from "./plotlyLoader";
 import { mapSpecToPlotly } from "./plotlyMapper";
@@ -73,7 +73,7 @@ export class PlotlyRenderer {
       if (this.isDisposed || !this.container) return;
 
       const { data, layout, config } = mapSpecToPlotly(spec);
-      this.currentAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
+      this.currentAxesKey = spec.layout.axesKey;
       this.currentAspectRatio = spec.layout.aspectRatio;
       this.currentEqualScale = spec.layout.yaxis.scaleAnchor === "x";
       await this.api.newPlot(this.container, data, layout, config);
@@ -89,6 +89,7 @@ export class PlotlyRenderer {
       if (!this.isDisposed) {
         const error = err instanceof Error ? err : new Error(String(err));
         this.events.onError?.(error);
+        throw error;
       }
     }
   }
@@ -102,7 +103,7 @@ export class PlotlyRenderer {
         const chart = this.container as unknown as PlotlyHTMLElement;
         const previous = chart?.layout;
 
-        const newAxesKey = `${spec.layout.xaxis.title}:${spec.layout.yaxis.title}`;
+        const newAxesKey = spec.layout.axesKey;
         const sameAxes = this.currentAxesKey === newAxesKey;
         const sameRatio = this.currentAspectRatio === spec.layout.aspectRatio;
         const sameEqualScale =
@@ -131,7 +132,11 @@ export class PlotlyRenderer {
 
         const { data, layout, config } = mapSpecToPlotly(spec, previousRanges);
 
-        if (canReuseRanges && previous?.xaxis?.range && previous?.yaxis?.range) {
+        if (
+          canReuseRanges &&
+          previous?.xaxis?.range &&
+          previous?.yaxis?.range
+        ) {
           layout.xaxis = {
             ...layout.xaxis,
             range: [...previous.xaxis.range],
@@ -212,6 +217,10 @@ export class PlotlyRenderer {
     return chart.layout || null;
   }
 
+  public async flush(): Promise<void> {
+    await this.queue;
+  }
+
   /**
    * Captures a high-resolution raster image of the current plot.
    */
@@ -222,16 +231,46 @@ export class PlotlyRenderer {
       height?: number;
       scale?: number;
     } = {},
+    figure?: { data: Data[]; layout: Partial<Layout> },
   ): Promise<string> {
     if (!this.container || !this.api || !this.isReady) {
       throw new Error("PlotlyRenderer is not ready for image capture.");
     }
-    return await this.api.toImage(this.container, {
-      format: options.format ?? "png",
-      width: options.width ?? this.container.clientWidth,
-      height: options.height ?? this.container.clientHeight,
-      scale: options.scale ?? 2,
+    const image = await this.enqueue(async () => {
+      const imageOptions = {
+        format: options.format ?? "png",
+        width: options.width ?? this.container!.clientWidth,
+        height: options.height ?? this.container!.clientHeight,
+        scale: options.scale ?? 2,
+      };
+      if (!figure) return this.api!.toImage(this.container!, imageOptions);
+
+      // A separate static SVG capture preserves the live viewport and avoids
+      // allocating more WebGL contexts when exporting an archived GL plot.
+      const captureApi = await loadPlotly(0);
+      const target = document.createElement("div");
+      target.dataset.exportChart = "true";
+      target.style.cssText = `position:fixed;left:-20000px;top:0;width:${imageOptions.width}px;height:${imageOptions.height}px`;
+      document.body.appendChild(target);
+      try {
+        const data = figure.data.map(
+          (trace) => ({ ...trace, type: "scatter" }) as Data,
+        );
+        await captureApi.newPlot(target, data, figure.layout, {
+          staticPlot: true,
+        });
+        return await captureApi.toImage(target, imageOptions);
+      } finally {
+        try {
+          captureApi.purge(target);
+        } finally {
+          target.remove();
+        }
+      }
     });
+    if (!image)
+      throw new Error("Plot was closed before image capture completed.");
+    return image;
   }
 
   /**
