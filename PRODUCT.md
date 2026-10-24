@@ -99,6 +99,6 @@ No customer testimonials, institutional endorsements, clinical use claims, or pu
 - Undo history, optional session persistence, new input formats, and additional analysis methods are future decisions, not current product promises.
 - No marketing, pricing, licensing, or commercial positioning changes were requested in this initialization.
 
-## Mobile workspace preference
+## Visual reference and workspace preference
 
-The owner prefers compact, horizontally scrollable controls on mobile, with most of the screen reserved for the chart. Keep every tool reachable by swiping, preserve 44px touch targets, and avoid wrapping controls into extra rows. Apply the same compact arrangement to short landscape viewports. Preserve the newer numeric, export, accessibility, and architecture improvements.
+The owner explicitly selected commit `4dfd9238410fc9f22af9c5e05290460b1eba79e4` as the visual reference for both desktop and mobile, superseding the later forest/sage redesign and enlarged controls. Restore the compact black/grey interface, original header and integrated toolbar, all tools visible on desktop, horizontally scrolling tools on mobile, and the floating legend. Preserve the refactored feature modules, rendering/export boundaries, data integrity, and correctness fixes. New UI work should match that reference rather than introducing a new visual world.

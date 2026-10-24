@@ -1,119 +1,63 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-24T14:09:39.797456+00:00",
+  "generatedAt": "2026-10-24T15:19:33.636Z",
   "title": "Design System: PCA Views",
   "extensions": {
     "colorMeta": {
-      "forest-header": {
+      "accent": {
         "role": "primary",
-        "displayName": "Forest Header",
+        "displayName": "Accent",
         "tonalRamp": [
-          "oklch(15.0% 0.05412 166.57)",
-          "oklch(26.4% 0.05412 166.57)",
-          "oklch(37.9% 0.05412 166.57)",
-          "oklch(49.3% 0.05412 166.57)",
-          "oklch(60.7% 0.05412 166.57)",
-          "oklch(72.1% 0.05412 166.57)",
-          "oklch(83.6% 0.05412 166.57)",
-          "oklch(95.0% 0.05412 166.57)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "forest-accent": {
-        "role": "primary",
-        "displayName": "Forest Accent",
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
         "tonalRamp": [
-          "oklch(15.0% 0.07676 157.97)",
-          "oklch(26.4% 0.07676 157.97)",
-          "oklch(37.9% 0.07676 157.97)",
-          "oklch(49.3% 0.07676 157.97)",
-          "oklch(60.7% 0.07676 157.97)",
-          "oklch(72.1% 0.07676 157.97)",
-          "oklch(83.6% 0.07676 157.97)",
-          "oklch(95.0% 0.07676 157.97)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "forest-hover": {
-        "role": "primary",
-        "displayName": "Forest Hover",
+      "secondary-ink": {
+        "role": "neutral",
+        "displayName": "Secondary Ink",
         "tonalRamp": [
-          "oklch(15.0% 0.06472 158.49)",
-          "oklch(26.4% 0.06472 158.49)",
-          "oklch(37.9% 0.06472 158.49)",
-          "oklch(49.3% 0.06472 158.49)",
-          "oklch(60.7% 0.06472 158.49)",
-          "oklch(72.1% 0.06472 158.49)",
-          "oklch(83.6% 0.06472 158.49)",
-          "oklch(95.0% 0.06472 158.49)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "forest-active": {
-        "role": "primary",
-        "displayName": "Forest Active",
+      "muted-ink": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
         "tonalRamp": [
-          "oklch(15.0% 0.05838 156.53)",
-          "oklch(26.4% 0.05838 156.53)",
-          "oklch(37.9% 0.05838 156.53)",
-          "oklch(49.3% 0.05838 156.53)",
-          "oklch(60.7% 0.05838 156.53)",
-          "oklch(72.1% 0.05838 156.53)",
-          "oklch(83.6% 0.05838 156.53)",
-          "oklch(95.0% 0.05838 156.53)"
-        ]
-      },
-      "forest-tint": {
-        "role": "primary",
-        "displayName": "Forest Tint",
-        "tonalRamp": [
-          "oklch(15.0% 0.01769 148.10)",
-          "oklch(26.4% 0.01769 148.10)",
-          "oklch(37.9% 0.01769 148.10)",
-          "oklch(49.3% 0.01769 148.10)",
-          "oklch(60.7% 0.01769 148.10)",
-          "oklch(72.1% 0.01769 148.10)",
-          "oklch(83.6% 0.01769 148.10)",
-          "oklch(95.0% 0.01769 148.10)"
-        ]
-      },
-      "export-lime": {
-        "role": "primary",
-        "displayName": "Export Lime",
-        "tonalRamp": [
-          "oklch(15.0% 0.10203 119.05)",
-          "oklch(26.4% 0.10203 119.05)",
-          "oklch(37.9% 0.10203 119.05)",
-          "oklch(49.3% 0.10203 119.05)",
-          "oklch(60.7% 0.10203 119.05)",
-          "oklch(72.1% 0.10203 119.05)",
-          "oklch(83.6% 0.10203 119.05)",
-          "oklch(95.0% 0.10203 119.05)"
-        ]
-      },
-      "export-lime-hover": {
-        "role": "primary",
-        "displayName": "Export Lime Hover",
-        "tonalRamp": [
-          "oklch(15.0% 0.07038 118.96)",
-          "oklch(26.4% 0.07038 118.96)",
-          "oklch(37.9% 0.07038 118.96)",
-          "oklch(49.3% 0.07038 118.96)",
-          "oklch(60.7% 0.07038 118.96)",
-          "oklch(72.1% 0.07038 118.96)",
-          "oklch(83.6% 0.07038 118.96)",
-          "oklch(95.0% 0.07038 118.96)"
-        ]
-      },
-      "export-ink": {
-        "role": "primary",
-        "displayName": "Export Ink",
-        "tonalRamp": [
-          "oklch(15.0% 0.04513 162.93)",
-          "oklch(26.4% 0.04513 162.93)",
-          "oklch(37.9% 0.04513 162.93)",
-          "oklch(49.3% 0.04513 162.93)",
-          "oklch(60.7% 0.04513 162.93)",
-          "oklch(72.1% 0.04513 162.93)",
-          "oklch(83.6% 0.04513 162.93)",
-          "oklch(95.0% 0.04513 162.93)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
       "paper": {
@@ -130,163 +74,121 @@
           "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "sage-surface": {
+      "header": {
         "role": "neutral",
-        "displayName": "Sage Surface",
+        "displayName": "Header",
         "tonalRamp": [
-          "oklch(15.0% 0.00615 137.77)",
-          "oklch(26.4% 0.00615 137.77)",
-          "oklch(37.9% 0.00615 137.77)",
-          "oklch(49.3% 0.00615 137.77)",
-          "oklch(60.7% 0.00615 137.77)",
-          "oklch(72.1% 0.00615 137.77)",
-          "oklch(83.6% 0.00615 137.77)",
-          "oklch(95.0% 0.00615 137.77)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "sage-hover": {
+      "support": {
         "role": "neutral",
-        "displayName": "Sage Hover",
+        "displayName": "Support",
         "tonalRamp": [
-          "oklch(15.0% 0.01189 145.48)",
-          "oklch(26.4% 0.01189 145.48)",
-          "oklch(37.9% 0.01189 145.48)",
-          "oklch(49.3% 0.01189 145.48)",
-          "oklch(60.7% 0.01189 145.48)",
-          "oklch(72.1% 0.01189 145.48)",
-          "oklch(83.6% 0.01189 145.48)",
-          "oklch(95.0% 0.01189 145.48)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "sage-controls": {
+      "hover": {
         "role": "neutral",
-        "displayName": "Sage Controls",
+        "displayName": "Hover",
         "tonalRamp": [
-          "oklch(15.0% 0.00747 151.89)",
-          "oklch(26.4% 0.00747 151.89)",
-          "oklch(37.9% 0.00747 151.89)",
-          "oklch(49.3% 0.00747 151.89)",
-          "oklch(60.7% 0.00747 151.89)",
-          "oklch(72.1% 0.00747 151.89)",
-          "oklch(83.6% 0.00747 151.89)",
-          "oklch(95.0% 0.00747 151.89)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "sage-preview": {
+      "selected": {
         "role": "neutral",
-        "displayName": "Sage Preview",
+        "displayName": "Selected",
         "tonalRamp": [
-          "oklch(15.0% 0.01467 132.47)",
-          "oklch(26.4% 0.01467 132.47)",
-          "oklch(37.9% 0.01467 132.47)",
-          "oklch(49.3% 0.01467 132.47)",
-          "oklch(60.7% 0.01467 132.47)",
-          "oklch(72.1% 0.01467 132.47)",
-          "oklch(83.6% 0.01467 132.47)",
-          "oklch(95.0% 0.01467 132.47)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "border": {
+      "line": {
         "role": "neutral",
-        "displayName": "Border",
+        "displayName": "Line",
         "tonalRamp": [
-          "oklch(15.0% 0.01619 148.39)",
-          "oklch(26.4% 0.01619 148.39)",
-          "oklch(37.9% 0.01619 148.39)",
-          "oklch(49.3% 0.01619 148.39)",
-          "oklch(60.7% 0.01619 148.39)",
-          "oklch(72.1% 0.01619 148.39)",
-          "oklch(83.6% 0.01619 148.39)",
-          "oklch(95.0% 0.01619 148.39)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "border-strong": {
+      "field-border": {
         "role": "neutral",
-        "displayName": "Border Strong",
+        "displayName": "Field Border",
         "tonalRamp": [
-          "oklch(15.0% 0.02453 149.29)",
-          "oklch(26.4% 0.02453 149.29)",
-          "oklch(37.9% 0.02453 149.29)",
-          "oklch(49.3% 0.02453 149.29)",
-          "oklch(60.7% 0.02453 149.29)",
-          "oklch(72.1% 0.02453 149.29)",
-          "oklch(83.6% 0.02453 149.29)",
-          "oklch(95.0% 0.02453 149.29)"
+          "oklch(15.0% 0.01230 247.97)",
+          "oklch(26.4% 0.01230 247.97)",
+          "oklch(37.9% 0.01230 247.97)",
+          "oklch(49.3% 0.01230 247.97)",
+          "oklch(60.7% 0.01230 247.97)",
+          "oklch(72.1% 0.01230 247.97)",
+          "oklch(83.6% 0.01230 247.97)",
+          "oklch(95.0% 0.01230 247.97)"
         ]
       },
-      "ink": {
+      "strong-border": {
         "role": "neutral",
-        "displayName": "Ink",
+        "displayName": "Strong Border",
         "tonalRamp": [
-          "oklch(15.0% 0.03550 156.60)",
-          "oklch(26.4% 0.03550 156.60)",
-          "oklch(37.9% 0.03550 156.60)",
-          "oklch(49.3% 0.03550 156.60)",
-          "oklch(60.7% 0.03550 156.60)",
-          "oklch(72.1% 0.03550 156.60)",
-          "oklch(83.6% 0.03550 156.60)",
-          "oklch(95.0% 0.03550 156.60)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "ink-secondary": {
+      "focus": {
         "role": "neutral",
-        "displayName": "Ink Secondary",
+        "displayName": "Focus",
         "tonalRamp": [
-          "oklch(15.0% 0.03803 154.33)",
-          "oklch(26.4% 0.03803 154.33)",
-          "oklch(37.9% 0.03803 154.33)",
-          "oklch(49.3% 0.03803 154.33)",
-          "oklch(60.7% 0.03803 154.33)",
-          "oklch(72.1% 0.03803 154.33)",
-          "oklch(83.6% 0.03803 154.33)",
-          "oklch(95.0% 0.03803 154.33)"
+          "oklch(15.0% 0.00000 0.00)",
+          "oklch(26.4% 0.00000 0.00)",
+          "oklch(37.9% 0.00000 0.00)",
+          "oklch(49.3% 0.00000 0.00)",
+          "oklch(60.7% 0.00000 0.00)",
+          "oklch(72.1% 0.00000 0.00)",
+          "oklch(83.6% 0.00000 0.00)",
+          "oklch(95.0% 0.00000 0.00)"
         ]
       },
-      "ink-muted": {
+      "action-hover": {
         "role": "neutral",
-        "displayName": "Ink Muted",
-        "tonalRamp": [
-          "oklch(15.0% 0.03068 151.84)",
-          "oklch(26.4% 0.03068 151.84)",
-          "oklch(37.9% 0.03068 151.84)",
-          "oklch(49.3% 0.03068 151.84)",
-          "oklch(60.7% 0.03068 151.84)",
-          "oklch(72.1% 0.03068 151.84)",
-          "oklch(83.6% 0.03068 151.84)",
-          "oklch(95.0% 0.03068 151.84)"
-        ]
-      },
-      "header-ink": {
-        "role": "neutral",
-        "displayName": "Header Ink",
-        "tonalRamp": [
-          "oklch(15.0% 0.00821 157.09)",
-          "oklch(26.4% 0.00821 157.09)",
-          "oklch(37.9% 0.00821 157.09)",
-          "oklch(49.3% 0.00821 157.09)",
-          "oklch(60.7% 0.00821 157.09)",
-          "oklch(72.1% 0.00821 157.09)",
-          "oklch(83.6% 0.00821 157.09)",
-          "oklch(95.0% 0.00821 157.09)"
-        ]
-      },
-      "charcoal-button": {
-        "role": "neutral",
-        "displayName": "Charcoal Button",
-        "tonalRamp": [
-          "oklch(15.0% 0.01112 254.04)",
-          "oklch(26.4% 0.01112 254.04)",
-          "oklch(37.9% 0.01112 254.04)",
-          "oklch(49.3% 0.01112 254.04)",
-          "oklch(60.7% 0.01112 254.04)",
-          "oklch(72.1% 0.01112 254.04)",
-          "oklch(83.6% 0.01112 254.04)",
-          "oklch(95.0% 0.01112 254.04)"
-        ]
-      },
-      "charcoal-hover": {
-        "role": "neutral",
-        "displayName": "Charcoal Hover",
+        "displayName": "Action Hover",
         "tonalRamp": [
           "oklch(15.0% 0.03062 259.73)",
           "oklch(26.4% 0.03062 259.73)",
@@ -298,9 +200,9 @@
           "oklch(95.0% 0.03062 259.73)"
         ]
       },
-      "charcoal-active": {
+      "action-active": {
         "role": "neutral",
-        "displayName": "Charcoal Active",
+        "displayName": "Action Active",
         "tonalRamp": [
           "oklch(15.0% 0.03176 264.66)",
           "oklch(26.4% 0.03176 264.66)",
@@ -311,147 +213,45 @@
           "oklch(83.6% 0.03176 264.66)",
           "oklch(95.0% 0.03176 264.66)"
         ]
-      },
-      "tool-selected": {
-        "role": "neutral",
-        "displayName": "Tool Selected",
-        "tonalRamp": [
-          "oklch(15.0% 0.01827 161.10)",
-          "oklch(26.4% 0.01827 161.10)",
-          "oklch(37.9% 0.01827 161.10)",
-          "oklch(49.3% 0.01827 161.10)",
-          "oklch(60.7% 0.01827 161.10)",
-          "oklch(72.1% 0.01827 161.10)",
-          "oklch(83.6% 0.01827 161.10)",
-          "oklch(95.0% 0.01827 161.10)"
-        ]
-      },
-      "tool-selected-ink": {
-        "role": "neutral",
-        "displayName": "Tool Selected Ink",
-        "tonalRamp": [
-          "oklch(15.0% 0.07835 159.61)",
-          "oklch(26.4% 0.07835 159.61)",
-          "oklch(37.9% 0.07835 159.61)",
-          "oklch(49.3% 0.07835 159.61)",
-          "oklch(60.7% 0.07835 159.61)",
-          "oklch(72.1% 0.07835 159.61)",
-          "oklch(83.6% 0.07835 159.61)",
-          "oklch(95.0% 0.07835 159.61)"
-        ]
-      },
-      "warning-paper": {
-        "role": "neutral",
-        "displayName": "Warning Paper",
-        "tonalRamp": [
-          "oklch(15.0% 0.03350 94.05)",
-          "oklch(26.4% 0.03350 94.05)",
-          "oklch(37.9% 0.03350 94.05)",
-          "oklch(49.3% 0.03350 94.05)",
-          "oklch(60.7% 0.03350 94.05)",
-          "oklch(72.1% 0.03350 94.05)",
-          "oklch(83.6% 0.03350 94.05)",
-          "oklch(95.0% 0.03350 94.05)"
-        ]
-      },
-      "warning-ink": {
-        "role": "neutral",
-        "displayName": "Warning Ink",
-        "tonalRamp": [
-          "oklch(15.0% 0.07242 81.92)",
-          "oklch(26.4% 0.07242 81.92)",
-          "oklch(37.9% 0.07242 81.92)",
-          "oklch(49.3% 0.07242 81.92)",
-          "oklch(60.7% 0.07242 81.92)",
-          "oklch(72.1% 0.07242 81.92)",
-          "oklch(83.6% 0.07242 81.92)",
-          "oklch(95.0% 0.07242 81.92)"
-        ]
-      },
-      "error-paper": {
-        "role": "neutral",
-        "displayName": "Error Paper",
-        "tonalRamp": [
-          "oklch(15.0% 0.01571 32.01)",
-          "oklch(26.4% 0.01571 32.01)",
-          "oklch(37.9% 0.01571 32.01)",
-          "oklch(49.3% 0.01571 32.01)",
-          "oklch(60.7% 0.01571 32.01)",
-          "oklch(72.1% 0.01571 32.01)",
-          "oklch(83.6% 0.01571 32.01)",
-          "oklch(95.0% 0.01571 32.01)"
-        ]
-      },
-      "error-ink": {
-        "role": "neutral",
-        "displayName": "Error Ink",
-        "tonalRamp": [
-          "oklch(15.0% 0.13510 28.12)",
-          "oklch(26.4% 0.13510 28.12)",
-          "oklch(37.9% 0.13510 28.12)",
-          "oklch(49.3% 0.13510 28.12)",
-          "oklch(60.7% 0.13510 28.12)",
-          "oklch(72.1% 0.13510 28.12)",
-          "oklch(83.6% 0.13510 28.12)",
-          "oklch(95.0% 0.13510 28.12)"
-        ]
       }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "Empty-state introduction; mobile size is 29px."
-      },
       "title": {
         "displayName": "Title",
-        "purpose": "Application brand title."
-      },
-      "section": {
-        "displayName": "Section",
-        "purpose": "Population section title."
+        "purpose": "Compact Arial brand title; 13px on phones."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "General interface text."
+        "purpose": "Main Arial interface."
       },
       "control": {
         "displayName": "Control",
-        "purpose": "Named operating controls."
+        "purpose": "Compact named actions."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Secondary labels and counts."
+        "purpose": "Secondary metadata and labels."
       },
       "numeric-editor": {
-        "displayName": "Numeric Editor",
-        "purpose": "Compact numerical editor; tabular figures also used in tables and counts."
+        "displayName": "Numeric editor",
+        "purpose": "Monospace number fields; retain tabular figures."
       }
     },
     "shadows": [
       {
         "name": "floating-editor",
-        "value": "0 14px 32px #193c282b",
-        "purpose": "Popovers and sample inspector."
+        "value": "0 9px 32px #33333324",
+        "purpose": "Population editor."
       },
       {
-        "name": "advanced-tools",
-        "value": "0 12px 28px #173b3024",
-        "purpose": "Desktop Appearance controls panel; compact scrolling layouts keep these tools inline."
+        "name": "settings",
+        "value": "0 12px 50px #0003",
+        "purpose": "Centered settings dialog."
       },
       {
-        "name": "mobile-dock",
-        "value": "0 12px 32px #173b3033",
-        "purpose": "Mobile population sheet."
-      },
-      {
-        "name": "selection",
-        "value": "0 8px 20px #173b3024",
-        "purpose": "Floating selection actions."
-      },
-      {
-        "name": "modal",
-        "value": "0 24px 48px -12px rgba(0, 0, 0, 0.25)",
-        "purpose": "Modal shell, via --shadow-modal."
+        "name": "mobile-legend",
+        "value": "0 4px 20px rgba(0, 0, 0, 0.22)",
+        "purpose": "Lower-right mobile legend overlay."
       },
       {
         "name": "palette",
@@ -461,29 +261,19 @@
     ],
     "motion": [
       {
+        "name": "button-state",
+        "value": "150ms ease",
+        "purpose": "Restored button state transitions."
+      },
+      {
         "name": "primitive-button",
         "value": "120ms ease",
-        "purpose": "Reusable Button background, border, and foreground states."
-      },
-      {
-        "name": "editor-control",
-        "value": "150ms ease",
-        "purpose": "Primary and color-picker control transitions."
-      },
-      {
-        "name": "swatch",
-        "value": "100ms ease",
-        "purpose": "Swatch transform transition."
-      },
-      {
-        "name": "busy-spin",
-        "value": "1s linear infinite",
-        "purpose": "Busy indicator."
+        "purpose": "Reusable Button primitive states."
       },
       {
         "name": "reduced-motion",
         "value": "0.01ms",
-        "purpose": "Global animation and transition override under prefers-reduced-motion: reduce."
+        "purpose": "Global animation/transition override for prefers-reduced-motion: reduce."
       }
     ],
     "breakpoints": [
@@ -492,33 +282,22 @@
         "value": "540px"
       },
       {
-        "name": "mobile-max",
+        "name": "phone-max",
         "value": "640px"
-      },
-      {
-        "name": "tablet-min",
-        "value": "641px"
       },
       {
         "name": "stacked-export-max",
         "value": "768px"
       },
       {
-        "name": "tablet-max",
-        "value": "1024px"
+        "name": "compact-toolbar-max",
+        "value": "1024px",
+        "purpose": "Two-row toolbar with horizontally scrolling tools; tablet header may wrap."
       },
       {
-        "name": "desktop-min",
-        "value": "1025px"
-      },
-      {
-        "name": "compact-header-max",
-        "value": "1100px"
-      },
-      {
-        "name": "workspace-scrolling-controls",
-        "value": "(max-width: 640px), (max-width: 1024px) and (max-height: 480px)",
-        "purpose": "Unwrapped native horizontal scrolling for header, axes/search, and all plot tools; 48px header, 49px control strips, 24px status row, and 44px action targets. Fresh sessions start with the population dock closed; archive choices are preserved."
+        "name": "header-eigenvalues-max",
+        "value": "1350px",
+        "purpose": "Hide eigenvalue header metadata."
       }
     ]
   },
@@ -527,127 +306,89 @@
       "name": "Primary action",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Compact charcoal primary/Done action; inherited minimum height is 36px.",
-      "html": "<button class=\"ds-primary\">Done</button>",
-      "css": ".ds-primary{font-family:var(--font-family-sans, sans-serif);min-height:36px;height:29px;padding:0 12px;border:1px solid #1f2328;border-radius:3px;background:#1f2328;color:#fff;font-size:11px;font-weight:550;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}.ds-primary:hover{background:#374151;border-color:#374151;box-shadow:0 1px 3px rgba(0,0,0,.2)}.ds-primary:active{background:#111827;border-color:#111827}.ds-primary:disabled{opacity:.48;cursor:not-allowed}.ds-primary:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
+      "description": "Restored compact primary action, with white text through hover and active.",
+      "html": "<button class=\"ds-primary\">Open .evec</button>",
+      "css": ".ds-primary{font-family:Arial,Helvetica,sans-serif;height:29px;padding:0 12px;border:1px solid var(--accent,#222222);border-radius:3px;background:var(--accent,#222222);color:#fff;font-size:11px;font-weight:550;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,box-shadow .15s ease}.ds-primary:hover:not(:disabled){background:#374151;border-color:#374151;box-shadow:0 1px 3px rgba(0,0,0,.2)}.ds-primary:active:not(:disabled){background:#111827;border-color:#111827}.ds-primary:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}.ds-primary:disabled{opacity:.4;cursor:not-allowed}"
     },
     {
       "name": "Secondary action",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Ordinary bordered native action.",
+      "description": "Compact bordered action used in the restored chrome.",
       "html": "<button class=\"ds-secondary\">Reset styles</button>",
-      "css": ".ds-secondary{font-family:var(--font-family-sans, sans-serif);min-height:36px;padding:7px 11px;border:1px solid var(--color-border,#d6e0d7);border-radius:6px;background:#fff;color:var(--color-text-primary,#24392c);font-size:13px;font-weight:500;cursor:pointer}.ds-secondary:hover{background:var(--color-surface-100,#e9f0e9)}.ds-secondary:disabled{opacity:.48;cursor:not-allowed}.ds-secondary:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
-    },
-    {
-      "name": "Header Export",
-      "kind": "button",
-      "refersTo": "button-header-export",
-      "description": "Lime action in a forest header context.",
-      "html": "<div class=\"ds-header\"><button class=\"ds-export\">Export</button></div>",
-      "css": ".ds-header{padding:12px;background:#153f30}.ds-export{font-family:var(--font-family-sans, sans-serif);min-height:36px;height:29px;padding:0 12px;border:1px solid #d9eb9d;border-radius:3px;background:#d9eb9d;color:#1c3b2d;font-size:11px;font-weight:550;cursor:pointer;transition:background-color .15s ease}.ds-export:hover,.ds-export:focus-visible{background:#e6f3be;border-color:#e6f3be;color:#1c3b2d}.ds-export:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
+      "css": ".ds-secondary{font-family:Arial,Helvetica,sans-serif;height:29px;padding:0 10px;border:1px solid #d0d7de;border-radius:3px;background:#fff;color:#1f2328;font-size:11px;font-weight:500;cursor:pointer;transition:background-color .15s ease,border-color .15s ease,color .15s ease}.ds-secondary:hover:not(:disabled){background:#f0f2f5;border-color:#cbd5e1;color:#111827}.ds-secondary:active:not(:disabled){background:#e2e8f0;color:#0f172a}.ds-secondary:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}.ds-secondary:disabled{opacity:.4;cursor:not-allowed}"
     },
     {
       "name": "Plot tool",
       "kind": "button",
       "refersTo": "button-toolbar",
-      "description": "Sage pressed state preserves named plot actions.",
-      "html": "<button class=\"ds-tool\" aria-pressed=\"true\">Pan</button>",
-      "css": ".ds-tool{font-family:var(--font-family-sans, sans-serif);min-height:36px;padding:7px 11px;border:1px solid transparent;border-radius:6px;background:#fff;color:var(--color-text-primary,#24392c);font-size:13px;font-weight:500;cursor:pointer}.ds-tool:hover{background:var(--color-surface-100,#e9f0e9)}.ds-tool[aria-pressed=\"true\"]{background:#e0eee6;color:#19563a;border-color:#b9d1c2}.ds-tool:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
+      "description": "Direct desktop tool; the compact layout reduces it to 24px and scrolls the tool row.",
+      "html": "<button class=\"ds-tool\" aria-label=\"Zoom in\" aria-pressed=\"false\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg></button>",
+      "css": ".ds-tool{display:inline-flex;align-items:center;justify-content:center;width:29px;height:29px;padding:0;border:0;border-radius:3px;background:transparent;color:#696969;cursor:pointer}.ds-tool:hover:not(:disabled){background:#f2f2f2;color:#4e4e4e}.ds-tool[aria-pressed=\"true\"],.ds-tool:active:not(:disabled){background:#e8e8e8;color:#111}.ds-tool:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}.ds-tool:disabled{opacity:.4;cursor:not-allowed}@media(max-width:1024px){.ds-tool{width:24px;height:24px}}"
     },
     {
-      "name": "Text field",
+      "name": "Axis field",
       "kind": "input",
       "refersTo": "input",
-      "description": "White field with strong border and forest focus.",
-      "html": "<input class=\"ds-field\" aria-label=\"Find sample or population\" placeholder=\"Find sample or population\u2026\">",
-      "css": ".ds-field{font-family:var(--font-family-sans, sans-serif);min-height:36px;padding:6px 9px;border:1px solid var(--color-border-strong,#afbeb1);border-radius:5px;background:#fff;color:var(--color-text-primary,#24392c);font-size:14px;accent-color:var(--color-accent,#235b3e);caret-color:var(--color-accent,#235b3e)}.ds-field::placeholder{color:var(--color-text-muted,#5c6e60);opacity:1}.ds-field:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
+      "description": "White compact native PC selector; runtime supplies the loaded axes and variance labels.",
+      "html": "<label class=\"ds-axis\"><span class=\"ds-axis-label\">X</span><select class=\"ds-axis-select\" aria-label=\"X axis\"><option>PC1 (40.4%)</option><option>PC2 (28.0%)</option></select></label>",
+      "css": ".ds-axis{font-family:Arial,Helvetica,sans-serif;display:inline-flex;align-items:center;gap:4px}.ds-axis-label{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid #d0d7de;border-radius:3px;background:#f0f0f0;color:#555;font-size:10px;font-weight:600}.ds-axis-select{font-family:Arial,Helvetica,sans-serif;height:27px;min-width:68px;padding:0 6px;border:1px solid #d0d7de;border-radius:3px;background:#fff;color:var(--color-text-primary,#363636);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s ease}.ds-axis-select:hover{background:#f7f7f7;border-color:#999}.ds-axis-select:focus{border-color:#555}.ds-axis-select:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}@media(max-width:1024px){.ds-axis-select{height:24px;min-width:54px;max-width:90px;padding:0 4px;font-size:10.5px}}"
     },
     {
       "name": "Settings navigation",
       "kind": "nav",
       "refersTo": "navigation-settings",
-      "description": "Desktop section rail; runtime supplies roving focus and activation.",
-      "html": "<div class=\"ds-settings\" role=\"tablist\" aria-label=\"Settings sections\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Chart</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Markers</button></div>",
-      "css": ".ds-settings{width:156px;padding:12px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--color-border,#d6e0d7);background:var(--color-surface-50,#f4f7f3)}.ds-tab{font-family:var(--font-family-sans, sans-serif);display:block;width:100%;min-height:38px;padding:9px 12px;text-align:left;border:0;background:transparent;color:#555;font-size:13px;cursor:pointer}.ds-tab:hover{background:#f0f0f0}.ds-tab[aria-selected=\"true\"]{background:#dcebdc;color:#245639;border-radius:5px;font-weight:600}.ds-tab:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
+      "description": "Restored vertical tab rail. Runtime provides roving focus, activation, and linked panels.",
+      "html": "<div class=\"ds-settings\" role=\"tablist\" aria-label=\"Settings sections\" aria-orientation=\"vertical\"><button class=\"ds-tab\" role=\"tab\" aria-selected=\"true\">Chart</button><button class=\"ds-tab\" role=\"tab\" aria-selected=\"false\" tabindex=\"-1\">Markers</button></div>",
+      "css": ".ds-settings{width:150px;padding:12px 0;border-right:1px solid var(--line,#e5e5e5);background:#fafafa}.ds-tab{font-family:Arial,Helvetica,sans-serif;display:block;width:100%;padding:11px 18px;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:#555;font-size:12px;cursor:pointer}.ds-tab:hover{background:#f0f0f0}.ds-tab[aria-selected=\"true\"]{background:#eaeaea;color:#111;border-left-color:#111;font-weight:600}.ds-tab:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}@media(max-width:540px){.ds-settings{width:94px}.ds-tab{padding:10px 8px;font-size:11px}}"
     },
     {
       "name": "Example badge",
       "kind": "chip",
       "refersTo": "badge-example",
-      "description": "Informational badge identifies synthetic data; not a filter.",
-      "html": "<div class=\"ds-badge-context\"><span class=\"ds-example\">EXAMPLE</span></div>",
-      "css": ".ds-badge-context{padding:12px;background:#153f30}.ds-example{font-family:var(--font-family-sans, sans-serif);display:inline-block;padding:3px 6px;border:1px solid #719780;border-radius:3px;color:#e0f3e7;font-size:10px;font-weight:650}"
+      "description": "Informational synthetic-data badge in desktop metadata; hidden on phones.",
+      "html": "<span class=\"ds-example\">EXAMPLE</span>",
+      "css": ".ds-example{font-family:Arial,Helvetica,sans-serif;display:inline-block;padding:3px 5px;border-radius:3px;background:#f0f0f0;color:#696969;font-size:8px;letter-spacing:.8px}@media(max-width:640px){.ds-example{display:none}}"
     },
     {
-      "name": "Upload target",
+      "name": "Floating legend",
       "kind": "card",
-      "refersTo": "card-upload",
-      "description": "Dashed sage container for a local file action.",
-      "html": "<div class=\"ds-upload\"><strong>Open your PCA results</strong><span>Choose a smartPCA .evec file</span><button class=\"ds-upload-action\">Open .evec</button></div>",
-      "css": ".ds-upload{font-family:var(--font-family-sans, sans-serif);display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:28px;background:#edf3e9;border:1px dashed #8fa58f;border-radius:10px;color:var(--color-text-primary,#24392c)}.ds-upload>span{font-size:12px;color:#52664f}.ds-upload-action{font-family:var(--font-family-sans, sans-serif);min-height:42px;padding:10px 18px;background:#1f2328;color:#fff;border:1px solid #1f2328;border-radius:3px;font-size:11px;font-weight:550;cursor:pointer}.ds-upload-action:hover{background:#374151;border-color:#374151}.ds-upload-action:active{background:#111827}.ds-upload-action:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
-    },
-    {
-      "name": "Population row",
-      "kind": "custom",
-      "refersTo": "population-row",
-      "description": "Data marker, group name, and tabular count remain legible together.",
-      "html": "<div class=\"ds-population\"><button class=\"ds-population-name\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"6\" r=\"4\" fill=\"#1f77b4\" stroke=\"#174d73\" stroke-width=\".5\"/></svg><span>Group_A</span><span class=\"ds-count\">60</span></button><button class=\"ds-more\" aria-label=\"Edit Group_A\">\u2026</button></div>",
-      "css": ".ds-population{font-family:var(--font-family-sans, sans-serif);display:flex;align-items:center;border-radius:5px;background:var(--color-surface-50,#f4f7f3);color:#233e2e}.ds-population:hover{background:#e4eee2}.ds-population-name{font-family:var(--font-family-sans, sans-serif);display:flex;align-items:center;gap:9px;flex:1;min-width:0;min-height:38px;padding:8px;border:0;border-radius:5px;background:transparent;color:inherit;font-size:13px;text-align:left;cursor:pointer}.ds-count{margin-left:auto;color:#5c6f62;font-size:12px;font-variant-numeric:tabular-nums}.ds-more{width:30px;height:30px;min-height:30px;background:transparent;border:0;border-radius:5px;color:inherit;cursor:pointer}.ds-population-name:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}.ds-more:focus-visible{outline:2px solid var(--color-accent,#235b3e);outline-offset:3px}"
-    },
-    {
-      "name": "Sample inspector",
-      "kind": "custom",
-      "refersTo": "inspector",
-      "description": "White floating sample details with bounded width and numeric alignment.",
-      "html": "<section class=\"ds-inspector\" aria-label=\"Sample inspector\"><strong>Sample_014</strong><p>Group_A</p><div class=\"ds-coordinate\"><span>PC1</span><span>0.031582</span></div><div class=\"ds-coordinate\"><span>PC2</span><span>\u22120.012948</span></div></section>",
-      "css": ".ds-inspector{font-family:var(--font-family-sans, sans-serif);width:300px;max-width:calc(100vw - 16px);padding:14px;border:1px solid #b8c7b8;border-radius:8px;background:#fff;color:var(--color-text-primary,#24392c);box-shadow:0 14px 32px #193c282b;font-size:13px}.ds-inspector>p{font-size:10px;color:#696969}.ds-coordinate{display:flex;justify-content:space-between;gap:10px;padding:6px 0;font-size:12px;font-variant-numeric:tabular-nums}"
+      "refersTo": "floating-legend",
+      "description": "Population overlay preserves chart width. The blue marker represents scientific data, not UI branding.",
+      "html": "<section class=\"ds-legend\" aria-label=\"Population legend\"><h2 class=\"ds-legend-title\">Populations</h2><button class=\"ds-legend-row\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 12 12\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"6\" r=\"3.5\" fill=\"#1f77b4\"/></svg><span class=\"ds-legend-name\">Group_A</span><span class=\"ds-legend-count\">60</span></button></section>",
+      "css": ".ds-legend{font-family:Arial,Helvetica,sans-serif;width:202px;max-width:100%;border:1px solid #bcbcbc;border-left-color:var(--line,#e5e5e5);border-radius:2px;background:#fff;color:var(--color-text-primary,#363636)}.ds-legend-title{display:flex;align-items:center;height:30px;margin:0;padding:0 9px;font-size:11px;font-weight:600;color:#222}.ds-legend-row{font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;gap:5px;width:calc(100% - 8px);min-height:23px;margin:0 4px 5px;padding:3px 4px;border:0;border-radius:3px;background:transparent;color:inherit;font-size:12px;text-align:left;cursor:pointer}.ds-legend-row:hover{background:#f2f2f2}.ds-legend-row:focus-visible{outline:2px solid var(--color-border-focus,#777777);outline-offset:2px}.ds-legend-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ds-legend-count{color:#777;font-size:10px;font-variant-numeric:tabular-nums}@media(max-width:640px){.ds-legend{width:250px;max-height:48vh;overflow:auto;border:1px solid #aaa;border-radius:4px;background:rgba(252,252,252,.98);box-shadow:0 4px 20px rgba(0,0,0,.22)}}"
     }
   ],
   "narrative": {
-    "northStar": "The Research Atlas",
-    "overview": "A quiet scientific working surface: forest green frames white plotting paper, with pale sage margins for tools and population information. Fine borders, compact controls, and explicit labels give the data the strongest visual presence. The botanical reference lives in the palette and margin structure; the interface uses familiar web controls and no ornamental imagery.\n\nThe interface supports deliberate inspection and figure preparation. Scientific colors belong to samples and populations; interface colors communicate actions and state. System sans typography serves the operating interface, with aligned numeric data and compact monospace editors. No raster assets or approved image composition are part of this system.",
+    "northStar": "The Compact Research Viewer",
+    "overview": "The owner selected commit `4dfd9238410fc9f22af9c5e05290460b1eba79e4` as the exact desktop and mobile visual authority. Black and grey chrome, Arial labels, fine rules, small controls, and a white full-width chart restore that implementation. This replaces the later forest/sage visual system and enlarged controls.\n\nThe interface is a dense scientific working surface. Population colors encode data; neutral interface colors communicate actions and state. Preserve the newer feature boundaries, scientific correctness, keyboard behavior, rendering, and export implementation while extending this restored visual system.",
     "keyCharacteristics": [
-      "White plotting paper and sage supporting surfaces.",
-      "Forest framing, restrained lime export emphasis, and fine structural rules.",
-      "Compact named actions; desktop Appearance disclosure and horizontal tool scrolling on phones and short landscape screens.",
-      "Scientific color and row identity preserved across inspection and export."
+      "Compact Arial interface with a black brand tile and light grey header.",
+      "Integrated toolbar with every desktop tool directly available.",
+      "Full-width white chart and a floating population legend.",
+      "Two-row mobile toolbar with horizontal tool scrolling."
     ],
     "rules": [
       {
         "name": "The Encoding Rule",
-        "body": "Keep UI state colors separate from scientific palette assignments; show names, counts, visibility text, and selection/focus treatments alongside color.",
+        "body": "Keep scientific population colors separate from interface tokens; preserve names, counts, marker shapes, visibility, and selection cues alongside color.",
         "section": "colors"
       },
       {
         "name": "The Numeric Alignment Rule",
-        "body": "Use tabular figures for aligned measurements and counts, preserve meaningful coordinate precision, and keep identifiers readable without changing their underlying values.",
+        "body": "Use tabular figures for aligned coordinates and counts; preserve meaningful precision and identifiers.",
         "section": "typography"
-      },
-      {
-        "name": "The Chart Space Rule",
-        "body": "On phones and short landscape screens, preserve chart height with native horizontal scrolling for header actions, axes/search, and every plot tool. Keep these rows unwrapped and advanced tools inline, with 44px action targets and accessible names.",
-        "section": "layout"
-      },
-      {
-        "name": "The Floating Layer Rule",
-        "body": "Reserve shadows for content floating above the working surface, and preserve keyboard focus and dismissal order when adding a layer.",
-        "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** extend the white chart, sage support surfaces, forest framing, and fine-rule hierarchy using effective source tokens.",
-      "**Do** keep data markers, identifiers, counts, edit state, visibility, selection, and exclusion understandable together.",
-      "**Do** verify focus, keyboard navigation, nested Escape, viewport clamping, and trigger restoration when extending dialogs or palettes.",
-      "**Do** preserve browser-only data processing and offline archive functionality when adding visual features.",
-      "**Do** inspect mobile portrait and landscape alongside desktop, especially palette, dock, settings, and export overflow."
+      "**Do** match the selected reference across desktop, phone, small, and landscape viewports.",
+      "**Do** preserve the white full-width chart, integrated tools, floating legend, and original empty surface.",
+      "**Do** retain truthful scientific state, palette geometry, tab semantics, focus ownership, and offline exports."
     ],
     "donts": [
-      "**Don't** reuse a scientific population color as the only signal for an interface action or state.",
-      "**Don't** introduce ornamental raster assets, decorative chart cards, or unrelated typography into the implemented atlas world.",
-      "**Don't** copy superseded gray tokens, tiny legacy helper text, or numeric-editor blue focus as a new default design rule.",
-      "**Don't** alter scientific values or row identity to simplify the display, or conflate hidden, selected, marked, and excluded samples.",
-      "**Don't** describe passing focused checks as whole-app WCAG certification. The [finish verdict](.impeccable/review/finish-verdict.md) resolves its three-item fix list; it does not establish global conformance."
+      "**Don't** reintroduce forest/sage chrome, a permanent legend sidebar, an Appearance drawer, or enlarged controls.",
+      "**Don't** recolor scientific populations to match interface chrome or conflate hidden, marked, selected, and excluded samples.",
+      "**Don't** treat reference fidelity or passing focused checks as whole-app accessibility certification."
     ]
   }
 }

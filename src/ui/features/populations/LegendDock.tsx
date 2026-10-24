@@ -92,7 +92,7 @@ export function LegendDock({
     >
       <div className="legend-header">
         <h2>
-          Populations <span>{dataset.populations.length}</span>
+          Legend <span>{dataset.populations.length}</span>
         </h2>
         <div className="legend-header-tools">
           <button

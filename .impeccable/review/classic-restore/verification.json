@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-24",
+  "visualReference": "4dfd9238410fc9f22af9c5e05290460b1eba79e4",
+  "unit": {
+    "passed": 146,
+    "files": 23
+  },
+  "browser": {
+    "passed": 43,
+    "failed": 0,
+    "command": "npx playwright test --workers=2",
+    "engine": "Chromium",
+    "touch": "Synthesized CDP touch and Playwright tap"
+  },
+  "build": {
+    "command": "npm run build",
+    "status": "passed",
+    "notes": "Existing local Plotly chunk-size notices remain."
+  },
+  "comparison": {
+    "screenshots": 20,
+    "chartBoundsMatchReference": true,
+    "metrics": "layout-metrics.json",
+    "independentReview": "ship",
+    "reviewScope": "Reference fidelity and introduced visual regressions",
+    "reviewFile": "finish-review.md"
+  },
+  "architecturePreserved": [
+    "src/app",
+    "src/core",
+    "src/state",
+    "src/plot",
+    "src/services",
+    "src/workers"
+  ],
+  "fixesRetained": [
+    "Numeric export and original/edited archives",
+    "Renderer projection and redraw scheduling",
+    "Weak indexes and cached bounds",
+    "Export scale and object URL cleanup",
+    "Keyboard focus ownership and export tabs",
+    "Palette target geometry",
+    "Selection does not resize chart",
+    "Visible grid control",
+    "Maximize restore path",
+    "Keyboard Home reveals first tool"
+  ],
+  "diffWhitespace": "passed",
+  "documentation": ["DESIGN.md", ".impeccable/design.json"],
+  "limits": [
+    "No physical device or Safari verification",
+    "Restored small controls are the owner-pinned reference, not an accessibility certification"
+  ]
+}

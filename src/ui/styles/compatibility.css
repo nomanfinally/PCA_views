@@ -1,0 +1,117 @@
+/* Preserve corrected primitives and overlay ownership inside the restored UI. */
+:root {
+  --color-accent: #222222;
+  --color-accent-hover: #333333;
+  --color-accent-active: #111111;
+  --color-accent-subtle: #eeeeee;
+  --color-border: #e5e5e5;
+  --color-border-strong: #bcbcbc;
+  --color-border-focus: #777777;
+  --color-text-primary: #363636;
+  --color-text-secondary: #555555;
+  --color-text-muted: #696969;
+}
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #777777;
+  outline-offset: 2px;
+}
+::selection {
+  background: #d9d9d9;
+  color: #222222;
+}
+input,
+textarea {
+  caret-color: #222222;
+}
+.chart-tools {
+  flex-wrap: nowrap;
+}
+.workspace-controls {
+  display: contents;
+}
+/* Selection must not resize the chart while a lasso is still in progress. */
+.selection-bar {
+  position: absolute;
+  z-index: 20;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+}
+.ui-modal-body {
+  min-height: 0;
+}
+.settings-layout {
+  height: auto;
+  max-height: none;
+  min-height: 0;
+}
+.settings-tabs {
+  overflow-y: auto;
+}
+.settings-panel {
+  min-height: 0;
+}
+.ui-number-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.ui-number-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.ui-number-input {
+  width: 70px;
+  font-variant-numeric: tabular-nums;
+}
+.organized-color-palette-popover .color-swatch {
+  min-height: 24px;
+  min-width: 24px;
+}
+.custom-color-add:focus-within {
+  outline: 2px solid #777777;
+  outline-offset: 3px;
+}
+@media (max-width: 1024px) {
+  .workspace-toolbar .axis-pickers {
+    order: 1;
+  }
+  .workspace-toolbar .search-tools {
+    order: 1;
+  }
+  .workspace-toolbar .chart-tools {
+    order: 2;
+  }
+}
+@media (max-width: 640px) {
+  .selection-bar {
+    bottom: 26px;
+    flex-wrap: wrap;
+    width: calc(100% - 16px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Reference commit uses the same soft modal backdrop. */
+.ui-modal-backdrop {
+  backdrop-filter: blur(2px);
+}

@@ -2,7 +2,7 @@ import { appearanceAction, showAppearance } from "./helpers/appearance";
 import { test, expect } from "@playwright/test";
 
 test.describe("Toolbar cleanup & group label edge clamping", () => {
-  test("removes connector & visible grid icons from toolbar, verifies default settings and edge-clamping on zoom", async ({
+  test("restores the compact toolbar without hidden test controls and clamps labels on zoom", async ({
     page,
   }) => {
     await page.goto("/");
@@ -21,9 +21,7 @@ test.describe("Toolbar cleanup & group label edge clamping", () => {
       page.getByLabel("Toggle label centroid connectors"),
     ).toHaveCount(0);
     // Grid icon button is absent from visible toolbar (only hidden test helper exists)
-    const visibleGridIcon = page.locator(
-      ".plot-toolbar > .tool-group .icon-button svg.lucide-grid-2x2",
-    );
+    const visibleGridIcon = page.locator(".visually-hidden-test-action");
     await expect(visibleGridIcon).toHaveCount(0);
 
     // 2. Verify Settings dialog controls

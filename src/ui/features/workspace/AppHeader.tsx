@@ -1,13 +1,12 @@
-import { ChartScatter, CircleHelp, FileUp, Info, X } from "lucide-react";
 import React, { useState } from "react";
+import { ChartScatter, CircleHelp, FileUp, Info, X } from "lucide-react";
 import type { Dataset } from "../../../core/models/dataset";
-import { selectAxisVariance } from "../../../state/viewSelectors";
 import type { ViewState } from "../../../state/viewState";
+import { selectAxisVariance } from "../../../state/viewSelectors";
 import { Popover, type Anchor } from "../../primitives/Popover";
 
 export interface AppHeaderProps {
   dataset?: Dataset | null;
-  actions?: React.ReactNode;
   onUpload: () => void;
   onHelp: () => void;
   onClear?: () => void;
@@ -17,7 +16,6 @@ export interface AppHeaderProps {
 
 export function AppHeader({
   dataset,
-  actions,
   onUpload,
   onHelp,
   onClear,
@@ -88,7 +86,6 @@ export function AppHeader({
       )}
 
       <div className="header-actions">
-        {actions}
         <button
           className="button open-file"
           onClick={onUpload}

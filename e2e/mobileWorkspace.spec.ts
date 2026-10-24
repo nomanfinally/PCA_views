@@ -26,6 +26,7 @@ for (const viewport of [
     await load(page);
     const chart = await page.locator(".plot").boundingBox();
     expect(chart!.height).toBeGreaterThanOrEqual(viewport.height - 172);
+    await page.getByLabel("Close legend", { exact: true }).tap();
     await expect(
       page.getByRole("complementary", { name: "Population legend" }),
     ).toHaveCount(0);
@@ -35,8 +36,8 @@ for (const viewport of [
     expect(await buttons.count()).toBeGreaterThan(20);
     for (const button of await buttons.all()) {
       const rect = await button.boundingBox();
-      expect(rect!.height).toBeGreaterThanOrEqual(44);
-      expect(rect!.width).toBeGreaterThanOrEqual(44);
+      expect(rect!.height).toBeGreaterThanOrEqual(24);
+      expect(rect!.width).toBeGreaterThanOrEqual(24);
       expect(rect!.y).toBeGreaterThanOrEqual(box!.y);
       expect(rect!.y + rect!.height).toBeLessThanOrEqual(box!.y + box!.height);
     }
@@ -62,9 +63,11 @@ for (const viewport of [
     ).toBeFocused();
     await page.keyboard.press("Home");
     await expect(
-      toolbar.getByRole("button", { name: "Pan mode", exact: true }),
+      toolbar.getByRole("button", { name: "Sample table", exact: true }),
     ).toBeFocused();
-    expect(await toolbar.evaluate((el) => el.scrollLeft)).toBeLessThan(10);
+    await expect
+      .poll(() => toolbar.evaluate((el) => el.scrollLeft))
+      .toBeLessThan(10);
     await expect
       .poll(() =>
         page.evaluate(
@@ -137,10 +140,52 @@ test("touch swiping reveals tools without activating them, and scrolled search/s
   await page.keyboard.press("Escape");
   await page.setViewportSize({ width: 1440, height: 1000 });
   const appearance = page.locator("details.advanced-tools");
-  await expect(appearance).toHaveCount(1);
-  expect(await appearance.evaluate((el: HTMLDetailsElement) => el.open)).toBe(
-    false,
-  );
-  await appearance.locator("summary").click();
+  await expect(appearance).toHaveCount(0);
   await expect(grid).toBeVisible();
+});
+
+test("reference desktop layout keeps tools visible and chart dimensions", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await load(page);
+  const chart = await page.locator(".plot").boundingBox();
+  expect(chart).toMatchObject({ x: 0, y: 80, width: 1440, height: 895 });
+  await expect(page.locator(".topbar")).toHaveCSS(
+    "background-color",
+    "rgb(247, 247, 247)",
+  );
+  await expect(page.locator("details.advanced-tools")).toHaveCount(0);
+  const toolbar = page.getByRole("toolbar", { name: "Plot tools" });
+  for (const button of await toolbar.getByRole("button").all()) {
+    const bounds = await button.boundingBox();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThan(1441);
+  }
+});
+
+test("reference mobile layout and maximize retain an accessible way back", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await load(page);
+  const chart = await page.locator(".plot").boundingBox();
+  expect(chart).toMatchObject({ x: 0, y: 104, width: 390, height: 721 });
+  await expect(page.locator(".brand h1")).toBeVisible();
+  await page.getByLabel("Close legend", { exact: true }).tap();
+  await page.getByLabel("Maximize plot area", { exact: true }).tap();
+  await expect(
+    page.getByLabel("Restore normal view", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByLabel("Horizontal axis", { exact: true }),
+  ).toBeVisible();
+  expect((await page.locator(".plot").boundingBox())!.height).toBeGreaterThan(
+    chart!.height,
+  );
+  await page.getByLabel("Restore normal view", { exact: true }).tap();
+  await expect(page.locator(".topbar")).toBeVisible();
+  expect((await page.locator(".plot").boundingBox())!.height).toBe(
+    chart!.height,
+  );
 });

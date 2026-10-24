@@ -19,6 +19,7 @@ export function AxisControls({
   isCompact,
   maximizedPlot,
   onToggleMaximize,
+  floating = false,
 }: {
   dataset: Dataset;
   state: ViewState;
@@ -27,11 +28,11 @@ export function AxisControls({
   isCompact: boolean;
   maximizedPlot: boolean;
   onToggleMaximize: () => void;
+  floating?: boolean;
 }) {
   return (
     <div className="workspace-controls">
-      {" "}
-      <div className="axis-pickers">
+      <div className={floating ? "compact-axes" : "axis-pickers"}>
         <label className="axis-select-label">
           <span className="axis-badge">X</span>
           <select
@@ -92,36 +93,42 @@ export function AxisControls({
         </label>
       </div>
       <div className="search-tools">
-        <div className="sample-search search-field">
-          <Search size={13} aria-hidden="true" />
-          <input
-            aria-label="Search samples"
-            placeholder={isMobile ? "Search…" : "Find sample or population…"}
-            value={state.search}
-            onChange={(e) =>
-              dispatch({ type: "search", value: e.target.value })
-            }
-          />
-          {state.search && (
-            <button
-              className="icon-button"
-              aria-label="Clear sample search"
-              onClick={() => dispatch({ type: "search", value: "" })}
-            >
-              <X size={12} />
-            </button>
-          )}
-        </div>
+        {!floating && (
+          <>
+            <div className="sample-search search-field">
+              <Search size={13} aria-hidden="true" />
+              <input
+                aria-label="Search samples"
+                placeholder={
+                  isMobile ? "Search…" : "Find sample or population…"
+                }
+                value={state.search}
+                onChange={(e) =>
+                  dispatch({ type: "search", value: e.target.value })
+                }
+              />
+              {state.search && (
+                <button
+                  className="icon-button"
+                  aria-label="Clear sample search"
+                  onClick={() => dispatch({ type: "search", value: "" })}
+                >
+                  <X size={12} />
+                </button>
+              )}
+            </div>
 
-        <button
-          className={`icon-button ${state.legend ? "active" : ""}`}
-          aria-label="Toggle legend"
-          title="Toggle legend dock"
-          aria-pressed={state.legend}
-          onClick={() => dispatch({ type: "legend" })}
-        >
-          <PanelRight size={17} />
-        </button>
+            <button
+              className={`icon-button ${state.legend ? "active" : ""}`}
+              aria-label="Toggle legend"
+              title="Toggle legend dock"
+              aria-pressed={state.legend}
+              onClick={() => dispatch({ type: "legend" })}
+            >
+              <PanelRight size={17} />
+            </button>
+          </>
+        )}
 
         {isCompact && (
           <button

@@ -80,16 +80,11 @@ test("percentage controls show human percentages and nested Escape closes only t
   await expect(opacity).toHaveCount(0);
 });
 
-test("export has legible header states and keyboard-navigable format tabs", async ({
+test("restored toolbar keeps keyboard-navigable export format tabs", async ({
   page,
 }) => {
   await load(page);
   const trigger = page.getByRole("button", { name: "Export", exact: true });
-  await expect(trigger).toHaveCSS("color", "rgb(28, 59, 45)");
-  await trigger.hover();
-  await expect(trigger).toHaveCSS("color", "rgb(28, 59, 45)");
-  await trigger.focus();
-  await expect(trigger).toHaveCSS("color", "rgb(28, 59, 45)");
   await trigger.click();
   const image = page.getByRole("tab", { name: "PNG Image", exact: true });
   await image.focus();
@@ -151,6 +146,7 @@ test("mobile starts with chart exposed and tools stay in one scrollable row", as
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await load(page);
+  await page.getByLabel("Close legend", { exact: true }).click();
   await expect(
     page.getByRole("complementary", { name: "Population legend" }),
   ).toHaveCount(0);

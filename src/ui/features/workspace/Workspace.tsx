@@ -1,4 +1,4 @@
-import { Download, PanelRight, Settings2, Table2, X } from "lucide-react";
+import { PanelRight, X } from "lucide-react";
 import React, { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { Dataset } from "../../../core/models/dataset";
 import {
@@ -47,18 +47,10 @@ export function Workspace({
     if (archive) {
       return restoreArchiveState(archive);
     }
-    return {
-      ...initialView(dataset),
-      legend:
-        typeof window !== "undefined"
-          ? window.innerWidth > 640 &&
-            (window.innerWidth > 1024 || window.innerHeight > 480)
-          : true,
-    };
+    return initialView(dataset);
   });
 
-  const { isMobile, isTablet, isCompact, height } = useResponsive();
-  const scrollingControls = isMobile || (isCompact && height <= 480);
+  const { isMobile, isTablet, isCompact } = useResponsive();
 
   // Dialog and inspector ephemeral state
   const [activeSettingsTab, setActiveSettingsTab] =
@@ -156,7 +148,6 @@ export function Workspace({
     <div
       className={`workspace-root ${maximizedPlot ? "maximized-plot" : ""}`}
       data-legend-position={state.settings.legendPosition}
-      data-scrolling-controls={scrollingControls}
     >
       {/* 1. Header */}
       {!maximizedPlot && (
@@ -165,34 +156,6 @@ export function Workspace({
           onUpload={onUpload}
           onHelp={() => setHelpOpen(true)}
           onClear={onClear}
-          actions={
-            <>
-              <button
-                className="button"
-                aria-label="Sample table"
-                onClick={() => setTableOpen(true)}
-              >
-                <Table2 size={16} />
-                <span>Samples</span>
-              </button>
-              <button
-                className="button"
-                aria-label="Plot settings"
-                onClick={() => handleOpenSettings()}
-              >
-                <Settings2 size={16} />
-                <span>Settings</span>
-              </button>
-              <button
-                className="button primary-export"
-                aria-label="Export"
-                onClick={() => setExportOpen(true)}
-              >
-                <Download size={16} />
-                <span>Export</span>
-              </button>
-            </>
-          }
           axes={[state.x, state.y]}
           state={state}
         />
@@ -228,31 +191,52 @@ export function Workspace({
         </div>
       )}
 
-      <AxisControls
-        dataset={effectiveDataset}
-        state={state}
-        dispatch={dispatch}
-        isMobile={isMobile}
-        isCompact={isCompact}
-        maximizedPlot={maximizedPlot}
-        onToggleMaximize={() => setMaximizedPlot(!maximizedPlot)}
-      />
-      <PlotToolbar
-        dataset={effectiveDataset}
-        state={state}
-        dispatch={dispatch}
-        plotRef={plotRef}
-        onExport={() => setExportOpen(true)}
-        onTable={() => setTableOpen(true)}
-        fullscreen={fullscreen}
-        onFullscreen={toggleFullscreen}
-        onSettings={handleOpenSettings}
-        scrollingControls={scrollingControls}
-      />
+      <div className="workspace-toolbar">
+        <PlotToolbar
+          activeSamplesCount={activeSamples.length}
+          totalSamplesCount={dataset.samples.length}
+          excludedCount={state.excludedSamples.size}
+          dataset={effectiveDataset}
+          state={state}
+          dispatch={dispatch}
+          plotRef={plotRef}
+          onExport={() => setExportOpen(true)}
+          onTable={() => setTableOpen(true)}
+          fullscreen={fullscreen}
+          onFullscreen={toggleFullscreen}
+          onSettings={handleOpenSettings}
+        />
+        <div className="axis-toolbar-divider" aria-hidden="true" />
+        {!maximizedPlot && (
+          <AxisControls
+            dataset={effectiveDataset}
+            state={state}
+            dispatch={dispatch}
+            isMobile={isMobile}
+            isCompact={isCompact}
+            maximizedPlot={maximizedPlot}
+            onToggleMaximize={() => setMaximizedPlot(!maximizedPlot)}
+          />
+        )}
+      </div>
 
       {/* 5. Main Plot & Legend Area */}
       <div className={`plot-workspace ${state.legend ? "with-legend" : ""}`}>
         <main className="chart-surface">
+          {maximizedPlot && isCompact && (
+            <div className="mobile-floating-controls">
+              <AxisControls
+                dataset={effectiveDataset}
+                state={state}
+                dispatch={dispatch}
+                isMobile={isMobile}
+                isCompact={isCompact}
+                maximizedPlot={true}
+                floating={true}
+                onToggleMaximize={() => setMaximizedPlot(false)}
+              />
+            </div>
+          )}
           <div
             className={`plot-container ${state.settings.aspectRatio !== "full" ? "has-ratio" : ""} ${state.settings.aspectRatio === "1:1" ? "is-square" : ""}`}
             style={

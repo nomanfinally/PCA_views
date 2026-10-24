@@ -104,7 +104,7 @@ test("compact shape palettes support group, individual, hollow and inherited sha
   const grid = sample.locator(".marker-shape-grid");
   await expect(grid).toHaveCSS(
     "grid-template-columns",
-    "28px 28px 28px 28px 28px 28px 28px",
+    "20px 20px 20px 20px 20px 20px 20px",
   );
   const box = await grid.boundingBox();
   expect(box!.x).toBeGreaterThanOrEqual(0);

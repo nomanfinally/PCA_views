@@ -1,5 +1,6 @@
 @import "./ui/tokens/tokens.css";
 @import "./ui/styles/foundations.css";
-@import "./ui/styles/editors.css";
 @import "./ui/styles/workspace.css";
+@import "./ui/styles/editors.css";
 @import "./ui/styles/surfaces.css";
+@import "./ui/styles/compatibility.css";

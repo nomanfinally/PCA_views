@@ -73,7 +73,9 @@ PNG capture uses the requested resolution. Composition checks scaled canvas dime
 
 ## Interface and accessibility
 
-The chart is the main working surface. Desktop populations occupy a collapsible margin outside the plot. Mobile populations open on demand as a focus-managed sheet. Desktop tools have names and an advanced appearance disclosure. Phones and short landscape viewports use single-row horizontal scroll strips for header actions, axes/search, and all plot tools. The toolbar reuses the same handlers and renders appearance tools inline in this layout, preserving 44px touch targets and chart height. Samples, settings, and export remain header actions.
+The presentation matches the owner's chosen reference commit `4dfd9238410fc9f22af9c5e05290460b1eba79e4`: a compact black/grey header, integrated toolbar with directly visible tools, full-width chart, and floating legend. Mobile keeps the reference's compact two-row controls with horizontal tool scrolling. Settings, table, and export actions live in the toolbar. The modular feature folders, extracted axis component and settings sections remain; restoring presentation does not reintroduce the superseded source trees.
+
+The restored stylesheet is partitioned in its original cascade order across foundations, workspace, editors, and responsive/surface rules. `ui/styles/compatibility.css` bridges the corrected primitives and overlay behavior to that presentation.
 
 Modal dialogs render into a body portal, make the workspace inert, trap keyboard focus, and restore the invoking control. Nested palettes and inspectors own Escape according to their visual layer. Population inspectors are non-modal because the plot remains relevant to their task. Toolbar navigation supports arrow keys and Home/End. Reduced-motion styles, focus indicators, responsive layouts, and figure color encodings are separate concerns.
 
