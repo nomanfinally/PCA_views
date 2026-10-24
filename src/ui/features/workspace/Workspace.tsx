@@ -49,11 +49,16 @@ export function Workspace({
     }
     return {
       ...initialView(dataset),
-      legend: typeof window !== "undefined" ? window.innerWidth > 640 : true,
+      legend:
+        typeof window !== "undefined"
+          ? window.innerWidth > 640 &&
+            (window.innerWidth > 1024 || window.innerHeight > 480)
+          : true,
     };
   });
 
-  const { isMobile, isTablet, isCompact } = useResponsive();
+  const { isMobile, isTablet, isCompact, height } = useResponsive();
+  const scrollingControls = isMobile || (isCompact && height <= 480);
 
   // Dialog and inspector ephemeral state
   const [activeSettingsTab, setActiveSettingsTab] =
@@ -151,6 +156,7 @@ export function Workspace({
     <div
       className={`workspace-root ${maximizedPlot ? "maximized-plot" : ""}`}
       data-legend-position={state.settings.legendPosition}
+      data-scrolling-controls={scrollingControls}
     >
       {/* 1. Header */}
       {!maximizedPlot && (
@@ -241,6 +247,7 @@ export function Workspace({
         fullscreen={fullscreen}
         onFullscreen={toggleFullscreen}
         onSettings={handleOpenSettings}
+        scrollingControls={scrollingControls}
       />
 
       {/* 5. Main Plot & Legend Area */}

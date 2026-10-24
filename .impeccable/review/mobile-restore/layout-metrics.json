@@ -1,0 +1,166 @@
+[
+  {
+    "name": "mobile",
+    "scrolling": "true",
+    "chart": {
+      "x": 0,
+      "y": 146,
+      "width": 390,
+      "height": 674,
+      "top": 146,
+      "right": 390,
+      "bottom": 820,
+      "left": 0
+    },
+    "strips": [
+      {
+        "name": "topbar",
+        "height": 48,
+        "width": 390,
+        "scroll": 448
+      },
+      {
+        "name": "workspace-controls",
+        "height": 48,
+        "width": 390,
+        "scroll": 554
+      },
+      {
+        "name": "plot-toolbar chart-tools",
+        "height": 48,
+        "width": 390,
+        "scroll": 1223
+      },
+      {
+        "name": "statusbar",
+        "height": 23,
+        "width": 390,
+        "scroll": 390
+      }
+    ],
+    "document": 390
+  },
+  {
+    "name": "small",
+    "scrolling": "true",
+    "chart": {
+      "x": 0,
+      "y": 146,
+      "width": 320,
+      "height": 398,
+      "top": 146,
+      "right": 320,
+      "bottom": 544,
+      "left": 0
+    },
+    "strips": [
+      {
+        "name": "topbar",
+        "height": 48,
+        "width": 320,
+        "scroll": 448
+      },
+      {
+        "name": "workspace-controls",
+        "height": 48,
+        "width": 320,
+        "scroll": 554
+      },
+      {
+        "name": "plot-toolbar chart-tools",
+        "height": 48,
+        "width": 320,
+        "scroll": 1223
+      },
+      {
+        "name": "statusbar",
+        "height": 23,
+        "width": 320,
+        "scroll": 320
+      }
+    ],
+    "document": 320
+  },
+  {
+    "name": "landscape",
+    "scrolling": "true",
+    "chart": {
+      "x": 0,
+      "y": 146,
+      "width": 844,
+      "height": 220,
+      "top": 146,
+      "right": 844,
+      "bottom": 366,
+      "left": 0
+    },
+    "strips": [
+      {
+        "name": "topbar",
+        "height": 48,
+        "width": 844,
+        "scroll": 844
+      },
+      {
+        "name": "workspace-controls",
+        "height": 48,
+        "width": 844,
+        "scroll": 844
+      },
+      {
+        "name": "plot-toolbar chart-tools",
+        "height": 48,
+        "width": 844,
+        "scroll": 1223
+      },
+      {
+        "name": "statusbar",
+        "height": 23,
+        "width": 844,
+        "scroll": 844
+      }
+    ],
+    "document": 844
+  },
+  {
+    "name": "desktop",
+    "scrolling": "false",
+    "chart": {
+      "x": 0,
+      "y": 170,
+      "width": 1160,
+      "height": 796,
+      "top": 170,
+      "right": 1160,
+      "bottom": 966,
+      "left": 0
+    },
+    "strips": [
+      {
+        "name": "topbar",
+        "height": 60,
+        "width": 1440,
+        "scroll": 1440
+      },
+      {
+        "name": "workspace-controls",
+        "height": 58,
+        "width": 1440,
+        "scroll": 1440
+      },
+      {
+        "name": "plot-toolbar chart-tools",
+        "height": 50,
+        "width": 1440,
+        "scroll": 1440
+      },
+      {
+        "name": "statusbar",
+        "height": 33,
+        "width": 1440,
+        "scroll": 1440
+      }
+    ],
+    "document": 1440
+  }
+]

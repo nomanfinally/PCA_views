@@ -66,3 +66,13 @@ Design tokens and component guidance are persisted in `DESIGN.md` and `.impeccab
 - The sample table and individual inspector can be decomposed further when new features justify it. The workspace still owns session orchestration; the current pass reduces distinct concerns without introducing a new state framework.
 - The large local Plotly bundles still produce build chunk-size notices. They support offline archives and remain lazy in hosted use.
 - Chromium automation and screenshot review do not establish universal browser/GPU compatibility or WCAG certification. Physical mobile and screen-reader testing remain valuable.
+
+## Mobile correction — restore compact scrolling controls
+
+The owner reported that the redesigned mobile controls consumed too much chart space and explicitly requested the earlier scrolling arrangement. Replaced wrapped controls with a compact 48px dataset header, 49px axes/search row, 49px tool row, and 24px status row. These are horizontal scroll containers rather than extra rows; every plot appearance action remains inline and reachable. Tools keep 44×44px targets, names for assistive technology, pressed states, and arrow/Home/End navigation. The same compact arrangement applies at widths up to 640px, and at widths up to 1024px when height is at most 480px.
+
+New phone and short-landscape sessions start with populations closed; archive visibility and subsequent user choices remain preserved. The desktop toolbar retains its Appearance disclosure. Numeric/data handling, exports, palette/dialog fixes, and the modular architecture remain intact.
+
+At 390×844 the chart is now 674px tall instead of 564px: 110px more plotting space, about 80% of viewport height. At 320×568 it is 398px; at 844×390 it spans the full width and is 220px tall. The document itself does not scroll horizontally. Evidence is in `.impeccable/review/mobile-restore/`.
+
+Added browser coverage for chart height, every toolbar target's size and row position, on-demand populations, keyboard scrolling, scrolled search/settings access, desktop resize, and synthesized Chromium touch swipes that reveal tools without activating them. Targeted checks: eight passed. Final verification: **146 unit tests passed, 41 of 41 Chromium browser scenarios passed, and the production build passed**. The browser run includes existing offline SVG/WebGL archive and PNG assertions. Gestures were synthesized through Chromium touch input; no physical phone or Safari validation is claimed. Focused review and design documentation are recorded alongside the captures.

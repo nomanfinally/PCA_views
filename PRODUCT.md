@@ -98,3 +98,7 @@ No customer testimonials, institutional endorsements, clinical use claims, or pu
 - A supported browser/device matrix and validated dataset-size/performance targets remain to be defined.
 - Undo history, optional session persistence, new input formats, and additional analysis methods are future decisions, not current product promises.
 - No marketing, pricing, licensing, or commercial positioning changes were requested in this initialization.
+
+## Mobile workspace preference
+
+The owner prefers compact, horizontally scrollable controls on mobile, with most of the screen reserved for the chart. Keep every tool reachable by swiping, preserve 44px touch targets, and avoid wrapping controls into extra rows. Apply the same compact arrangement to short landscape viewports. Preserve the newer numeric, export, accessibility, and architecture improvements.

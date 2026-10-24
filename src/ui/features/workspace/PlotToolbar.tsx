@@ -54,6 +54,7 @@ export interface PlotToolbarProps {
   activeSamplesCount?: number;
   totalSamplesCount?: number;
   excludedCount?: number;
+  scrollingControls?: boolean;
 }
 
 export function PlotToolbar({
@@ -64,6 +65,7 @@ export function PlotToolbar({
   fullscreen,
   onFullscreen,
   onSettings,
+  scrollingControls = false,
 }: PlotToolbarProps) {
   const names = dataset.populations.map((p) => p.name);
   const s = state.settings;
@@ -137,9 +139,11 @@ export function PlotToolbar({
     return count;
   }, [state.points]);
   const canClearMarks = markedCount > 0 || state.selected.size > 0;
+  const AppearanceContainer = scrollingControls ? "div" : "details";
 
   const toolsRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
+    if (scrollingControls) return;
     const close = (event: PointerEvent) => {
       const details = toolsRef.current?.querySelector("details");
       if (details && !details.contains(event.target as Node))
@@ -147,7 +151,7 @@ export function PlotToolbar({
     };
     document.addEventListener("pointerdown", close);
     return () => document.removeEventListener("pointerdown", close);
-  }, []);
+  }, [scrollingControls]);
   const toolKeys = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const controls = Array.from(
       toolsRef.current?.querySelectorAll<HTMLElement>(
@@ -183,6 +187,11 @@ export function PlotToolbar({
       className="plot-toolbar chart-tools"
       role="toolbar"
       aria-label="Plot tools"
+      aria-description={
+        scrollingControls
+          ? "Swipe horizontally for more tools, or use the Left and Right arrow keys."
+          : undefined
+      }
       ref={toolsRef}
       onKeyDown={toolKeys}
     >
@@ -266,10 +275,13 @@ export function PlotToolbar({
       >
         <CircleX size={16} />
       </button>
-      <details
+      <AppearanceContainer
         className="advanced-tools"
         onKeyDown={(event) => {
-          if (event.key === "Escape") {
+          if (
+            event.key === "Escape" &&
+            event.currentTarget instanceof HTMLDetailsElement
+          ) {
             event.preventDefault();
             event.stopPropagation();
             event.currentTarget.open = false;
@@ -277,10 +289,12 @@ export function PlotToolbar({
           }
         }}
       >
-        <summary className="button">
-          <Settings2 size={16} />
-          <span>Appearance</span>
-        </summary>
+        {!scrollingControls && (
+          <summary className="button">
+            <Settings2 size={16} />
+            <span>Appearance</span>
+          </summary>
+        )}
         <div
           className="advanced-tool-panel"
           role="group"
@@ -527,25 +541,8 @@ export function PlotToolbar({
             <Type size={16} />
             <span>Edit title and subtitle</span>
           </button>
-          <button
-            className="button mobile-control"
-            aria-label="Reset all axis ranges"
-            onClick={() => plotRef.current?.reset()}
-          >
-            <Home size={16} />
-            <span>Reset axis ranges</span>
-          </button>
-          <button
-            className="button mobile-control"
-            aria-label="Clear all marks"
-            disabled={!canClearMarks}
-            onClick={() => dispatch({ type: "clearMarks" })}
-          >
-            <CircleX size={16} />
-            <span>Clear marks</span>
-          </button>
         </div>
-      </details>
+      </AppearanceContainer>
       <button
         className="icon-button fullscreen-control"
         aria-label={fullscreen ? "Exit fullscreen" : "Fullscreen"}

@@ -146,7 +146,7 @@ The interface supports deliberate inspection and figure preparation. Scientific 
 
 - White plotting paper and sage supporting surfaces.
 - Forest framing, restrained lime export emphasis, and fine structural rules.
-- Compact named actions with advanced controls disclosed on demand.
+- Compact named actions; desktop Appearance disclosure and horizontal tool scrolling on phones and short landscape screens.
 - Scientific color and row identity preserved across inspection and export.
 
 Authority: the effective cascade in [src/styles.css](src/styles.css), [tokens.css](src/ui/tokens/tokens.css), [foundations.css](src/ui/styles/foundations.css), [editors.css](src/ui/styles/editors.css), [workspace.css](src/ui/styles/workspace.css), and [surfaces.css](src/ui/styles/surfaces.css), plus component inline styles. Import order is tokens → foundations → editors → workspace → surfaces. Later styles and selector specificity matter: the original gray token declarations alone do not describe the shipped world. Product constraints come from [PRODUCT.md](PRODUCT.md); the workspace composition remains in its [surface brief](.impeccable/surfaces/src-ui-features-workspace-workspace-tsx.md).
@@ -191,7 +191,7 @@ Legacy editor rules still produce some smaller helper text and gray labels, incl
 
 The operating shell fills the dynamic viewport (100dvh), uses a vertical flex structure, and contains overflow within chart, docks, tables, and dialogs. The chart flexes into remaining space with zero minimum flex dimensions; it is not placed inside a decorative card. Optional chart aspect ratios fit within the chart container rather than forcing page overflow.
 
-The desktop workspace has a header (minimum 60px; padding 10px 20px), axes/search row (10px 20px), toolbar (7px 20px), flexible chart, and status row (minimum 34px; 7px 20px). The dock is 280px wide by default; left/right positions use an outside margin, and top/bottom positions use a full-width strip capped at 200px. The brief's planned 56px header resolves to 60px on desktop; 56px is implemented on mobile.
+The desktop workspace has a header (minimum 60px; padding 10px 20px), axes/search row (10px 20px), toolbar (7px 20px), flexible chart, and status row (minimum 34px; 7px 20px). The dock is 280px wide by default; left/right positions use an outside margin, and top/bottom positions use a full-width strip capped at 200px. Compact scrolling layouts use a 48px header, 49px axes/search and toolbar strips, and a 24px status row.
 
 Use the recorded spacing scale for repeated gaps and padding. Compact controls also use 3px, 5px, 6px, 7px, 9px, and 10px optical adjustments already present in source; this is a practical rhythm rather than a strict universal grid.
 
@@ -202,8 +202,13 @@ Responsive behavior is defined by both [breakpoints.ts](src/ui/tokens/breakpoint
 | At or below 1100px | Hide toolbar hint/sample metadata; reduce horizontal header padding to 12px and dock width to 250px.                                                                                                                                                                                                                                                                                                            |
 | At or below 1024px | Offer compact maximize behavior; hide status hint; reduce empty-state spacing. Hook tablet range is 641–1024px; desktop begins at 1025px.                                                                                                                                                                                                                                                                       |
 | At or below 768px  | Export dialog stacks preview and options, scrolls format tabs, and wraps footer controls.                                                                                                                                                                                                                                                                                                                       |
-| At or below 640px  | Mobile category; header minimum 56px, icon-first actions (36px wide, 38px high), axes wrap above full-width search, toolbar wraps, and advanced controls use a viewport-bounded panel. Settings tabs become a scrolling horizontal rail. The population dock becomes a fixed sheet 8px from the sides, bottom 42px, maximum 60dvh, with 44px population rows. Fresh mobile sessions start with the dock closed. |
+| At or below 640px  | Mobile category; header, axes/search, and toolbar stay on single horizontally scrolling rows, with 44px action targets and all advanced tools inline. Settings tabs remain a scrolling horizontal rail. The population dock becomes a fixed sheet 8px from the sides, bottom 42px, maximum 60dvh, with 44px population rows. Fresh mobile sessions start with the dock closed. |
+| At or below 1024px wide and 480px high | Short landscape screens use the same compact scrolling controls. Fresh sessions start with the population dock closed; restored archive dock choices remain authoritative. |
 | At or below 540px  | Retained settings rules further compact controls and rail button padding; inspect alongside the later 640px horizontal-rail override rather than treating this as a separate layout system.                                                                                                                                                                                                                     |
+
+**The Chart Space Rule.** On phones and short landscape screens, preserve chart height with native horizontal scrolling for header actions, axes/search, and every plot tool. Keep these rows unwrapped and advanced tools inline, with 44px action targets and accessible names.
+
+With the population dock closed, the verified chart occupies the full viewport width and measures 674px high at 390×844, 398px at 320×568, and 220px at 844×390. These are observed layout checks, not fixed chart heights. See [mobile layout measurements](.impeccable/review/mobile-restore/layout-metrics.json).
 
 The sample table remains horizontally scrollable (mobile minimum table width 620px). At mobile sizes the inspector uses `min(300px, calc(100vw - 16px))`, left 8px, bottom 40px, and bounded height. The empty state changes from two columns (maximum 1180px, 72px gap) to one column at 640px; its page padding decreases from 56px 40px to 28px 20px. See [workspace.css](src/ui/styles/workspace.css) and [surfaces.css](src/ui/styles/surfaces.css).
 
@@ -212,7 +217,7 @@ The sample table remains horizontally scrollable (mobile minimum table width 620
 Structural surfaces are flat and separated by tone and a single fine rule. Shadows identify floating tools, sample inspection, selection actions, and modal layers; they do not decorate the chart or population rows.
 
 - Floating editor and inspector shadow: `0 14px 32px #193c282b`.
-- Advanced tools: `0 12px 28px #173b3024`; mobile dock: `0 12px 32px #173b3033`.
+- Desktop Appearance panel: `0 12px 28px #173b3024`; mobile dock: `0 12px 32px #173b3033`.
 - Floating selection actions: `0 8px 20px #173b3024`.
 - Modal: `var(--shadow-modal)`, currently `0 24px 48px -12px rgba(0, 0, 0, 0.25)`.
 - Color palette: `0 4px 20px rgba(0, 0, 0, 0.15)`.
@@ -231,9 +236,9 @@ Controls use small softened corners: ordinary buttons (6px), fields and rows (5p
 
 ### Buttons and tools
 
-Ordinary native buttons have minimum height 36px and padding 7px 11px. Icon buttons are 36px square. Primary/Done declarations retain a compact nominal height (29px), but the inherited 36px minimum remains effective; upload primary increases to 42px and mobile header/tool controls to 38px. Primary is charcoal at rest, slate on hover, deep charcoal when active; the header Export variant is lime with dark lettering. General disabled controls use opacity 0.48; the reusable Button primitive uses 0.45 and disables pointer events. The reusable `.btn-primary`/Done family still uses important legacy dark tokens; do not assume its default is the native primary's charcoal. See [Button.tsx](src/ui/primitives/Button.tsx), tokens, and editor styles.
+Ordinary native buttons have minimum height 36px and padding 7px 11px. Icon buttons are 36px square. Primary/Done declarations retain a compact nominal height (29px), but the inherited 36px minimum remains effective; upload primary increases to 42px and compact scrolling header/tool controls to 44px. Primary is charcoal at rest, slate on hover, deep charcoal when active; the header Export variant is lime with dark lettering. General disabled controls use opacity 0.48; the reusable Button primitive uses 0.45 and disables pointer events. The reusable `.btn-primary`/Done family still uses important legacy dark tokens; do not assume its default is the native primary's charcoal. See [Button.tsx](src/ui/primitives/Button.tsx), tokens, and editor styles.
 
-General focus is a 2px forest outline offset 3px. The reusable Button primitive uses a 2px offset. Active plot tools use a sage fill, dark green text, and border, plus `aria-pressed`. Native `<details>` exposes the named Appearance controls; on mobile advanced actions remain named inside the panel. Do not replace those accessible names with unlabeled glyphs.
+General focus is a 2px forest outline offset 3px. The reusable Button primitive uses a 2px offset. Active plot tools use a sage fill, dark green text, and border, plus `aria-pressed`. Native `<details>` exposes the named Appearance controls on desktop. Compact scrolling layouts show every advanced action inline in the toolbar; icon-first controls retain accessible names and titles.
 
 ### Fields
 

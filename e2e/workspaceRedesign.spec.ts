@@ -146,7 +146,7 @@ test("editing a row preserves the current page and modal keyboard ownership", as
   await expect(trigger).toBeFocused();
 });
 
-test("mobile starts with chart exposed and primary tools fit without horizontal scrolling", async ({
+test("mobile starts with chart exposed and tools stay in one scrollable row", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -157,7 +157,8 @@ test("mobile starts with chart exposed and primary tools fit without horizontal 
   const tools = await page
     .locator(".plot-toolbar")
     .evaluate((el) => ({ width: el.clientWidth, scroll: el.scrollWidth }));
-  expect(tools.scroll).toBeLessThanOrEqual(tools.width + 1);
+  expect(tools.scroll).toBeGreaterThan(tools.width);
+  await expect(page.locator(".plot-toolbar")).toHaveCSS("flex-wrap", "nowrap");
   await page
     .getByRole("button", { name: "Toggle legend", exact: true })
     .click();

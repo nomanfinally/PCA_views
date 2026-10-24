@@ -436,7 +436,7 @@
       {
         "name": "advanced-tools",
         "value": "0 12px 28px #173b3024",
-        "purpose": "Appearance controls panel."
+        "purpose": "Desktop Appearance controls panel; compact scrolling layouts keep these tools inline."
       },
       {
         "name": "mobile-dock",
@@ -514,6 +514,11 @@
       {
         "name": "compact-header-max",
         "value": "1100px"
+      },
+      {
+        "name": "workspace-scrolling-controls",
+        "value": "(max-width: 640px), (max-width: 1024px) and (max-height: 480px)",
+        "purpose": "Unwrapped native horizontal scrolling for header, axes/search, and all plot tools; 48px header, 49px control strips, 24px status row, and 44px action targets. Fresh sessions start with the population dock closed; archive choices are preserved."
       }
     ]
   },
@@ -605,7 +610,7 @@
     "keyCharacteristics": [
       "White plotting paper and sage supporting surfaces.",
       "Forest framing, restrained lime export emphasis, and fine structural rules.",
-      "Compact named actions with advanced controls disclosed on demand.",
+      "Compact named actions; desktop Appearance disclosure and horizontal tool scrolling on phones and short landscape screens.",
       "Scientific color and row identity preserved across inspection and export."
     ],
     "rules": [
@@ -618,6 +623,11 @@
         "name": "The Numeric Alignment Rule",
         "body": "Use tabular figures for aligned measurements and counts, preserve meaningful coordinate precision, and keep identifiers readable without changing their underlying values.",
         "section": "typography"
+      },
+      {
+        "name": "The Chart Space Rule",
+        "body": "On phones and short landscape screens, preserve chart height with native horizontal scrolling for header actions, axes/search, and every plot tool. Keep these rows unwrapped and advanced tools inline, with 44px action targets and accessible names.",
+        "section": "layout"
       },
       {
         "name": "The Floating Layer Rule",

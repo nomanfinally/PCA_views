@@ -73,7 +73,7 @@ PNG capture uses the requested resolution. Composition checks scaled canvas dime
 
 ## Interface and accessibility
 
-The chart is the main working surface. Desktop populations occupy a collapsible margin outside the plot. Mobile populations open on demand as a focus-managed sheet. Frequent tools have names; advanced appearance controls live behind a disclosure. Samples, settings, and export remain persistent header actions.
+The chart is the main working surface. Desktop populations occupy a collapsible margin outside the plot. Mobile populations open on demand as a focus-managed sheet. Desktop tools have names and an advanced appearance disclosure. Phones and short landscape viewports use single-row horizontal scroll strips for header actions, axes/search, and all plot tools. The toolbar reuses the same handlers and renders appearance tools inline in this layout, preserving 44px touch targets and chart height. Samples, settings, and export remain header actions.
 
 Modal dialogs render into a body portal, make the workspace inert, trap keyboard focus, and restore the invoking control. Nested palettes and inspectors own Escape according to their visual layer. Population inspectors are non-modal because the plot remains relevant to their task. Toolbar navigation supports arrow keys and Home/End. Reduced-motion styles, focus indicators, responsive layouts, and figure color encodings are separate concerns.
 

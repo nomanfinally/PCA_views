@@ -1,0 +1,19 @@
+{
+  "date": "2026-10-24",
+  "unit": {
+    "passed": 146,
+    "files": 23
+  },
+  "browser": {
+    "passed": 41,
+    "failed": 0,
+    "engine": "Chromium",
+    "touch": "CDP touchStart/move/end, plus Playwright tap in a touch-enabled context",
+    "viewports": ["390x844", "320x568", "844x390", "1440x1000"]
+  },
+  "build": "passed",
+  "diffWhitespace": "passed",
+  "measurements": "layout-metrics.json",
+  "scope": "Compact mobile/short-landscape controls; original chart math, style handlers and export behavior retained",
+  "limitations": ["No physical-device or Safari verification"]
+}
